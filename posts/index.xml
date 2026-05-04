@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on SRA Labs</title>
+    <link>https://labs.sra.io/posts/</link>
+    <description>Recent content in Posts on SRA Labs</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Jan 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Milner ImageDirector Capture</title>
+      <link>https://labs.sra.io/posts/milnerimagedirector/</link>
+      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/milnerimagedirector/</guid>
+      <description>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Milner ImageDirector Capture that can lead to database access, credential access, database credential interception, and decryption of document archives.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58740&lt;/td&gt;
+          &lt;td&gt;Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58741&lt;/td&gt;
+          &lt;td&gt;Insecure Masked Credential Fields Enable Database Credential Access in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58742&lt;/td&gt;
+          &lt;td&gt;Insufficient Configuration Protections Enable Database Credential Interception in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58743&lt;/td&gt;
+          &lt;td&gt;Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58744&lt;/td&gt;
+          &lt;td&gt;Hard-Coded Default Credentials Enable Document Archive Decryption in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2025-58740-hardcoded-encryption-key-enables-database-credential-access-in-milner-imagedirector&#34;&gt;CVE-2025-58740: Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential exposure due to a hardcoded encryption key. The application stores a static cryptographic key within the C2SGlobalSettings.dll executable that encrypts database credentials. SRA identified this vulnerability by reverse engineering the Password function within the DLL, which revealed the hardcoded key used for credential encryption. An attacker can extract this key through static analysis of the executable and subsequently decrypt database credentials stored by the application at rest&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Milner ImageDirector Capture that can lead to database access, credential access, database credential interception, and decryption of document archives.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58740&lt;/td&gt;
+          &lt;td&gt;Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58741&lt;/td&gt;
+          &lt;td&gt;Insecure Masked Credential Fields Enable Database Credential Access in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58742&lt;/td&gt;
+          &lt;td&gt;Insufficient Configuration Protections Enable Database Credential Interception in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58743&lt;/td&gt;
+          &lt;td&gt;Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58744&lt;/td&gt;
+          &lt;td&gt;Hard-Coded Default Credentials Enable Document Archive Decryption in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2025-58740-hardcoded-encryption-key-enables-database-credential-access-in-milner-imagedirector&#34;&gt;CVE-2025-58740: Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential exposure due to a hardcoded encryption key. The application stores a static cryptographic key within the C2SGlobalSettings.dll executable that encrypts database credentials. SRA identified this vulnerability by reverse engineering the Password function within the DLL, which revealed the hardcoded key used for credential encryption. An attacker can extract this key through static analysis of the executable and subsequently decrypt database credentials stored by the application at rest&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.5 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h2 id=&#34;cve-2025-58741-insecure-masked-credential-fields-enable-database-credential-access-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58741: Insecure Masked Credential Fields Enable Database Credential Access in Milner ImageDirector Capture&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential disclosure through memory analysis. The Connection Settings dialog stores database credentials in plaintext within application memory, including masked password fields that appear obfuscated in the user interface. SRA identified this vulnerability by opening the Connection Settings dialog and performing memory analysis using BulletsPassView on the running application process. The tool successfully extracted plaintext database usernames and passwords directly from process memory, despite the password field appearing masked with asterisks in the interface. The credentials remain accessible in memory for the duration that the dialog window stays open.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.5 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h2 id=&#34;cve-2025-58742-insufficient-configuration-protections-enable-database-credential-interception-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58742: Insufficient Configuration Protections Enable Database Credential Interception in Milner ImageDirector Capture&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential interception through server redirection attacks. The Connection Settings dialog allows users to modify the database server address without clearing stored credentials, enabling an attacker to redirect authentication attempts to a malicious server. SRA identified this vulnerability by modifying the ‘Server’ field in the Connection Settings dialog to point to an attacker-controlled database server. When the application attempts to authenticate using the stored credentials, it transmits the username and password to the specified server address, allowing the attacker’s server to capture the plaintext authentication data. The application does not validate server certificates or implement additional protections against server redirection attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.5 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h1 id=&#34;cve-2025-58743-insecure-encryption-algorithm-enables-brute-force-of-database-credentials-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58743: Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in Milner ImageDirector Capture&lt;/h1&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential exposure through weak cryptographic implementation. The Password class within C2SConnections.dll uses the deprecated Data Encryption Standard (DES) algorithm to encrypt database credentials stored locally. SRA identified this vulnerability by reverse engineering the Password class and analyzing the cryptographic functions, which revealed the use of 56-bit DES encryption with a static initialization vector. The weak key length and algorithm design make encrypted credentials susceptible to brute-force attacks using modern computational resources.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 7.2 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:H/AT:N/PR:L/UI:N/VC:H/VI:L/VA:H/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h1 id=&#34;cve-2025-58744-hard-coded-default-credentials-enable-document-archive-decryption-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58744: Hard-Coded Default Credentials Enable Document Archive Decryption in Milner ImageDirector Capture&lt;/h1&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to document decryption through hardcoded default credentials. The C2SGlobalSettings.dll contains a static “DelayedTransmissionPassword” that encrypts archived documents stored by the application. SRA identified this vulnerability by reverse engineering the C2SGlobalSettings.dll and locating the hardcoded password string within the compiled binary. The application uses this default password to encrypt document archives when users do not specify a custom delayed transmission password. An attacker can extract this hardcoded credential through static analysis and use it to decrypt any document archives encrypted with the default password, bypassing the intended document protection mechanisms.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 6.9 (Medium)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N&lt;/p&gt;
+&lt;h1 id=&#34;affected-versions-and-models&#34;&gt;Affected Versions and Models&lt;/h1&gt;
+&lt;p&gt;Milner ImageDirector Capture from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/p&gt;
+&lt;h1 id=&#34;mitre-cwe-weakness-enumeration&#34;&gt;MITRE CWE Weakness Enumeration&lt;/h1&gt;
+&lt;p&gt;CVE-2025-58740&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-321: Use of Hard-coded Cryptographic Key&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58741&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-522: Insufficiently Protected Credentials&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58742&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-522: Insufficiently Protected Credentials&lt;/li&gt;
+&lt;li&gt;CWE-923: Improper Restriction of Communication Channel to Intended Endpoints&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58743&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-327: Use of a Broken or Risky Cryptographic Algorithm&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58744&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-1392: Use of Default Credentials&lt;/li&gt;
+&lt;li&gt;CWE-798: Use of Hard-coded Credentials&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;remediation-options&#34;&gt;Remediation Options&lt;/h1&gt;
+&lt;p&gt;Update Milner ImageDirector Capture to 7.6.3.25808 or later.&lt;/p&gt;
+&lt;h1 id=&#34;source&#34;&gt;Source&lt;/h1&gt;
+&lt;p&gt;These vulnerabilities were discovered by Asa Reynolds and Rick Console as part of research performed by Security Risk Advisors.&lt;/p&gt;
+&lt;h1 id=&#34;timeframe&#34;&gt;Timeframe&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;October 15-23, 2025 – SRA attempts to establish contact with Milner to disclose vulnerabilities.&lt;/li&gt;
+&lt;li&gt;November 04, 2025 – Milner acknowledges vulnerabilities and intent to fix.&lt;/li&gt;
+&lt;li&gt;December 31, 2025 – Milner releases ImageDirector Capture 7.6.3.25808.&lt;/li&gt;
+&lt;li&gt;January 20, 2026 – SRA publishes CVEs and advisory.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Quest Coexistence Manager for Notes</title>
+      <link>https://labs.sra.io/posts/questcoexistence/</link>
+      <pubDate>Fri, 19 Dec 2025 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/questcoexistence/</guid>
+      <description>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-12874&lt;/td&gt;
+          &lt;td&gt;HTTP Request Smuggling in Quest Coexistence Manager for Notes&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;p&gt;Quest Coexistence Manager for Notes (3.8.2045) is vulnerable in the Free/Busy Connector to HTTP request smuggling from an unauthenticated remote attacker. The front-end and back-end components rely on inconsistent header parsing, resulting in desynchronized request boundaries. In this case, the front-end server uses the &lt;code&gt;Content-Length&lt;/code&gt; header to determine the end of the request body, forwarding the full request. The back-end server interprets the request using &lt;code&gt;Transfer-Encoding: chunked&lt;/code&gt;, processing only the first chunk (declared as zero-length) and treating the remaining bytes as a new, separate request. The attacker embeds a second, hidden request in the body of the original message. Due to the parsing mismatch, this smuggled request is processed independently by the back-end server.&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-12874&lt;/td&gt;
+          &lt;td&gt;HTTP Request Smuggling in Quest Coexistence Manager for Notes&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;p&gt;Quest Coexistence Manager for Notes (3.8.2045) is vulnerable in the Free/Busy Connector to HTTP request smuggling from an unauthenticated remote attacker. The front-end and back-end components rely on inconsistent header parsing, resulting in desynchronized request boundaries. In this case, the front-end server uses the &lt;code&gt;Content-Length&lt;/code&gt; header to determine the end of the request body, forwarding the full request. The back-end server interprets the request using &lt;code&gt;Transfer-Encoding: chunked&lt;/code&gt;, processing only the first chunk (declared as zero-length) and treating the remaining bytes as a new, separate request. The attacker embeds a second, hidden request in the body of the original message. Due to the parsing mismatch, this smuggled request is processed independently by the back-end server.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 6.3 (Medium).&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/U:Clear&lt;/p&gt;
+&lt;h1 id=&#34;affected-versions-and-models&#34;&gt;Affected Versions and Models&lt;/h1&gt;
+&lt;p&gt;Quest Coexistence Manager for Notes 3.8.2045&lt;/p&gt;
+&lt;h1 id=&#34;mitre-cwe-weakness-enumeration&#34;&gt;MITRE CWE Weakness Enumeration&lt;/h1&gt;
+&lt;p&gt;CWE-444: Inconsistent Interpretation of HTTP Requests&lt;/p&gt;
+&lt;h1 id=&#34;remediation-options&#34;&gt;Remediation Options&lt;/h1&gt;
+&lt;p&gt;Update Quest Coexistence Manager for Notes to latest version.&lt;/p&gt;
+&lt;h1 id=&#34;source&#34;&gt;Source&lt;/h1&gt;
+&lt;p&gt;This vulnerability was discovered by Cam Lischke as part of research performed by Security Risk Advisors.&lt;/p&gt;
+&lt;h1 id=&#34;timeframe&#34;&gt;Timeframe&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;November 3, 2025 – SRA submits vulnerability support case to Quest.&lt;/li&gt;
+&lt;li&gt;November 4 through November 7, 2025 – SRA submits details of vulnerability to Quest.&lt;/li&gt;
+&lt;li&gt;December 9, 2025 – SRA notifies Quest of intent to publicly disclose.&lt;/li&gt;
+&lt;li&gt;December 12, 2025 – Quest acknowledges intent to publicly disclose.&lt;/li&gt;
+&lt;li&gt;December 17, 2025 – Quest notifies SRA of intent to create a knowledge base article for Quest Support Portal&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Brivo Access Control Systems</title>
+      <link>https://labs.sra.io/posts/brivoacs/</link>
+      <pubDate>Mon, 19 Feb 2024 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/brivoacs/</guid>
+      <description>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Brivo Access Control Systems that can lead to the disclosure of sensitive system data and allow degradation or bypass of critical system functions.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6259&lt;/td&gt;
+          &lt;td&gt;Local Access to Sensitive Data&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6260&lt;/td&gt;
+          &lt;td&gt;Web UI OS Command Injection&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2023-6259--local-access-to-sensitive-data&#34;&gt;CVE-2023-6259 – Local Access to Sensitive Data&lt;/h2&gt;
+&lt;p&gt;An attacker with physical access to the ACS100 or ACS300 devices can access sensitive data from device memory that can be used to conduct additional attacks.&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Brivo Access Control Systems that can lead to the disclosure of sensitive system data and allow degradation or bypass of critical system functions.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6259&lt;/td&gt;
+          &lt;td&gt;Local Access to Sensitive Data&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6260&lt;/td&gt;
+          &lt;td&gt;Web UI OS Command Injection&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2023-6259--local-access-to-sensitive-data&#34;&gt;CVE-2023-6259 – Local Access to Sensitive Data&lt;/h2&gt;
+&lt;p&gt;An attacker with physical access to the ACS100 or ACS300 devices can access sensitive data from device memory that can be used to conduct additional attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS severity level of this vulnerability has been calculated to be 7.1 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:3.0/AV:P/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H&lt;/p&gt;
+&lt;h2 id=&#34;cve-2023-6260--web-ui-os-command-injection&#34;&gt;CVE-2023-6260 – Web UI OS Command Injection&lt;/h2&gt;
+&lt;h3 id=&#34;acs300-physical-access&#34;&gt;ACS300 (Physical Access)&lt;/h3&gt;
+&lt;p&gt;An attacker with physical access to ACS300 devices can perform a command injection attack via the web UI and gain access to sensitive data that can be used to conduct additional attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 7.4 (High) for the physical access scenario:&lt;/p&gt;
+&lt;p&gt;CVSS:3.0/AV:P/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H&lt;/p&gt;
+&lt;h3 id=&#34;acs100-adjacent-network-access&#34;&gt;ACS100 (Adjacent Network Access)&lt;/h3&gt;
+&lt;p&gt;An attacker with local network access to ACS100 devices can perform a command injection attack via the web UI and gain access to sensitive data that can be used to conduct additional attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS severity level of this vulnerability has been calculated to be 9.0 (High) for the adjacent network access scenario:&lt;/p&gt;
+&lt;p&gt;CVSS:3.0/AV:A/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H&lt;/p&gt;
+&lt;h1 id=&#34;affected-versions-and-models&#34;&gt;Affected Versions and Models&lt;/h1&gt;
+&lt;p&gt;Affects models ACS100, ACS300. Models ACS6000 and ACSSDC may also be affected.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Affects firmware versions from 5.2.4 but before 6.2.4.3. Versions prior to 5.2.4 may also be affected.&lt;/p&gt;
+&lt;h1 id=&#34;mitre-cwe-weakness-enumeration&#34;&gt;MITRE CWE Weakness Enumeration&lt;/h1&gt;
+&lt;p&gt;CWE-284: Improper Access Control&lt;/p&gt;
+&lt;p&gt;CWE-522: Insufficiently Protected Credentials&lt;/p&gt;
+&lt;p&gt;CWE-77: Improper Neutralization of Special Elements used in a Command (‘Command Injection’)&lt;/p&gt;
+&lt;h1 id=&#34;remediation-options&#34;&gt;Remediation Options&lt;/h1&gt;
+&lt;p&gt;Update affected devices to firmware version 6.2.4.3. Contact Brivo or your reseller for more information.&lt;/p&gt;
+&lt;h1 id=&#34;source&#34;&gt;Source&lt;/h1&gt;
+&lt;p&gt;These vulnerabilities were discovered by Alexandra Grochal and Gabe Siftar, as part of a research initiative for Security Risk Advisors’ internal hardware penetration testing team.&lt;/p&gt;
+&lt;h1 id=&#34;timeframe&#34;&gt;Timeframe&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;October 9, 2023 – SRA attempts initial contact with Brivo.&lt;/li&gt;
+&lt;li&gt;November 9, 2023 – SRA shares vulnerability details with Brivo’s product security team.&lt;/li&gt;
+&lt;li&gt;November 29, 2023 – SRA reserves CVE IDs.&lt;/li&gt;
+&lt;li&gt;December 15, 2023 – Brivo releases fix to production.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>

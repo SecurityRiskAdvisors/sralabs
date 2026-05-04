@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Quest Coexistence Manager for Notes :: SRA Labs</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests." />
+<meta name="keywords" content="advisory, CVE-2025-12874" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/questcoexistence/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Quest Coexistence Manager for Notes">
+<meta property="og:description" content="SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests." />
+<meta property="og:url" content="https://labs.sra.io/posts/questcoexistence/" />
+<meta property="og:site_name" content="SRA Labs" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2025-12-19 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/questcoexistence/">Quest Coexistence Manager for Notes</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2025-12-19</time><span class="post-author">Security Risk Advisors</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/advisory/">advisory</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2025-12874/">CVE-2025-12874</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests.</p>
+<h1 id="cve-identifiers">CVE Identifiers<a href="#cve-identifiers" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<table>
+  <thead>
+      <tr>
+          <th>CVE ID</th>
+          <th>CVE Name</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>CVE-2025-12874</td>
+          <td>HTTP Request Smuggling in Quest Coexistence Manager for Notes</td>
+      </tr>
+  </tbody>
+</table>
+<h1 id="vulnerability-details--description">Vulnerability Details / Description<a href="#vulnerability-details--description" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Quest Coexistence Manager for Notes (3.8.2045) is vulnerable in the Free/Busy Connector to HTTP request smuggling from an unauthenticated remote attacker. The front-end and back-end components rely on inconsistent header parsing, resulting in desynchronized request boundaries. In this case, the front-end server uses the <code>Content-Length</code> header to determine the end of the request body, forwarding the full request. The back-end server interprets the request using <code>Transfer-Encoding: chunked</code>, processing only the first chunk (declared as zero-length) and treating the remaining bytes as a new, separate request. The attacker embeds a second, hidden request in the body of the original message. Due to the parsing mismatch, this smuggled request is processed independently by the back-end server.</p>
+<p><strong>Severity</strong></p>
+<p>The CVSS base score of this vulnerability has been calculated to be 6.3 (Medium).</p>
+<p>CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/U:Clear</p>
+<h1 id="affected-versions-and-models">Affected Versions and Models<a href="#affected-versions-and-models" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Quest Coexistence Manager for Notes 3.8.2045</p>
+<h1 id="mitre-cwe-weakness-enumeration">MITRE CWE Weakness Enumeration<a href="#mitre-cwe-weakness-enumeration" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>CWE-444: Inconsistent Interpretation of HTTP Requests</p>
+<h1 id="remediation-options">Remediation Options<a href="#remediation-options" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Update Quest Coexistence Manager for Notes to latest version.</p>
+<h1 id="source">Source<a href="#source" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>This vulnerability was discovered by Cam Lischke as part of research performed by Security Risk Advisors.</p>
+<h1 id="timeframe">Timeframe<a href="#timeframe" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<ul>
+<li>November 3, 2025 – SRA submits vulnerability support case to Quest.</li>
+<li>November 4 through November 7, 2025 – SRA submits details of vulnerability to Quest.</li>
+<li>December 9, 2025 – SRA notifies Quest of intent to publicly disclose.</li>
+<li>December 12, 2025 – Quest acknowledges intent to publicly disclose.</li>
+<li>December 17, 2025 – Quest notifies SRA of intent to create a knowledge base article for Quest Support Portal</li>
+</ul>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

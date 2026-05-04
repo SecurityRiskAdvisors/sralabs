@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Brivo Access Control Systems :: SRA Labs</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SRA has identified multiple vulnerabilities in Brivo Access Control Systems that can lead to the disclosure of sensitive system data and allow degradation or bypass of critical system functions." />
+<meta name="keywords" content="advisory, CVE-2023-6259, CVE-2023-6260" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/brivoacs/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Brivo Access Control Systems">
+<meta property="og:description" content="SRA has identified multiple vulnerabilities in Brivo Access Control Systems that can lead to the disclosure of sensitive system data and allow degradation or bypass of critical system functions." />
+<meta property="og:url" content="https://labs.sra.io/posts/brivoacs/" />
+<meta property="og:site_name" content="SRA Labs" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2024-02-19 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/brivoacs/">Brivo Access Control Systems</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2024-02-19</time><span class="post-author">Security Risk Advisors</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/advisory/">advisory</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2023-6259/">CVE-2023-6259</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2023-6260/">CVE-2023-6260</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>SRA has identified multiple vulnerabilities in Brivo Access Control Systems that can lead to the disclosure of sensitive system data and allow degradation or bypass of critical system functions.</p>
+<h1 id="cve-identifiers">CVE Identifiers<a href="#cve-identifiers" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<table>
+  <thead>
+      <tr>
+          <th>CVE ID</th>
+          <th>CVE Name</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>CVE-2023-6259</td>
+          <td>Local Access to Sensitive Data</td>
+      </tr>
+      <tr>
+          <td>CVE-2023-6260</td>
+          <td>Web UI OS Command Injection</td>
+      </tr>
+  </tbody>
+</table>
+<h1 id="vulnerability-details--description">Vulnerability Details / Description<a href="#vulnerability-details--description" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<h2 id="cve-2023-6259--local-access-to-sensitive-data">CVE-2023-6259 – Local Access to Sensitive Data<a href="#cve-2023-6259--local-access-to-sensitive-data" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>An attacker with physical access to the ACS100 or ACS300 devices can access sensitive data from device memory that can be used to conduct additional attacks.</p>
+<p><strong>Severity</strong></p>
+<p>The CVSS severity level of this vulnerability has been calculated to be 7.1 (High)</p>
+<p>CVSS:3.0/AV:P/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H</p>
+<h2 id="cve-2023-6260--web-ui-os-command-injection">CVE-2023-6260 – Web UI OS Command Injection<a href="#cve-2023-6260--web-ui-os-command-injection" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="acs300-physical-access">ACS300 (Physical Access)<a href="#acs300-physical-access" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>An attacker with physical access to ACS300 devices can perform a command injection attack via the web UI and gain access to sensitive data that can be used to conduct additional attacks.</p>
+<p><strong>Severity</strong></p>
+<p>The CVSS base score of this vulnerability has been calculated to be 7.4 (High) for the physical access scenario:</p>
+<p>CVSS:3.0/AV:P/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H</p>
+<h3 id="acs100-adjacent-network-access">ACS100 (Adjacent Network Access)<a href="#acs100-adjacent-network-access" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>An attacker with local network access to ACS100 devices can perform a command injection attack via the web UI and gain access to sensitive data that can be used to conduct additional attacks.</p>
+<p><strong>Severity</strong></p>
+<p>The CVSS severity level of this vulnerability has been calculated to be 9.0 (High) for the adjacent network access scenario:</p>
+<p>CVSS:3.0/AV:A/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H</p>
+<h1 id="affected-versions-and-models">Affected Versions and Models<a href="#affected-versions-and-models" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Affects models ACS100, ACS300. Models ACS6000 and ACSSDC may also be affected.</p>
+<p><strong>Severity</strong></p>
+<p>Affects firmware versions from 5.2.4 but before 6.2.4.3. Versions prior to 5.2.4 may also be affected.</p>
+<h1 id="mitre-cwe-weakness-enumeration">MITRE CWE Weakness Enumeration<a href="#mitre-cwe-weakness-enumeration" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>CWE-284: Improper Access Control</p>
+<p>CWE-522: Insufficiently Protected Credentials</p>
+<p>CWE-77: Improper Neutralization of Special Elements used in a Command (‘Command Injection’)</p>
+<h1 id="remediation-options">Remediation Options<a href="#remediation-options" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Update affected devices to firmware version 6.2.4.3. Contact Brivo or your reseller for more information.</p>
+<h1 id="source">Source<a href="#source" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>These vulnerabilities were discovered by Alexandra Grochal and Gabe Siftar, as part of a research initiative for Security Risk Advisors’ internal hardware penetration testing team.</p>
+<h1 id="timeframe">Timeframe<a href="#timeframe" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<ul>
+<li>October 9, 2023 – SRA attempts initial contact with Brivo.</li>
+<li>November 9, 2023 – SRA shares vulnerability details with Brivo’s product security team.</li>
+<li>November 29, 2023 – SRA reserves CVE IDs.</li>
+<li>December 15, 2023 – Brivo releases fix to production.</li>
+</ul>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

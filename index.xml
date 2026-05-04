@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SRA Labs</title>
+    <link>https://labs.sra.io/</link>
+    <description>Recent content on SRA Labs</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 20 Jan 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Milner ImageDirector Capture</title>
+      <link>https://labs.sra.io/posts/milnerimagedirector/</link>
+      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/milnerimagedirector/</guid>
+      <description>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Milner ImageDirector Capture that can lead to database access, credential access, database credential interception, and decryption of document archives.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58740&lt;/td&gt;
+          &lt;td&gt;Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58741&lt;/td&gt;
+          &lt;td&gt;Insecure Masked Credential Fields Enable Database Credential Access in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58742&lt;/td&gt;
+          &lt;td&gt;Insufficient Configuration Protections Enable Database Credential Interception in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58743&lt;/td&gt;
+          &lt;td&gt;Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58744&lt;/td&gt;
+          &lt;td&gt;Hard-Coded Default Credentials Enable Document Archive Decryption in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2025-58740-hardcoded-encryption-key-enables-database-credential-access-in-milner-imagedirector&#34;&gt;CVE-2025-58740: Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential exposure due to a hardcoded encryption key. The application stores a static cryptographic key within the C2SGlobalSettings.dll executable that encrypts database credentials. SRA identified this vulnerability by reverse engineering the Password function within the DLL, which revealed the hardcoded key used for credential encryption. An attacker can extract this key through static analysis of the executable and subsequently decrypt database credentials stored by the application at rest&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Milner ImageDirector Capture that can lead to database access, credential access, database credential interception, and decryption of document archives.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58740&lt;/td&gt;
+          &lt;td&gt;Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58741&lt;/td&gt;
+          &lt;td&gt;Insecure Masked Credential Fields Enable Database Credential Access in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58742&lt;/td&gt;
+          &lt;td&gt;Insufficient Configuration Protections Enable Database Credential Interception in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58743&lt;/td&gt;
+          &lt;td&gt;Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-58744&lt;/td&gt;
+          &lt;td&gt;Hard-Coded Default Credentials Enable Document Archive Decryption in Milner ImageDirector Capture&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2025-58740-hardcoded-encryption-key-enables-database-credential-access-in-milner-imagedirector&#34;&gt;CVE-2025-58740: Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential exposure due to a hardcoded encryption key. The application stores a static cryptographic key within the C2SGlobalSettings.dll executable that encrypts database credentials. SRA identified this vulnerability by reverse engineering the Password function within the DLL, which revealed the hardcoded key used for credential encryption. An attacker can extract this key through static analysis of the executable and subsequently decrypt database credentials stored by the application at rest&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.5 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h2 id=&#34;cve-2025-58741-insecure-masked-credential-fields-enable-database-credential-access-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58741: Insecure Masked Credential Fields Enable Database Credential Access in Milner ImageDirector Capture&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential disclosure through memory analysis. The Connection Settings dialog stores database credentials in plaintext within application memory, including masked password fields that appear obfuscated in the user interface. SRA identified this vulnerability by opening the Connection Settings dialog and performing memory analysis using BulletsPassView on the running application process. The tool successfully extracted plaintext database usernames and passwords directly from process memory, despite the password field appearing masked with asterisks in the interface. The credentials remain accessible in memory for the duration that the dialog window stays open.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.5 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h2 id=&#34;cve-2025-58742-insufficient-configuration-protections-enable-database-credential-interception-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58742: Insufficient Configuration Protections Enable Database Credential Interception in Milner ImageDirector Capture&lt;/h2&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential interception through server redirection attacks. The Connection Settings dialog allows users to modify the database server address without clearing stored credentials, enabling an attacker to redirect authentication attempts to a malicious server. SRA identified this vulnerability by modifying the ‘Server’ field in the Connection Settings dialog to point to an attacker-controlled database server. When the application attempts to authenticate using the stored credentials, it transmits the username and password to the specified server address, allowing the attacker’s server to capture the plaintext authentication data. The application does not validate server certificates or implement additional protections against server redirection attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.5 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h1 id=&#34;cve-2025-58743-insecure-encryption-algorithm-enables-brute-force-of-database-credentials-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58743: Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in Milner ImageDirector Capture&lt;/h1&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to credential exposure through weak cryptographic implementation. The Password class within C2SConnections.dll uses the deprecated Data Encryption Standard (DES) algorithm to encrypt database credentials stored locally. SRA identified this vulnerability by reverse engineering the Password class and analyzing the cryptographic functions, which revealed the use of 56-bit DES encryption with a static initialization vector. The weak key length and algorithm design make encrypted credentials susceptible to brute-force attacks using modern computational resources.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 7.2 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:H/AT:N/PR:L/UI:N/VC:H/VI:L/VA:H/SC:H/SI:H/SA:H&lt;/p&gt;
+&lt;h1 id=&#34;cve-2025-58744-hard-coded-default-credentials-enable-document-archive-decryption-in-milner-imagedirector-capture&#34;&gt;CVE-2025-58744: Hard-Coded Default Credentials Enable Document Archive Decryption in Milner ImageDirector Capture&lt;/h1&gt;
+&lt;p&gt;The Milner ImageDirector Capture application is vulnerable to document decryption through hardcoded default credentials. The C2SGlobalSettings.dll contains a static “DelayedTransmissionPassword” that encrypts archived documents stored by the application. SRA identified this vulnerability by reverse engineering the C2SGlobalSettings.dll and locating the hardcoded password string within the compiled binary. The application uses this default password to encrypt document archives when users do not specify a custom delayed transmission password. An attacker can extract this hardcoded credential through static analysis and use it to decrypt any document archives encrypted with the default password, bypassing the intended document protection mechanisms.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 6.9 (Medium)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N&lt;/p&gt;
+&lt;h1 id=&#34;affected-versions-and-models&#34;&gt;Affected Versions and Models&lt;/h1&gt;
+&lt;p&gt;Milner ImageDirector Capture from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/p&gt;
+&lt;h1 id=&#34;mitre-cwe-weakness-enumeration&#34;&gt;MITRE CWE Weakness Enumeration&lt;/h1&gt;
+&lt;p&gt;CVE-2025-58740&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-321: Use of Hard-coded Cryptographic Key&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58741&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-522: Insufficiently Protected Credentials&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58742&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-522: Insufficiently Protected Credentials&lt;/li&gt;
+&lt;li&gt;CWE-923: Improper Restriction of Communication Channel to Intended Endpoints&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58743&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-327: Use of a Broken or Risky Cryptographic Algorithm&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2025-58744&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-1392: Use of Default Credentials&lt;/li&gt;
+&lt;li&gt;CWE-798: Use of Hard-coded Credentials&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;remediation-options&#34;&gt;Remediation Options&lt;/h1&gt;
+&lt;p&gt;Update Milner ImageDirector Capture to 7.6.3.25808 or later.&lt;/p&gt;
+&lt;h1 id=&#34;source&#34;&gt;Source&lt;/h1&gt;
+&lt;p&gt;These vulnerabilities were discovered by Asa Reynolds and Rick Console as part of research performed by Security Risk Advisors.&lt;/p&gt;
+&lt;h1 id=&#34;timeframe&#34;&gt;Timeframe&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;October 15-23, 2025 – SRA attempts to establish contact with Milner to disclose vulnerabilities.&lt;/li&gt;
+&lt;li&gt;November 04, 2025 – Milner acknowledges vulnerabilities and intent to fix.&lt;/li&gt;
+&lt;li&gt;December 31, 2025 – Milner releases ImageDirector Capture 7.6.3.25808.&lt;/li&gt;
+&lt;li&gt;January 20, 2026 – SRA publishes CVEs and advisory.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Quest Coexistence Manager for Notes</title>
+      <link>https://labs.sra.io/posts/questcoexistence/</link>
+      <pubDate>Fri, 19 Dec 2025 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/questcoexistence/</guid>
+      <description>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-12874&lt;/td&gt;
+          &lt;td&gt;HTTP Request Smuggling in Quest Coexistence Manager for Notes&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;p&gt;Quest Coexistence Manager for Notes (3.8.2045) is vulnerable in the Free/Busy Connector to HTTP request smuggling from an unauthenticated remote attacker. The front-end and back-end components rely on inconsistent header parsing, resulting in desynchronized request boundaries. In this case, the front-end server uses the &lt;code&gt;Content-Length&lt;/code&gt; header to determine the end of the request body, forwarding the full request. The back-end server interprets the request using &lt;code&gt;Transfer-Encoding: chunked&lt;/code&gt;, processing only the first chunk (declared as zero-length) and treating the remaining bytes as a new, separate request. The attacker embeds a second, hidden request in the body of the original message. Due to the parsing mismatch, this smuggled request is processed independently by the back-end server.&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2025-12874&lt;/td&gt;
+          &lt;td&gt;HTTP Request Smuggling in Quest Coexistence Manager for Notes&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;p&gt;Quest Coexistence Manager for Notes (3.8.2045) is vulnerable in the Free/Busy Connector to HTTP request smuggling from an unauthenticated remote attacker. The front-end and back-end components rely on inconsistent header parsing, resulting in desynchronized request boundaries. In this case, the front-end server uses the &lt;code&gt;Content-Length&lt;/code&gt; header to determine the end of the request body, forwarding the full request. The back-end server interprets the request using &lt;code&gt;Transfer-Encoding: chunked&lt;/code&gt;, processing only the first chunk (declared as zero-length) and treating the remaining bytes as a new, separate request. The attacker embeds a second, hidden request in the body of the original message. Due to the parsing mismatch, this smuggled request is processed independently by the back-end server.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 6.3 (Medium).&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/U:Clear&lt;/p&gt;
+&lt;h1 id=&#34;affected-versions-and-models&#34;&gt;Affected Versions and Models&lt;/h1&gt;
+&lt;p&gt;Quest Coexistence Manager for Notes 3.8.2045&lt;/p&gt;
+&lt;h1 id=&#34;mitre-cwe-weakness-enumeration&#34;&gt;MITRE CWE Weakness Enumeration&lt;/h1&gt;
+&lt;p&gt;CWE-444: Inconsistent Interpretation of HTTP Requests&lt;/p&gt;
+&lt;h1 id=&#34;remediation-options&#34;&gt;Remediation Options&lt;/h1&gt;
+&lt;p&gt;Update Quest Coexistence Manager for Notes to latest version.&lt;/p&gt;
+&lt;h1 id=&#34;source&#34;&gt;Source&lt;/h1&gt;
+&lt;p&gt;This vulnerability was discovered by Cam Lischke as part of research performed by Security Risk Advisors.&lt;/p&gt;
+&lt;h1 id=&#34;timeframe&#34;&gt;Timeframe&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;November 3, 2025 – SRA submits vulnerability support case to Quest.&lt;/li&gt;
+&lt;li&gt;November 4 through November 7, 2025 – SRA submits details of vulnerability to Quest.&lt;/li&gt;
+&lt;li&gt;December 9, 2025 – SRA notifies Quest of intent to publicly disclose.&lt;/li&gt;
+&lt;li&gt;December 12, 2025 – Quest acknowledges intent to publicly disclose.&lt;/li&gt;
+&lt;li&gt;December 17, 2025 – Quest notifies SRA of intent to create a knowledge base article for Quest Support Portal&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Brivo Access Control Systems</title>
+      <link>https://labs.sra.io/posts/brivoacs/</link>
+      <pubDate>Mon, 19 Feb 2024 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/brivoacs/</guid>
+      <description>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Brivo Access Control Systems that can lead to the disclosure of sensitive system data and allow degradation or bypass of critical system functions.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6259&lt;/td&gt;
+          &lt;td&gt;Local Access to Sensitive Data&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6260&lt;/td&gt;
+          &lt;td&gt;Web UI OS Command Injection&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2023-6259--local-access-to-sensitive-data&#34;&gt;CVE-2023-6259 – Local Access to Sensitive Data&lt;/h2&gt;
+&lt;p&gt;An attacker with physical access to the ACS100 or ACS300 devices can access sensitive data from device memory that can be used to conduct additional attacks.&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in Brivo Access Control Systems that can lead to the disclosure of sensitive system data and allow degradation or bypass of critical system functions.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6259&lt;/td&gt;
+          &lt;td&gt;Local Access to Sensitive Data&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2023-6260&lt;/td&gt;
+          &lt;td&gt;Web UI OS Command Injection&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2023-6259--local-access-to-sensitive-data&#34;&gt;CVE-2023-6259 – Local Access to Sensitive Data&lt;/h2&gt;
+&lt;p&gt;An attacker with physical access to the ACS100 or ACS300 devices can access sensitive data from device memory that can be used to conduct additional attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS severity level of this vulnerability has been calculated to be 7.1 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:3.0/AV:P/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H&lt;/p&gt;
+&lt;h2 id=&#34;cve-2023-6260--web-ui-os-command-injection&#34;&gt;CVE-2023-6260 – Web UI OS Command Injection&lt;/h2&gt;
+&lt;h3 id=&#34;acs300-physical-access&#34;&gt;ACS300 (Physical Access)&lt;/h3&gt;
+&lt;p&gt;An attacker with physical access to ACS300 devices can perform a command injection attack via the web UI and gain access to sensitive data that can be used to conduct additional attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 7.4 (High) for the physical access scenario:&lt;/p&gt;
+&lt;p&gt;CVSS:3.0/AV:P/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H&lt;/p&gt;
+&lt;h3 id=&#34;acs100-adjacent-network-access&#34;&gt;ACS100 (Adjacent Network Access)&lt;/h3&gt;
+&lt;p&gt;An attacker with local network access to ACS100 devices can perform a command injection attack via the web UI and gain access to sensitive data that can be used to conduct additional attacks.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS severity level of this vulnerability has been calculated to be 9.0 (High) for the adjacent network access scenario:&lt;/p&gt;
+&lt;p&gt;CVSS:3.0/AV:A/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H&lt;/p&gt;
+&lt;h1 id=&#34;affected-versions-and-models&#34;&gt;Affected Versions and Models&lt;/h1&gt;
+&lt;p&gt;Affects models ACS100, ACS300. Models ACS6000 and ACSSDC may also be affected.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Affects firmware versions from 5.2.4 but before 6.2.4.3. Versions prior to 5.2.4 may also be affected.&lt;/p&gt;
+&lt;h1 id=&#34;mitre-cwe-weakness-enumeration&#34;&gt;MITRE CWE Weakness Enumeration&lt;/h1&gt;
+&lt;p&gt;CWE-284: Improper Access Control&lt;/p&gt;
+&lt;p&gt;CWE-522: Insufficiently Protected Credentials&lt;/p&gt;
+&lt;p&gt;CWE-77: Improper Neutralization of Special Elements used in a Command (‘Command Injection’)&lt;/p&gt;
+&lt;h1 id=&#34;remediation-options&#34;&gt;Remediation Options&lt;/h1&gt;
+&lt;p&gt;Update affected devices to firmware version 6.2.4.3. Contact Brivo or your reseller for more information.&lt;/p&gt;
+&lt;h1 id=&#34;source&#34;&gt;Source&lt;/h1&gt;
+&lt;p&gt;These vulnerabilities were discovered by Alexandra Grochal and Gabe Siftar, as part of a research initiative for Security Risk Advisors’ internal hardware penetration testing team.&lt;/p&gt;
+&lt;h1 id=&#34;timeframe&#34;&gt;Timeframe&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;October 9, 2023 – SRA attempts initial contact with Brivo.&lt;/li&gt;
+&lt;li&gt;November 9, 2023 – SRA shares vulnerability details with Brivo’s product security team.&lt;/li&gt;
+&lt;li&gt;November 29, 2023 – SRA reserves CVE IDs.&lt;/li&gt;
+&lt;li&gt;December 15, 2023 – Brivo releases fix to production.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Conferences</title>
+      <link>https://labs.sra.io/conferences/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/conferences/</guid>
+      <description>&lt;p&gt;The following is a list of conference talk given by Security Risk Advisors.&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Year&lt;/th&gt;
+          &lt;th&gt;Conference&lt;/th&gt;
+          &lt;th&gt;Talk&lt;/th&gt;
+          &lt;th&gt;Presenter&lt;/th&gt;
+          &lt;th&gt;Resources&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;BSides OT UK&lt;/td&gt;
+          &lt;td&gt;Mind the Gap: Security on Paper, Reality on the Wire&lt;/td&gt;
+          &lt;td&gt;Mandie Grosskopf&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20OT%20UK/Mind%20the%20Gap%20Security%20on%20Paper%2C%20Reality%20on%20the%20Wire.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;Insomni&amp;rsquo;hack&lt;/td&gt;
+          &lt;td&gt;Pruning Garden Paths in AWS&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Insomnihack%202026/Pruning%20Garden%20Paths%20in%20AWS.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/PnN1-LA3n5k?list=PLcAhMYXnWf9udNbl0IOQkfREOd1W2m00A&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;BSides ICS/OT&lt;/td&gt;
+          &lt;td&gt;Fabricating Kill Chains&lt;/td&gt;
+          &lt;td&gt;Connor Jackson&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20ICS%202026/Fabricating%20Kill%20Chains.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;BSides ICS/OT&lt;/td&gt;
+          &lt;td&gt;Mission: Resilient - Your OT Cybersecurity Maturity Made Possibles&lt;/td&gt;
+          &lt;td&gt;Mandie Grosskopf&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20ICS-OT%202026/Mission%20Resilient%20-%20Your%20OT%20Cybersecurity%20Maturity%20Made%20Possible.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Hiding in Plain Sight: Weaponizing Developer Applications and Interpreted Languages to Evade Modern EDR&lt;/td&gt;
+          &lt;td&gt;Annika Clarke&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/Hiding%20in%20Plain%20Sight.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/kdaXP4LeUio?list=PL2T7DhHqMeE_UE9I2pZKvnqwOusp0X2GK&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Letthemin: Facilitating High-Value Purple Teams Using an Assumed Compromise Approach&lt;/td&gt;
+          &lt;td&gt;Sarah Hume&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/Letthemin%3A%20Facilitating%20High-Value%20Purple%20Teams%20Using%20an%20Assumed%20Compromise%20Approach.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;NAC to the Future&lt;/td&gt;
+          &lt;td&gt;Richard Console&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/NAC%20to%20the%20Future.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/2pd3nviKXn8?list=PL2T7DhHqMeE_UE9I2pZKvnqwOusp0X2GK&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Screaming About Detection Coverage in ALLCAPS&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/Screaming%20About%20Detection%20Coverage%20in%20ALLCAPS.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/XagP5zAw5b0?list=PL2T7DhHqMeE_UE9I2pZKvnqwOusp0X2GK&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;Burning River Cyber Con&lt;/td&gt;
+          &lt;td&gt;Hiding in Plain Sight: Weaponizing Developer Applications and Interpreted Languages to Evade Modern EDR&lt;/td&gt;
+          &lt;td&gt;Annika Clarke&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Burning%20River%20Cyber%20Con%202025/Hiding%20in%20Plain%20Sight.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;Burning River Cyber Con&lt;/td&gt;
+          &lt;td&gt;An OffSec Adventure Through Modern CI/CD Systems&lt;/td&gt;
+          &lt;td&gt;Jonathan Callahan&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Burning%20River%20Cyber%20Con%202025/An%20OffSec%20Adventure%20through%20CICD.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Chicago&lt;/td&gt;
+          &lt;td&gt;Pruning Garden Paths in AWS&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Chicago%202025/Pruning%20Garden%20Paths%20in%20AWS.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;Rochester Security Summit&lt;/td&gt;
+          &lt;td&gt;What Could Go Wrong? AI Security Mistakes Event Fortune 500 Companies Are Making&lt;/td&gt;
+          &lt;td&gt;Savannah Alfaro &amp;amp; Zachary Wallace&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Rochester%20Security%20Summit%202025/AI%20Security%20Mistakes%20Even%20Fortune%20500%20Companies%20Are%20Making.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/CGeU2FHa-Qw&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;DEFCON 33 Adversary Village&lt;/td&gt;
+          &lt;td&gt;Letthemin: Facilitating High Value Purple Teams Using Assumed Compromise&lt;/td&gt;
+          &lt;td&gt;Sarah Hume&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Adversary%20Village%202025/Letthemin%3A%20Facilitating%20High-Value%20Purple%20Teams%20Using%20an%20Assumed%20Compromise%20Approach.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/xM8nodIw1_E&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2023&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;GET IN THE BOX&lt;/td&gt;
+          &lt;td&gt;Dan Astor &amp;amp; Jonathan Callahan&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202023/GET%20IN%20THE%20BOX.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/2JMgrYfYpaU?list=PL2T7DhHqMeE-o_4UpE3ExYdNSokg8ZBjz&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2023&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;RPC Filter I Hardly Know Her&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202023/RPC%20Filter%20I%20Hardly%20Know%20Her.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/76Dyg1Lc2sg?list=PL2T7DhHqMeE-o_4UpE3ExYdNSokg8ZBjz&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2023&lt;/td&gt;
+          &lt;td&gt;Rochester Security Summit&lt;/td&gt;
+          &lt;td&gt;A Hardware Hacker&amp;rsquo;s Perspective&lt;/td&gt;
+          &lt;td&gt;Zachary Lehmann &amp;amp; Gabe Siftar&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Rochester%20Security%20Summit%202023/A%20Hardware%20Hacker%27s%20Perspective.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/OBxiOBaEmF0?list=PLHzA8r6W7pk2JQUUZScPtWW1MAOcihG5B&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2021&lt;/td&gt;
+          &lt;td&gt;ShellCon&lt;/td&gt;
+          &lt;td&gt;Pipelines &amp;amp; Serverless &amp;amp; Automation, Oh My!&lt;/td&gt;
+          &lt;td&gt;Cassandra Young, Jonathan Callahan, &amp;amp; Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/ShellCon%202021/Pipelines%20%26%20Serverless%20%26%20Automation%2C%20Oh%20My!.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/b22kqWVFHbo?list=PL7D3STHEa66QNx0Z0uW4yISwHdbCzVKli&amp;amp;t=12190&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2018&lt;/td&gt;
+          &lt;td&gt;BSides Pittsburgh&lt;/td&gt;
+          &lt;td&gt;Heavy Machinery and Burly Lumberjacks and Logging! Oh My!&lt;/td&gt;
+          &lt;td&gt;Dan Astor &amp;amp; Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/press-release/bsides-pgh-2018-heavy-machinery-and-burly-lumberjacks-and-logging-oh-my/&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/xH1TeVtG1M8?list=PL3lLo2CTc7Yw9UaFs4-61V3j19KC_2ETj&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2017&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Threat Hunting: Defining the Process While Circumventing Corporate Obstacles&lt;/td&gt;
+          &lt;td&gt;Kevin Foster, Matt Schneck, &amp;amp; Ryan Andress&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/blog/bsides-philly-2017-threat-hunting-defining-the-process-while-circumventing-corporate-obstacles/&#34; target=&#34;_blank&#34;&gt;Slides &amp;amp; Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2017&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;MFA: It’s 2017 and You’re Still Doing It Wrong&lt;/td&gt;
+          &lt;td&gt;Chris Salerno &amp;amp; Dan Astor&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/blog/bsides-philly-2017-mfa-its-2017-and-youre-still-doing-it-wrong/&#34; target=&#34;_blank&#34;&gt;Slides &amp;amp; Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2017&lt;/td&gt;
+          &lt;td&gt;BSides NOLA&lt;/td&gt;
+          &lt;td&gt;Your New Red Team Hardware Survival Pack&lt;/td&gt;
+          &lt;td&gt;Chris Salerno &amp;amp; Dan Astor&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/blog/bsides-nola-2017-your-new-red-team-hardware-survival-pack/&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</description>
+      <content>&lt;p&gt;The following is a list of conference talk given by Security Risk Advisors.&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Year&lt;/th&gt;
+          &lt;th&gt;Conference&lt;/th&gt;
+          &lt;th&gt;Talk&lt;/th&gt;
+          &lt;th&gt;Presenter&lt;/th&gt;
+          &lt;th&gt;Resources&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;BSides OT UK&lt;/td&gt;
+          &lt;td&gt;Mind the Gap: Security on Paper, Reality on the Wire&lt;/td&gt;
+          &lt;td&gt;Mandie Grosskopf&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20OT%20UK/Mind%20the%20Gap%20Security%20on%20Paper%2C%20Reality%20on%20the%20Wire.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;Insomni&amp;rsquo;hack&lt;/td&gt;
+          &lt;td&gt;Pruning Garden Paths in AWS&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Insomnihack%202026/Pruning%20Garden%20Paths%20in%20AWS.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/PnN1-LA3n5k?list=PLcAhMYXnWf9udNbl0IOQkfREOd1W2m00A&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;BSides ICS/OT&lt;/td&gt;
+          &lt;td&gt;Fabricating Kill Chains&lt;/td&gt;
+          &lt;td&gt;Connor Jackson&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20ICS%202026/Fabricating%20Kill%20Chains.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2026&lt;/td&gt;
+          &lt;td&gt;BSides ICS/OT&lt;/td&gt;
+          &lt;td&gt;Mission: Resilient - Your OT Cybersecurity Maturity Made Possibles&lt;/td&gt;
+          &lt;td&gt;Mandie Grosskopf&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20ICS-OT%202026/Mission%20Resilient%20-%20Your%20OT%20Cybersecurity%20Maturity%20Made%20Possible.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Hiding in Plain Sight: Weaponizing Developer Applications and Interpreted Languages to Evade Modern EDR&lt;/td&gt;
+          &lt;td&gt;Annika Clarke&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/Hiding%20in%20Plain%20Sight.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/kdaXP4LeUio?list=PL2T7DhHqMeE_UE9I2pZKvnqwOusp0X2GK&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Letthemin: Facilitating High-Value Purple Teams Using an Assumed Compromise Approach&lt;/td&gt;
+          &lt;td&gt;Sarah Hume&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/Letthemin%3A%20Facilitating%20High-Value%20Purple%20Teams%20Using%20an%20Assumed%20Compromise%20Approach.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;NAC to the Future&lt;/td&gt;
+          &lt;td&gt;Richard Console&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/NAC%20to%20the%20Future.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/2pd3nviKXn8?list=PL2T7DhHqMeE_UE9I2pZKvnqwOusp0X2GK&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Screaming About Detection Coverage in ALLCAPS&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202025/Screaming%20About%20Detection%20Coverage%20in%20ALLCAPS.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/XagP5zAw5b0?list=PL2T7DhHqMeE_UE9I2pZKvnqwOusp0X2GK&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;Burning River Cyber Con&lt;/td&gt;
+          &lt;td&gt;Hiding in Plain Sight: Weaponizing Developer Applications and Interpreted Languages to Evade Modern EDR&lt;/td&gt;
+          &lt;td&gt;Annika Clarke&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Burning%20River%20Cyber%20Con%202025/Hiding%20in%20Plain%20Sight.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;Burning River Cyber Con&lt;/td&gt;
+          &lt;td&gt;An OffSec Adventure Through Modern CI/CD Systems&lt;/td&gt;
+          &lt;td&gt;Jonathan Callahan&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Burning%20River%20Cyber%20Con%202025/An%20OffSec%20Adventure%20through%20CICD.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;BSides Chicago&lt;/td&gt;
+          &lt;td&gt;Pruning Garden Paths in AWS&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Chicago%202025/Pruning%20Garden%20Paths%20in%20AWS.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;Rochester Security Summit&lt;/td&gt;
+          &lt;td&gt;What Could Go Wrong? AI Security Mistakes Event Fortune 500 Companies Are Making&lt;/td&gt;
+          &lt;td&gt;Savannah Alfaro &amp;amp; Zachary Wallace&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Rochester%20Security%20Summit%202025/AI%20Security%20Mistakes%20Even%20Fortune%20500%20Companies%20Are%20Making.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/CGeU2FHa-Qw&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2025&lt;/td&gt;
+          &lt;td&gt;DEFCON 33 Adversary Village&lt;/td&gt;
+          &lt;td&gt;Letthemin: Facilitating High Value Purple Teams Using Assumed Compromise&lt;/td&gt;
+          &lt;td&gt;Sarah Hume&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Adversary%20Village%202025/Letthemin%3A%20Facilitating%20High-Value%20Purple%20Teams%20Using%20an%20Assumed%20Compromise%20Approach.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/xM8nodIw1_E&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2023&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;GET IN THE BOX&lt;/td&gt;
+          &lt;td&gt;Dan Astor &amp;amp; Jonathan Callahan&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202023/GET%20IN%20THE%20BOX.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/2JMgrYfYpaU?list=PL2T7DhHqMeE-o_4UpE3ExYdNSokg8ZBjz&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2023&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;RPC Filter I Hardly Know Her&lt;/td&gt;
+          &lt;td&gt;Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/BSides%20Philly%202023/RPC%20Filter%20I%20Hardly%20Know%20Her.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/76Dyg1Lc2sg?list=PL2T7DhHqMeE-o_4UpE3ExYdNSokg8ZBjz&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2023&lt;/td&gt;
+          &lt;td&gt;Rochester Security Summit&lt;/td&gt;
+          &lt;td&gt;A Hardware Hacker&amp;rsquo;s Perspective&lt;/td&gt;
+          &lt;td&gt;Zachary Lehmann &amp;amp; Gabe Siftar&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/Rochester%20Security%20Summit%202023/A%20Hardware%20Hacker%27s%20Perspective.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/OBxiOBaEmF0?list=PLHzA8r6W7pk2JQUUZScPtWW1MAOcihG5B&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2021&lt;/td&gt;
+          &lt;td&gt;ShellCon&lt;/td&gt;
+          &lt;td&gt;Pipelines &amp;amp; Serverless &amp;amp; Automation, Oh My!&lt;/td&gt;
+          &lt;td&gt;Cassandra Young, Jonathan Callahan, &amp;amp; Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/SecurityRiskAdvisors/public-assets/blob/main/ShellCon%202021/Pipelines%20%26%20Serverless%20%26%20Automation%2C%20Oh%20My!.pdf&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/b22kqWVFHbo?list=PL7D3STHEa66QNx0Z0uW4yISwHdbCzVKli&amp;amp;t=12190&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2018&lt;/td&gt;
+          &lt;td&gt;BSides Pittsburgh&lt;/td&gt;
+          &lt;td&gt;Heavy Machinery and Burly Lumberjacks and Logging! Oh My!&lt;/td&gt;
+          &lt;td&gt;Dan Astor &amp;amp; Evan Perotti&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/press-release/bsides-pgh-2018-heavy-machinery-and-burly-lumberjacks-and-logging-oh-my/&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://youtu.be/xH1TeVtG1M8?list=PL3lLo2CTc7Yw9UaFs4-61V3j19KC_2ETj&#34; target=&#34;_blank&#34;&gt;Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2017&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;Threat Hunting: Defining the Process While Circumventing Corporate Obstacles&lt;/td&gt;
+          &lt;td&gt;Kevin Foster, Matt Schneck, &amp;amp; Ryan Andress&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/blog/bsides-philly-2017-threat-hunting-defining-the-process-while-circumventing-corporate-obstacles/&#34; target=&#34;_blank&#34;&gt;Slides &amp;amp; Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2017&lt;/td&gt;
+          &lt;td&gt;BSides Philly&lt;/td&gt;
+          &lt;td&gt;MFA: It’s 2017 and You’re Still Doing It Wrong&lt;/td&gt;
+          &lt;td&gt;Chris Salerno &amp;amp; Dan Astor&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/blog/bsides-philly-2017-mfa-its-2017-and-youre-still-doing-it-wrong/&#34; target=&#34;_blank&#34;&gt;Slides &amp;amp; Video&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2017&lt;/td&gt;
+          &lt;td&gt;BSides NOLA&lt;/td&gt;
+          &lt;td&gt;Your New Red Team Hardware Survival Pack&lt;/td&gt;
+          &lt;td&gt;Chris Salerno &amp;amp; Dan Astor&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://sra.io/blog/bsides-nola-2017-your-new-red-team-hardware-survival-pack/&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Privacy Policy</title>
+      <link>https://labs.sra.io/privacy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/privacy/</guid>
+      <description>&lt;p&gt;This privacy policy for Security Risk Advisors, LLC (&amp;ldquo;SRA&amp;rdquo;, &amp;ldquo;we,&amp;rdquo; &amp;ldquo;us,&amp;rdquo; and &amp;ldquo;our&amp;rdquo;), describes how and why we might collect, store, use, and/or share (&amp;ldquo;process&amp;rdquo;) your information when you visit the Security Risk Advisors Labs site (&amp;ldquo;labs.sra.io&amp;rdquo;). Please also refer to the primary Security Risk Advisors privacy policy: &lt;a href=&#34;https://sra.io/privacy/&#34; target=&#34;_blank&#34;&gt;https://sra.io/privacy/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;We do not process sensitive personal information. We use third-party analytics tools to help us measure traffic and usage trends. These tools collect information sent by your device or our services, including how you use the site, the web pages you visit on the site, add-ons, and other information that assists us in improving our services.&lt;/p&gt;</description>
+      <content>&lt;p&gt;This privacy policy for Security Risk Advisors, LLC (&amp;ldquo;SRA&amp;rdquo;, &amp;ldquo;we,&amp;rdquo; &amp;ldquo;us,&amp;rdquo; and &amp;ldquo;our&amp;rdquo;), describes how and why we might collect, store, use, and/or share (&amp;ldquo;process&amp;rdquo;) your information when you visit the Security Risk Advisors Labs site (&amp;ldquo;labs.sra.io&amp;rdquo;). Please also refer to the primary Security Risk Advisors privacy policy: &lt;a href=&#34;https://sra.io/privacy/&#34; target=&#34;_blank&#34;&gt;https://sra.io/privacy/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;We do not process sensitive personal information. We use third-party analytics tools to help us measure traffic and usage trends. These tools collect information sent by your device or our services, including how you use the site, the web pages you visit on the site, add-ons, and other information that assists us in improving our services.&lt;/p&gt;
+&lt;p&gt;We use the following third-party analytics services:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Umami Software, Inc (&lt;a href=&#34;https://umami.is/&#34; target=&#34;_blank&#34;&gt;https://umami.is/&lt;/a&gt;)
+&lt;ul&gt;
+&lt;li&gt;Privacy policy: &lt;a href=&#34;https://umami.is/privacy&#34; target=&#34;_blank&#34;&gt;https://umami.is/privacy&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Published Advisories</title>
+      <link>https://labs.sra.io/advisories/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/advisories/</guid>
+      <description>&lt;p&gt;The following is a list of all publicly disclosed vulnerabilities discovered by Security Risk Advisors researchers.&lt;/p&gt;
+&lt;p&gt;All security vulnerabilities that are acquired by Security Risk Advisors are handled according to the SRA &lt;a href=&#34;https://labs.sra.io/disclosure&#34;&gt;Disclosure Policy&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;After the vendor has issued a patch or fix publicly and is within the timeframe agreed upon, SRA will release a public advisory disclosing its findings along with a timeframe from disclosure to advisory publish.&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Name&lt;/th&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;Vulnerability Type&lt;/th&gt;
+          &lt;th&gt;Affects&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/brivoacs&#34;&gt;Brivo Access Control Systems&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2023-6259&lt;/td&gt;
+          &lt;td&gt;Local Access to Sensitive Data&lt;/td&gt;
+          &lt;td&gt;Models ACS100, ACS300. Models ACS6000 and ACSSDC may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/brivoacs&#34;&gt;Brivo Access Control Systems&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2023-6260&lt;/td&gt;
+          &lt;td&gt;Web UI OS Command Injection&lt;/td&gt;
+          &lt;td&gt;Versions from 5.2.4 but before 6.2.4.3. Versions prior to 5.2.4 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/questcoexistence&#34;&gt;Quest Coexistence Manager for Notes&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-12874&lt;/td&gt;
+          &lt;td&gt;HTTP Request Smuggling in Quest Coexistence Manager for Notes&lt;/td&gt;
+          &lt;td&gt;Quest Coexistence Manager for Notes 3.8.2045&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58740&lt;/td&gt;
+          &lt;td&gt;Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58741&lt;/td&gt;
+          &lt;td&gt;Insecure Masked Credential Fields Enable Database Credential Access in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58742&lt;/td&gt;
+          &lt;td&gt;Insufficient Configuration Protections Enable Database Credential Interception in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58743&lt;/td&gt;
+          &lt;td&gt;Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58744&lt;/td&gt;
+          &lt;td&gt;Hard-Coded Default Credentials Enable Document Archive Decryption in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</description>
+      <content>&lt;p&gt;The following is a list of all publicly disclosed vulnerabilities discovered by Security Risk Advisors researchers.&lt;/p&gt;
+&lt;p&gt;All security vulnerabilities that are acquired by Security Risk Advisors are handled according to the SRA &lt;a href=&#34;https://labs.sra.io/disclosure&#34;&gt;Disclosure Policy&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;After the vendor has issued a patch or fix publicly and is within the timeframe agreed upon, SRA will release a public advisory disclosing its findings along with a timeframe from disclosure to advisory publish.&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Name&lt;/th&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;Vulnerability Type&lt;/th&gt;
+          &lt;th&gt;Affects&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/brivoacs&#34;&gt;Brivo Access Control Systems&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2023-6259&lt;/td&gt;
+          &lt;td&gt;Local Access to Sensitive Data&lt;/td&gt;
+          &lt;td&gt;Models ACS100, ACS300. Models ACS6000 and ACSSDC may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/brivoacs&#34;&gt;Brivo Access Control Systems&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2023-6260&lt;/td&gt;
+          &lt;td&gt;Web UI OS Command Injection&lt;/td&gt;
+          &lt;td&gt;Versions from 5.2.4 but before 6.2.4.3. Versions prior to 5.2.4 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/questcoexistence&#34;&gt;Quest Coexistence Manager for Notes&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-12874&lt;/td&gt;
+          &lt;td&gt;HTTP Request Smuggling in Quest Coexistence Manager for Notes&lt;/td&gt;
+          &lt;td&gt;Quest Coexistence Manager for Notes 3.8.2045&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58740&lt;/td&gt;
+          &lt;td&gt;Hardcoded Encryption Key Enables Database Credential Access in Milner ImageDirector&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58741&lt;/td&gt;
+          &lt;td&gt;Insecure Masked Credential Fields Enable Database Credential Access in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58742&lt;/td&gt;
+          &lt;td&gt;Insufficient Configuration Protections Enable Database Credential Interception in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58743&lt;/td&gt;
+          &lt;td&gt;Insecure Encryption Algorithm Enables Brute-Force of Database Credentials in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;CVE-2025-58744&lt;/td&gt;
+          &lt;td&gt;Hard-Coded Default Credentials Enable Document Archive Decryption in &lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://labs.sra.io/posts/milnerimagedirector&#34;&gt;Milner ImageDirector Capture&lt;/a&gt; from 7.0.9 but before 7.6.3.25808. Versions prior to 7.0.9 may also be affected.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Security Risk Advisors Intl, LLC – Disclosure Policy</title>
+      <link>https://labs.sra.io/disclosure/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/disclosure/</guid>
+      <description>&lt;p&gt;This policy outlines how Security Risk Advisors (SRA) handle responsible vulnerability disclosure to product vendors, security vendors, and the public.&lt;/p&gt;
+&lt;h2 id=&#34;notification&#34;&gt;Notification&lt;/h2&gt;
+&lt;p&gt;Once a vulnerability has been identified and confirmed through our own research and/or services, we will notify the product vendor of a security flaw within their product or service. SRA will make three (3) attempts to reach the vendor through formal methods (e.g., email, phone, disclosure portals). After each of these attempts, SRA will give the vendor 5 days to acknowledge and respond.&lt;/p&gt;</description>
+      <content>&lt;p&gt;This policy outlines how Security Risk Advisors (SRA) handle responsible vulnerability disclosure to product vendors, security vendors, and the public.&lt;/p&gt;
+&lt;h2 id=&#34;notification&#34;&gt;Notification&lt;/h2&gt;
+&lt;p&gt;Once a vulnerability has been identified and confirmed through our own research and/or services, we will notify the product vendor of a security flaw within their product or service. SRA will make three (3) attempts to reach the vendor through formal methods (e.g., email, phone, disclosure portals). After each of these attempts, SRA will give the vendor 5 days to acknowledge and respond.&lt;/p&gt;
+&lt;p&gt;Email messages will originate from &lt;a href=&#34;mailto:advisories@sra.io&#34; target=&#34;_blank&#34;&gt;advisories@sra.io&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;disclosure&#34;&gt;Disclosure&lt;/h2&gt;
+&lt;p&gt;If SRA exhausts all reasonable means to contact a vendor, then SRA may issue a public advisory disclosing its findings thirty (30) days after the initial contact.&lt;/p&gt;
+&lt;p&gt;If a response is received, SRA will allow the vendor 3-months (90 days) to address the flaw with a security patch or other corrective measure. During this time, it is expected that the vendor maintains open communication with SRA and provide regular updates to the status of the remediation/patch. The vendor is encouraged to provide credit to SRA and the individuals that identified the vulnerability (e.g., “Credit to [Researcher] from Security Risk Advisors for identifying and responsibly disclosing the vulnerability to [vendor]”).&lt;/p&gt;
+&lt;p&gt;After the vendor has issued a patch or fix publicly and is within the timeframe agreed upon, SRA will release a public advisory disclosing its findings along with a timeframe from disclosure to advisory publish.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Last Modified: Q2 2023&lt;/em&gt;&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>
