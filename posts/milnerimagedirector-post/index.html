@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Cracking Codes, Capturing Credentials: Five CVEs in Milner ImageDirector Capture :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SRA identified and disclosed several vulnerabilities in Milner ImageDirector Capture. This post explains the technical details for each of the five CVEs." />
+<meta name="keywords" content="CVE-2025-58740, CVE-2025-58741, CVE-2025-58742, CVE-2025-58743, CVE-2025-58744, cve" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/milnerimagedirector-post/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Cracking Codes, Capturing Credentials: Five CVEs in Milner ImageDirector Capture">
+<meta property="og:description" content="SRA identified and disclosed several vulnerabilities in Milner ImageDirector Capture. This post explains the technical details for each of the five CVEs." />
+<meta property="og:url" content="https://labs.sra.io/posts/milnerimagedirector-post/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-05-05 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/milnerimagedirector-post/">Cracking Codes, Capturing Credentials: Five CVEs in Milner ImageDirector Capture</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-05-05</time><span class="post-author">Asa Reynolds</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/cve-2025-58740/">CVE-2025-58740</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2025-58741/">CVE-2025-58741</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2025-58742/">CVE-2025-58742</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2025-58743/">CVE-2025-58743</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2025-58744/">CVE-2025-58744</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve/">cve</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>SRA encountered <a href="https://milner.com/solutions/document-management/document-capture/" target="_blank">Milner ImageDirector Capture</a>, a document scanning application, on a network penetration test. We identified and responsibly disclosed several vulnerabilities in this software. After the vendor provided a patch, we subsequently released <a href="https://labs.sra.io/posts/milnerimagedirector/" target="_blank">five CVEs</a>. This post explains the technical details of each CVE.</p>
+<h1 id="introduction">Introduction<a href="#introduction" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>ImageDirector Capture is a .NET Windows application that manages scanned documents. Users access Capture by logging into one or more endpoint devices. The endpoints store database credentials and authenticate to a central MSSQL database for storage. While individual users can add documents to the server, they should not be able to extract database credentials from the application. We audited Capture&rsquo;s source code with dnSpy.</p>
+<p><em>Note: we used the sample credential <code>sa:password99</code> for demonstration purposes.</em></p>
+<hr>
+<h1 id="spicy-bytes-hardcoded-encryption-key">Spicy Bytes: Hardcoded Encryption Key<a href="#spicy-bytes-hardcoded-encryption-key" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Capture uses stored credentials to connect to the database. It stores these credentials in <code>C:\ProgramData\Comsquared\Capture\Connections.config</code>.
+
+  <figure class="center" >
+    <img src="0_connectionsconfig.png"  alt="Viewing encrypted credentials in Connections.config"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Viewing encrypted credentials in Connections.config</figcaption>
+    
+  </figure>
+
+</p>
+<p>It protects these credentials with encryption, but the <code>GetPassword()</code> and <code>SetPassword()</code> functions in <code>C2SGlobalSettings.dll</code> call the <code>Password.Decrypt()</code> function with a hardcoded key.
+
+  <figure class="center" >
+    <img src="1_hardcodedkey.png"  alt="Observing hardcoded encryption keys in GetPassword and SetPassword functions"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Observing hardcoded encryption keys in GetPassword and SetPassword functions</figcaption>
+    
+  </figure>
+
+</p>
+<p>Looking at the definition of <code>Password()</code>, we see that the function defaults to a predefined key if it receives no input, and it uses the inline encryption key otherwise. We did not observe any instance where the application used this default key.
+
+  <figure class="center" >
+    <img src="2_defaultkey.png"  alt="Observing default encryption key and override in Password function"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Observing default encryption key and override in Password function</figcaption>
+    
+  </figure>
+
+</p>
+<p>After accepting the key as an inline function argument, <code>Password()</code> passes it to <code>InitKey</code>, which splits the input into a key and IV for encryption.</p>
+
+  <figure class="center" >
+    <img src="3_keyinit.png"  alt="Observing the key initialization process in C2SConnection.dll"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Observing the key initialization process in C2SConnection.dll</figcaption>
+    
+  </figure>
+
+
+<p>The <code>InitKey</code> function is deterministic: all passwords are encrypted with the same key and IV. If an attacker were to extract this key from one installation of ImageDirector Capture, they could decrypt passwords from other deployments.</p>
+<p>This finding was assigned CVE-2025-58740.</p>
+<hr>
+<h1 id="taking-off-the-mask-insecure-masked-credential-fields">Taking Off The Mask: Insecure Masked Credential Fields<a href="#taking-off-the-mask-insecure-masked-credential-fields" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>In the <code>Connection Settings</code> dialog, ImageDirector Capture shows a field with the masked database password. Although the password is masked, it exists in the application&rsquo;s memory as plaintext. We used the &ldquo;<a href="https://www.nirsoft.net/utils/bullets_password_view.html" target="_blank">Bullets Password View</a>&rdquo; tool from NirSoft to read these credentials.</p>
+<p>Notably, we confirmed that the <code>Connection Settings</code> dialog was not vulnerable to this attack when manually launched from the Settings menu within the application. However, it was vulnerable when the application failed to connect to the database on initial load and subsequently loaded <code>Connection Settings</code>. We induced this state by setting the &ldquo;ServerInstance&rdquo; value in the program&rsquo;s <code>Connections.config</code> file to a non-existent server address.</p>
+
+  <figure class="center" >
+    <img src="4_connectionsettings.png"  alt="Viewing the masked password in the Connection Settings window"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Viewing the masked password in the Connection Settings window</figcaption>
+    
+  </figure>
+
+
+
+  <figure class="center" >
+    <img src="5_bulletspassview.png"  alt="Extracting the database password with BulletsPassView"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Extracting the database password with BulletsPassView</figcaption>
+    
+  </figure>
+
+
+
+  <figure class="center" >
+    <img src="6_unmaskmeme.png"  alt="Meme of man removing mask from a masked password, revealing a password"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Deploying relevant meme</figcaption>
+    
+  </figure>
+
+
+<p>This finding was assigned CVE-2025-58741.</p>
+<hr>
+<h1 id="im-the-server-send-me-your-password-mssql-pass-back">I&rsquo;m The Server, Send Me Your Password: MSSQL Pass-Back<a href="#im-the-server-send-me-your-password-mssql-pass-back" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Revisiting the <code>Connection Settings</code> dialog, we wondered what would happen if we changed the <code>Server</code> IP address to a different value: would the application attempt to login? Yes, it would! We were able to extract the database password by pointing ImageDirector Capture at a <a href="https://github.com/defragmentator/mitmsqlproxy" target="_blank">mitmsqlproxy</a> instance. After clicking <code>Test Connection</code>, the application sent its credentials over the network.</p>
+
+  <figure class="center" >
+    <img src="7_mitmsqlproxy.png"  alt="Intercepting database credentials with mitmsqlproxy"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Intercepting database credentials with mitmsqlproxy</figcaption>
+    
+  </figure>
+
+
+<p>This finding was assigned CVE-2025-58742.</p>
+<hr>
+<h1 id="doesnt-encrypt-securely-des">Doesn&rsquo;t Encrypt Securely: DES<a href="#doesnt-encrypt-securely-des" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>When we inspected the encryption function, we found that ImageDirector Capture uses the DES algorithm to encrypt and decrypt data. DES is insecure, and CISA <a href="https://www.cisa.gov/sites/default/files/2024-05/23_0918_fpic_AES-Transition-WhitePaper_Final_508C_24_0513.pdf" target="_blank">recommends</a> replacing it with a secure algorithm like AES-256.</p>
+
+  <figure class="center" >
+    <img src="8_encryptfunction.png"  alt="Viewing DES encryption in the Encrypt function"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Viewing DES encryption in the Encrypt function</figcaption>
+    
+  </figure>
+
+
+<p>This finding was assigned CVE-2025-58743.</p>
+<hr>
+<h1 id="all-your-backups-are-belong-to-us-hardcoded-credentials">All Your Backups Are Belong To Us: Hardcoded Credentials<a href="#all-your-backups-are-belong-to-us-hardcoded-credentials" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>In addition to the hardcoded encryption key for passwords, the application contains a hardcoded password (the <code>DelayedTransmissionPassword</code>), which is used for encrypting and decrypting archive backup files. An attacker with access to encrypted archive files would be able to decrypt the files with the password and extract data.</p>
+
+  <figure class="center" >
+    <img src="9_delayedtransmissionpassword.png"  alt="Viewing the hardcoded password in C2SGlobalSettings.dll"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Viewing the hardcoded password in C2SGlobalSettings.dll</figcaption>
+    
+  </figure>
+
+
+<p>This finding was assigned CVE-2025-58744.</p>
+<hr>
+<h1 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>The multiple vulnerabilities in this software illustrate the importance of in-depth testing. We were pleased to see that the vendor took action to promptly remediate these vulnerabilities in response to our disclosure.</p>
+<h1 id="timeframe">Timeframe<a href="#timeframe" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<ul>
+<li>October 15-23, 2025 – SRA attempts to establish contact with Milner to disclose vulnerabilities.</li>
+<li>November 04, 2025 – Milner acknowledges vulnerabilities and intent to fix.</li>
+<li>December 31, 2025 – Milner releases ImageDirector Capture 7.6.3.25808.</li>
+<li>January 20, 2026 – SRA publishes CVEs and advisory.</li>
+</ul>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

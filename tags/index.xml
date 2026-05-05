@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on SRA Labs</title>
+    <title>Tags on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
     <link>https://labs.sra.io/tags/</link>
-    <description>Recent content in Tags on SRA Labs</description>
+    <description>Recent content in Tags on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 20 Jan 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 05 May 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Advisory</title>
-      <link>https://labs.sra.io/tags/advisory/</link>
-      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      <title>Cve</title>
+      <link>https://labs.sra.io/tags/cve/</link>
+      <pubDate>Tue, 05 May 2026 12:00:00 +0000</pubDate>
       
-      <guid>https://labs.sra.io/tags/advisory/</guid>
+      <guid>https://labs.sra.io/tags/cve/</guid>
       <description></description>
       <content></content>
     </item>
@@ -20,7 +20,7 @@
     <item>
       <title>CVE-2025-58740</title>
       <link>https://labs.sra.io/tags/cve-2025-58740/</link>
-      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      <pubDate>Tue, 05 May 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/cve-2025-58740/</guid>
       <description></description>
@@ -30,7 +30,7 @@
     <item>
       <title>CVE-2025-58741</title>
       <link>https://labs.sra.io/tags/cve-2025-58741/</link>
-      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      <pubDate>Tue, 05 May 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/cve-2025-58741/</guid>
       <description></description>
@@ -40,7 +40,7 @@
     <item>
       <title>CVE-2025-58742</title>
       <link>https://labs.sra.io/tags/cve-2025-58742/</link>
-      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      <pubDate>Tue, 05 May 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/cve-2025-58742/</guid>
       <description></description>
@@ -50,7 +50,7 @@
     <item>
       <title>CVE-2025-58743</title>
       <link>https://labs.sra.io/tags/cve-2025-58743/</link>
-      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      <pubDate>Tue, 05 May 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/cve-2025-58743/</guid>
       <description></description>
@@ -60,9 +60,19 @@
     <item>
       <title>CVE-2025-58744</title>
       <link>https://labs.sra.io/tags/cve-2025-58744/</link>
-      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      <pubDate>Tue, 05 May 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/cve-2025-58744/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>Advisory</title>
+      <link>https://labs.sra.io/tags/advisory/</link>
+      <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/advisory/</guid>
       <description></description>
       <content></content>
     </item>
