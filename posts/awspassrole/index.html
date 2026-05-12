@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Analyzing Risk for IAM PassRole :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The AWS `iam:PassRole` permission is one of the most foundational permissions in all IAM. It grants a principal the ability to assign roles to services. Unlike other privileged IAM permissions, which tend to allow for direct escalation paths, `PassRole` abuse is more nuanced and therefore it&#39;s harder to assess the impact of `PassRole` assignments for principals. In this post, we will explore different methods of assessing risks associated with `PassRole`." />
+<meta name="keywords" content="aws, iam, neph" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/awspassrole/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Analyzing Risk for IAM PassRole">
+<meta property="og:description" content="The AWS `iam:PassRole` permission is one of the most foundational permissions in all IAM. It grants a principal the ability to assign roles to services. Unlike other privileged IAM permissions, which tend to allow for direct escalation paths, `PassRole` abuse is more nuanced and therefore it&#39;s harder to assess the impact of `PassRole` assignments for principals. In this post, we will explore different methods of assessing risks associated with `PassRole`." />
+<meta property="og:url" content="https://labs.sra.io/posts/awspassrole/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-05-12 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/awspassrole/">Analyzing Risk for IAM PassRole</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-05-12</time><span class="post-author">Evan Perotti</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/aws/">aws</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/iam/">iam</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/neph/">neph</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <p>The AWS <code>iam:PassRole</code> permission is one of the most foundational permissions in all IAM. It grants a principal the ability to assign roles to services. Unlike other privileged IAM permissions, which tend to allow for direct escalation paths, <code>PassRole</code> abuse is more nuanced and therefore it&rsquo;s harder to assess the impact of <code>PassRole</code> assignments for principals. In this post, we will explore different methods of assessing risks associated with <code>PassRole</code>.</p>
+<hr>
+<h1 id="overview">Overview<a href="#overview" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p><code>PassRole</code> is an IAM permission only, not an action. You can assign it to a principal, but there is no corresponding API call. Instead, each service implements an action that in some way passes a role to the service/resource. For example, if you create a new Lambda Function, you are required to set an execution role. The <code>CreateFunction</code> call will check that the calling principal has the <code>PassRole</code> permission (also applies to similar actions like <code>UpdateFunctionConfiguration</code>).</p>
+<hr>
+<h1 id="abuse">Abuse<a href="#abuse" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>The risk of <code>PassRole</code> is hard to evaluate due to the complexity of an attack. The requirements for abuse are:</p>
+<ul>
+<li>
+<p>The compromised principal must have both the <code>PassRole</code> permission and the service-specific permission (ex: <code>CreateFunction</code> for Lambda).</p>
+<ul>
+<li>Also note: there is no official AWS documentation on which API actions also require <code>PassRole</code>. Developers must determine this on their own. The closest official resource is the list of services that integrate with IAM found <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-services-that-work-with-iam.html" target="_blank">here</a>. Tenable also has a great post describing this issue <a href="https://www.tenable.com/blog/auditing-iampassrole-a-problematic-privilege-escalation-permission" target="_blank">here</a>.</li>
+</ul>
+</li>
+<li>
+<p>The attacker must be able to influence the service/resource that receives the role. This is the biggest difference as compared to direct privilege escalation permissions and is highly service specific.</p>
+</li>
+</ul>
+<p>As an example, we will use Lambda Function creation. The attacker will be operating from Role A, which has <code>PassRole</code> and <code>CreateFunction</code> permissions. The role they intend to pass is Role B and has administrator permissions (unconditional <code>*</code> on <code>*</code>). The attack steps are:</p>
+<ol>
+<li>Attacker prepares the Lambda Function code in a way that allows them to achieve their desired goal. For example, by having the code assign them an administrator policy or by creating a new administrator role they can assume.</li>
+<li>Attacker calls <code>CreateFunction</code> from Role A and specifies Role B as the new Function’s execution role</li>
+<li>Attacker invokes the newly created Function</li>
+<li>Lambda invokes the Attacker’s code and performs AWS actions using Role B, the administrator role</li>
+</ol>
+<hr>
+<h1 id="defense">Defense<a href="#defense" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>There are two primary ways to restrict <code>PassRole</code> in an IAM policy. The first is by using a <code>Resource</code> key to restrict the roles that can be passed.</p>
+
+
+
+  <div class="collapsable-code">
+    <input id="268795413" type="checkbox"  />
+    <label for="268795413">
+      <span class="collapsable-code__language">JSON</span>
+      <span class="collapsable-code__title">Restricting PassRole via a Resource</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-JSON" ><code>
+{
+	&#34;Version&#34;: &#34;2012-10-17&#34;,
+	&#34;Statement&#34;: [
+		{
+			&#34;Sid&#34;: &#34;1&#34;,
+			&#34;Effect&#34;: &#34;Allow&#34;,
+			&#34;Action&#34;: &#34;iam:PassRole&#34;,
+			&#34;Resource&#34;: &#34;arn:aws:iam::123456789000:role/RoleA&#34;
+		}
+	]
+}
+</code></pre>
+  </div>
+
+
+<p>The second is by using one or more <code>PassRole</code>-specific IAM conditions, namely <code>iam:PassedToService</code> and <code>iam:AssociatedResourceARN</code>.</p>
+
+
+
+  <div class="collapsable-code">
+    <input id="271395468" type="checkbox"  />
+    <label for="271395468">
+      <span class="collapsable-code__language">JSON</span>
+      <span class="collapsable-code__title">Restricting PassRole via iam:PassedToService</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-JSON" ><code>
+{
+	&#34;Version&#34;: &#34;2012-10-17&#34;,
+	&#34;Statement&#34;: [
+		{
+			&#34;Sid&#34;: &#34;1&#34;,
+			&#34;Effect&#34;: &#34;Allow&#34;,
+			&#34;Action&#34;: &#34;iam:PassRole&#34;,
+			&#34;Resource&#34;: &#34;arn:aws:iam::123456789000:role/RoleA&#34;,
+			&#34;Condition&#34;: {
+				&#34;StringEquals&#34;: {
+					&#34;iam:PassedToService&#34;: &#34;lambda.amazonaws.com&#34;
+				}
+			}
+		}
+	]
+}
+</code></pre>
+  </div>
+
+
+
+
+
+  <div class="collapsable-code">
+    <input id="396871425" type="checkbox"  />
+    <label for="396871425">
+      <span class="collapsable-code__language">JSON</span>
+      <span class="collapsable-code__title">Restricting PassRole via iam:AssociatedResourceARN</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-JSON" ><code>
+{
+	&#34;Version&#34;: &#34;2012-10-17&#34;,
+	&#34;Statement&#34;: [
+		{
+			&#34;Sid&#34;: &#34;1&#34;,
+			&#34;Effect&#34;: &#34;Allow&#34;,
+			&#34;Action&#34;: &#34;iam:PassRole&#34;,
+			&#34;Resource&#34;: &#34;arn:aws:iam::123456789000:role/RoleA&#34;,
+			&#34;Condition&#34;: {
+				&#34;StringEquals&#34;: {
+					&#34;iam:AssociatedResourceARN&#34;: &#34;arn:aws:lambda:us-east-1:123456789000:function:FunctionA&#34;
+				}
+			}
+		}
+	]
+}
+</code></pre>
+  </div>
+
+
+<p>The <code>iam:PassedToService</code> condition specifies which <em>services</em> can receive the role(s) whereas <code>iam:AssociatedResourceARN</code> specifies which <em>resource</em> can receive the role(s).</p>
+<hr>
+<h1 id="evaluating-risk">Evaluating Risk<a href="#evaluating-risk" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>To evaluate the risks associated with principals assigned <code>PassRole</code>, we need to understand both the outbound access that principal has as well as inbound access to that principal (e.g., a role that is assumable and has <code>PassRole</code> permissions). For this analysis, we will describe it schematically then demonstrate how to perform it using <a href="https://github.com/SecurityRiskAdvisors/neph" target="_blank">Neph</a>.</p>
+<p>For outbound access, we will focus on unconditional <code>PassRole</code> permissions as these represent the riskiest scenarios. Unconditional here means that there are no restrictions on the roles that can be passed nor on the services that can receive the roles. Schematically:</p>
+<ol>
+<li>Identify all principals in an account</li>
+<li>Retrieve their inline and attached policies</li>
+<li>Expand policy wildcards then look for statements that allow <code>PassRole</code></li>
+<li>Filter those statements for ones without the IAM restrictions noted above</li>
+<li>Validate that the effective permission set for the principal actually allows <code>PassRole</code> (e.g., there may be both an allow and a deny for <code>PassRole</code> across identity policies, permission boundaries, SCPs, etc).</li>
+<li>(Optionally) Validate that the effective permission set allows the service-specific action</li>
+</ol>
+<p>For inbound access, we will analyze trust policies for roles that have <code>PassRole</code> permissions to identify principals that can access those roles from both within the same account as well as from external accounts. Schematically:</p>
+<ol>
+<li>For any role that has <code>PassRole</code>, analyze the trust policy for references to allowed principals, both explicit and wildcards</li>
+<li>For each identified principal, validate that that principal can call <code>AssumeRole</code> against the target role with <code>PassRole</code> permissions</li>
+</ol>
+<p>Note: you can also look for alternative mechanisms to access roles with <code>PassRole</code> permissions, such as if another abusable permission would allow for access to that role. For example, if you have a role that can call <code>UpdateAssumeRolePolicy</code> on the target role, you can update its trust policy to allow your role access.</p>
+<hr>
+<h1 id="practical-analysis">Practical Analysis<a href="#practical-analysis" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>For this analysis we will use <a href="https://github.com/SecurityRiskAdvisors/neph" target="_blank">Neph</a> (release blog <a href="https://sra.io/blog/pruning-garden-paths-in-aws-with-neph/" target="_blank">here</a>), our open-source graph-based AWS security tool. For the more involved parts of the analysis, we will use the <a href="https://github.com/SecurityRiskAdvisors/neph/blob/main/docs/Jupyter.md" target="_blank">Jupyter Lab</a> server included in the default Docker Compose deployment.</p>
+<p>Neph relates both inline and attached policies to principals via an <code>ATTACHED</code> path:</p>
+
+  <figure class="center" >
+    <img src="attachedpath.png"  alt="ATTACHED path"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >ATTACHED path between two nodes</figcaption>
+    
+  </figure>
+
+
+<p>Policy nodes are enriched to include details about abusable permissions. This data is exposed via the <code>iam_privesc</code> and <code>iam_privesc_permission</code> node properties.</p>
+<p>Since Neph considers <code>PassRole</code> an abusable permission, it will be included in these properties, making principal identification straightforward.</p>
+
+  <figure class="center" >
+    <img src="nodeenrichment.png"  alt="Privilege escalation enrichment"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Privilege escalation node attributes on a policy node (also applies to inline policy nodes)</figcaption>
+    
+  </figure>
+
+
+<p>To filter these results for unconditional results, you can use a small code snippet to walk the policy statements and check for <code>Resource</code> and condition restrictions. The below snippet is a minimal example:</p>
+
+
+
+  <div class="collapsable-code">
+    <input id="482563179" type="checkbox"  />
+    <label for="482563179">
+      <span class="collapsable-code__language">python</span>
+      <span class="collapsable-code__title">Statement walking</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-python" ><code>
+import json
+import copy
+from neph.nodes import record_to_stub
+from neph.aws.policies import get_allowed_actions_from_policy
+
+results = session.run(&#34;&#34;&#34;&lt;QUERY&gt;&#34;&#34;&#34;).values()
+for result in results:
+    policy = record_to_stub(result[0], include_fakes=True)
+    policy_dict = json.loads(policy.policy)
+    statements = policy_dict.get(&#34;Statement&#34;, []) 
+    
+    for statement in statements:
+        dummy_policy = copy.copy(policy_dict)
+        dummy_policy[&#34;Statement&#34;] = [statement]
+        if &#34;iam:PassRole&#34; in get_allowed_actions_from_policy(dummy_policy):            
+            if &#34;Condition&#34; not in statement:
+                # logic here
+</code></pre>
+  </div>
+
+
+<ul>
+<li>Given a query returning policy nodes, this will load the results into a Neph node object then deserialize the policy data.</li>
+<li>For each statement in the policy, create a full policy containing only that statement (the &ldquo;dummy&rdquo;). This is to isolate the positive results by statement.</li>
+<li>The permissions in the statement are expanded then checked to see if <code>iam:PassRole</code> is present.</li>
+</ul>
+
+  <figure class="center" >
+    <img src="jupyterwalk.png"  alt="Example output"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Example output using complete version of above code snippet.<br>AWSControlTowerExecution is an administrator role with full wildcard permissions.</figcaption>
+    
+  </figure>
+
+
+<p>Then validate that the effective set of policies for the principal does not disallow <code>PassRole</code> by using the Simulator. Note: <code>PassRole</code> is only an IAM permission, not an API call. However, the Neph Simulator will still work in this case.</p>
+
+  <figure class="center" >
+    <img src="passrolesim.png"  alt="PassRole simulation"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Simulating PassRole using the Neph Simulator</figcaption>
+    
+  </figure>
+
+
+<p>This is equivalent to the following CLI command:</p>
+<blockquote>
+<p><code>neph sim --principal &quot;&lt;ROLE ARN&gt;&quot; --action &quot;iam:PassRole&quot; --resource &quot;*&quot;</code></p>
+</blockquote>
+<p>If you are interested in service-specific role passing actions, such as <code>CreateFunction</code>, you can then also simulate that action in addition to <code>PassRole</code>.</p>
+<p>This piece of the analysis provides the set of principals with <code>PassRole</code>. For any roles within that list, it makes sense to also evaluate inbound access by analyzing the trust policies. If you’ve generated leads within Neph, you will already have inbound paths to the roles based on their trust policies. For example, if the trust policies allow assumption using an account-level trust, there will be a path to the role from that account.</p>
+<p>Neph represents explicit principal references in trust policies using a <code>CAN_ASSUME</code> lead relationship. A trust policy like:</p>
+
+
+
+  <div class="collapsable-code">
+    <input id="145786239" type="checkbox"  />
+    <label for="145786239">
+      <span class="collapsable-code__language">JSON</span>
+      <span class="collapsable-code__title">Trust policy</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-JSON" ><code>
+{
+    &#34;Version&#34;: &#34;2012-10-17&#34;,
+    &#34;Statement&#34;: [
+        {
+            &#34;Action&#34;: &#34;sts:AssumeRole&#34;,
+            &#34;Effect&#34;: &#34;Allow&#34;,
+            &#34;Principal&#34;: {
+                &#34;AWS&#34;: &#34;arn:aws:iam::123456789000:role/Role&#34;
+            }
+        }
+    ]
+}
+</code></pre>
+  </div>
+
+
+<p>Will lead to the creation of a path like:</p>
+
+  <figure class="center" >
+    <img src="assumerolepath.png"  alt="CAN_ASSUME lead path (roles)"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >CAN_ASSUME LEAD path for explicit role trust</figcaption>
+    
+  </figure>
+
+
+
+  <figure class="center" >
+    <img src="canassumepath.png"  alt="CAN_ASSUME lead path (account)"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >CAN_ASSUME LEAD path for account-level trusts</figcaption>
+    
+  </figure>
+
+
+<p>If roles trust entire accounts for assumption, Neph will use the <code>CAN_ASSUME</code> lead as well, but with the source node being an account instead of a role. You will need to expand that to the principals from that account by using the <code>account_id</code> attribute.</p>
+
+  <figure class="center" >
+    <img src="roleinsourceaccount.png"  alt="CAN_ASSUME lead and role"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Role in account (bottom) that has CAN_ASSUME lead (top)</figcaption>
+    
+  </figure>
+
+
+<p>Additional analysis should then be performed to validate the source node can assume the role by using the Simulator to make an <code>AssumeRole</code> call from the source node to the target that has <code>PassRole</code> permissions.</p>
+
+  <figure class="center" >
+    <img src="assumerolesim.png"  alt="AssumeRole simulation"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Simulating AssumeRole using the Neph Simulator</figcaption>
+    
+  </figure>
+
+
+<p>Principals that can assume roles with <code>PassRole</code> represent additional risk as they effectively have the <code>PassRole</code> permission.</p>
+<h3 id="extending-neph">Extending Neph<a href="#extending-neph" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>You can leverage Neph’s <a href="https://github.com/SecurityRiskAdvisors/neph/blob/main/docs/Plugins.md" target="_blank">extensibility</a> to make initial <code>PassRole</code> target identification easier. As noted above, Neph enriches policy nodes that include abusable permissions with additional node attributes. The code responsible for this enrichment can be found <a href="https://github.com/SecurityRiskAdvisors/neph/blob/8206519d1c4294cf44bf16cb77a7fdf49b8d25c0/neph/aws/nodes/iam.py#L166" target="_blank">here</a>.</p>
+
+  <figure class="center" >
+    <img src="privescenrichment.png"  alt="Enrichment code snippet"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Source code for privilege escalation enrichment</figcaption>
+    
+  </figure>
+
+
+<p>The policy contents are checked to see if they contain any of the noted abusable permissions. Policies that do receive additional attributes. Neph also uses these abusable permissions for its privilege escalation fanout (code <a href="https://github.com/SecurityRiskAdvisors/neph/blob/8206519d1c4294cf44bf16cb77a7fdf49b8d25c0/neph/aws/other/fanouts.py#L25" target="_blank">here</a>).</p>
+<p>Both checks can be repurposed to look for additional notable permissions, such as service-specific implementations of role passing operations like <code>CreateFunction</code>, either by looking for those specific permissions in isolation or by looking for them cooccurring with <code>PassRole</code>.</p>
+<p>For this example, we will use the node enrichment as a basis for a new enrichment that looks for a combination of <code>PassRole</code> and one or more service-specific implementations, like <code>CreateFunction</code></p>
+
+
+
+  <div class="collapsable-code">
+    <input id="624731958" type="checkbox" checked />
+    <label for="624731958">
+      <span class="collapsable-code__language">python</span>
+      <span class="collapsable-code__title">PassRole Enrichment</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-python" ><code>
+SERVICE_SPECIFIC_PASSROLE = [&#34;lambda:CreationFunction&#34;]
+
+class PassRoleCombinations(NodeEnrichment):
+    nodes = [IamPolicy, IamInlinePolicy, IicInlinePolicy]
+
+    @classmethod
+    @add_session()
+    def enrich(cls, stub, session: Session = None):
+        if hasattr(stub, &#34;policy&#34;) and (policy := getattr(stub, &#34;policy&#34;)) is not None:
+            policy_json = json.loads(policy)
+            allowed_actions = get_allowed_actions_from_policy(policy_json)
+            has_passrole = &#34;iam:PassRole&#34; in allowed_actions
+            service_permissions = list(filter(lambda x: x in allowed_actions, SERVICE_SPECIFIC_PASSROLE))
+
+            if has_passrole and len(service_permissions) &gt; 0:
+                parent = stub.get_parent()
+                if parent == IamPolicy:
+                    match = f&#34;&#34;&#34;MATCH (policy:{IamPolicy.label}{{arn: &#34;{stub.arn}&#34;}})&#34;&#34;&#34;
+                elif parent in [IamInlinePolicy, IicInlinePolicy]:
+                    match = f&#34;&#34;&#34;MATCH (policy:{IamInlinePolicy.label}|{IicInlinePolicy.label}{{principal_arn: &#34;{stub.principal_arn}&#34;, name: &#34;{stub.name}&#34;, policy: &#39;{stub.policy}&#39; }})&#34;&#34;&#34;
+                else:
+                    return
+
+                permissions_str = json.dumps(service_permissions)
+                query = f&#34;&#34;&#34;
+                {match}
+                SET policy.passrole_combination = &#34;true&#34;
+                SET policy.passrole_combination_permissions = &#39;{permissions_str}&#39;
+                &#34;&#34;&#34;
+                session.run(query)
+</code></pre>
+  </div>
+
+
+<ul>
+<li>This class is largely the same as the one linked <a href="https://github.com/SecurityRiskAdvisors/neph/blob/8206519d1c4294cf44bf16cb77a7fdf49b8d25c0/neph/aws/nodes/iam.py#L166" target="_blank">above</a>. The main difference is that it checks <em>both</em> for <code>PassRole</code> and the service permissions whereas the original only checks for abusable permissions, which includes <code>PassRole</code></li>
+<li>You can modify the <code>SERVICE_SPECIFIC_PASSROLE</code> list as needed to include additional permissions</li>
+<li>This adds the <code>passrole_combination</code> and <code>passrole_combination_permissions</code> node attributes on matched nodes</li>
+</ul>
+<p>After installing and running the enrichment (details <a href="https://github.com/SecurityRiskAdvisors/neph/blob/main/docs/Plugins.md" target="_blank">here</a>), you can query for matches based on the added attributes, <code>passrole_combination</code> and <code>passrole_combination_permissions</code>.</p>
+
+  <figure class="center" >
+    <img src="newenrichment.png"  alt="New enrichment result"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Policy node with new attributes from custom enrichment</figcaption>
+    
+  </figure>
+
+
+<hr>
+<h1 id="closing">Closing<a href="#closing" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p><code>PassRole</code> is a highly privileged permission in AWS that requires a nuanced approach to understanding its risk. Using tools like Neph, you can better understand the inbound and outbound attack paths related to principals with <code>PassRole</code> permissions.</p>
+<p>If you have any questions or concerns, feel free to reach out to <a href="https://x.com/2xxeformyshirt" target="_blank">@2xxeformyshirt</a>. Neph source code can be found <a href="https://github.com/SecurityRiskAdvisors/neph" target="_blank">here</a>.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

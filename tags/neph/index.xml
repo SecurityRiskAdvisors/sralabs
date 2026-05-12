@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Neph on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+    <link>https://labs.sra.io/tags/neph/</link>
+    <description>Recent content in Neph on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 12 May 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/neph/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Analyzing Risk for IAM PassRole</title>
+      <link>https://labs.sra.io/posts/awspassrole/</link>
+      <pubDate>Tue, 12 May 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/awspassrole/</guid>
+      <description>&lt;p&gt;The AWS &lt;code&gt;iam:PassRole&lt;/code&gt; permission is one of the most foundational permissions in all IAM. It grants a principal the ability to assign roles to services. Unlike other privileged IAM permissions, which tend to allow for direct escalation paths, &lt;code&gt;PassRole&lt;/code&gt; abuse is more nuanced and therefore it&amp;rsquo;s harder to assess the impact of &lt;code&gt;PassRole&lt;/code&gt; assignments for principals. In this post, we will explore different methods of assessing risks associated with &lt;code&gt;PassRole&lt;/code&gt;.&lt;/p&gt;</description>
+      <content>&lt;p&gt;The AWS &lt;code&gt;iam:PassRole&lt;/code&gt; permission is one of the most foundational permissions in all IAM. It grants a principal the ability to assign roles to services. Unlike other privileged IAM permissions, which tend to allow for direct escalation paths, &lt;code&gt;PassRole&lt;/code&gt; abuse is more nuanced and therefore it&amp;rsquo;s harder to assess the impact of &lt;code&gt;PassRole&lt;/code&gt; assignments for principals. In this post, we will explore different methods of assessing risks associated with &lt;code&gt;PassRole&lt;/code&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;overview&#34;&gt;Overview&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;PassRole&lt;/code&gt; is an IAM permission only, not an action. You can assign it to a principal, but there is no corresponding API call. Instead, each service implements an action that in some way passes a role to the service/resource. For example, if you create a new Lambda Function, you are required to set an execution role. The &lt;code&gt;CreateFunction&lt;/code&gt; call will check that the calling principal has the &lt;code&gt;PassRole&lt;/code&gt; permission (also applies to similar actions like &lt;code&gt;UpdateFunctionConfiguration&lt;/code&gt;).&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;abuse&#34;&gt;Abuse&lt;/h1&gt;
+&lt;p&gt;The risk of &lt;code&gt;PassRole&lt;/code&gt; is hard to evaluate due to the complexity of an attack. The requirements for abuse are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The compromised principal must have both the &lt;code&gt;PassRole&lt;/code&gt; permission and the service-specific permission (ex: &lt;code&gt;CreateFunction&lt;/code&gt; for Lambda).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Also note: there is no official AWS documentation on which API actions also require &lt;code&gt;PassRole&lt;/code&gt;. Developers must determine this on their own. The closest official resource is the list of services that integrate with IAM found &lt;a href=&#34;https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_aws-services-that-work-with-iam.html&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;. Tenable also has a great post describing this issue &lt;a href=&#34;https://www.tenable.com/blog/auditing-iampassrole-a-problematic-privilege-escalation-permission&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The attacker must be able to influence the service/resource that receives the role. This is the biggest difference as compared to direct privilege escalation permissions and is highly service specific.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;As an example, we will use Lambda Function creation. The attacker will be operating from Role A, which has &lt;code&gt;PassRole&lt;/code&gt; and &lt;code&gt;CreateFunction&lt;/code&gt; permissions. The role they intend to pass is Role B and has administrator permissions (unconditional &lt;code&gt;*&lt;/code&gt; on &lt;code&gt;*&lt;/code&gt;). The attack steps are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Attacker prepares the Lambda Function code in a way that allows them to achieve their desired goal. For example, by having the code assign them an administrator policy or by creating a new administrator role they can assume.&lt;/li&gt;
+&lt;li&gt;Attacker calls &lt;code&gt;CreateFunction&lt;/code&gt; from Role A and specifies Role B as the new Function’s execution role&lt;/li&gt;
+&lt;li&gt;Attacker invokes the newly created Function&lt;/li&gt;
+&lt;li&gt;Lambda invokes the Attacker’s code and performs AWS actions using Role B, the administrator role&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;defense&#34;&gt;Defense&lt;/h1&gt;
+&lt;p&gt;There are two primary ways to restrict &lt;code&gt;PassRole&lt;/code&gt; in an IAM policy. The first is by using a &lt;code&gt;Resource&lt;/code&gt; key to restrict the roles that can be passed.&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;268795413&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;268795413&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via a Resource&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-JSON&#34; &gt;&lt;code&gt;
+{
+	&amp;#34;Version&amp;#34;: &amp;#34;2012-10-17&amp;#34;,
+	&amp;#34;Statement&amp;#34;: [
+		{
+			&amp;#34;Sid&amp;#34;: &amp;#34;1&amp;#34;,
+			&amp;#34;Effect&amp;#34;: &amp;#34;Allow&amp;#34;,
+			&amp;#34;Action&amp;#34;: &amp;#34;iam:PassRole&amp;#34;,
+			&amp;#34;Resource&amp;#34;: &amp;#34;arn:aws:iam::123456789000:role/RoleA&amp;#34;
+		}
+	]
+}
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;p&gt;The second is by using one or more &lt;code&gt;PassRole&lt;/code&gt;-specific IAM conditions, namely &lt;code&gt;iam:PassedToService&lt;/code&gt; and &lt;code&gt;iam:AssociatedResourceARN&lt;/code&gt;.&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;271395468&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;271395468&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:PassedToService&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-JSON&#34; &gt;&lt;code&gt;
+{
+	&amp;#34;Version&amp;#34;: &amp;#34;2012-10-17&amp;#34;,
+	&amp;#34;Statement&amp;#34;: [
+		{
+			&amp;#34;Sid&amp;#34;: &amp;#34;1&amp;#34;,
+			&amp;#34;Effect&amp;#34;: &amp;#34;Allow&amp;#34;,
+			&amp;#34;Action&amp;#34;: &amp;#34;iam:PassRole&amp;#34;,
+			&amp;#34;Resource&amp;#34;: &amp;#34;arn:aws:iam::123456789000:role/RoleA&amp;#34;,
+			&amp;#34;Condition&amp;#34;: {
+				&amp;#34;StringEquals&amp;#34;: {
+					&amp;#34;iam:PassedToService&amp;#34;: &amp;#34;lambda.amazonaws.com&amp;#34;
+				}
+			}
+		}
+	]
+}
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;396871425&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;396871425&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:AssociatedResourceARN&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-JSON&#34; &gt;&lt;code&gt;
+{
+	&amp;#34;Version&amp;#34;: &amp;#34;2012-10-17&amp;#34;,
+	&amp;#34;Statement&amp;#34;: [
+		{
+			&amp;#34;Sid&amp;#34;: &amp;#34;1&amp;#34;,
+			&amp;#34;Effect&amp;#34;: &amp;#34;Allow&amp;#34;,
+			&amp;#34;Action&amp;#34;: &amp;#34;iam:PassRole&amp;#34;,
+			&amp;#34;Resource&amp;#34;: &amp;#34;arn:aws:iam::123456789000:role/RoleA&amp;#34;,
+			&amp;#34;Condition&amp;#34;: {
+				&amp;#34;StringEquals&amp;#34;: {
+					&amp;#34;iam:AssociatedResourceARN&amp;#34;: &amp;#34;arn:aws:lambda:us-east-1:123456789000:function:FunctionA&amp;#34;
+				}
+			}
+		}
+	]
+}
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;iam:PassedToService&lt;/code&gt; condition specifies which &lt;em&gt;services&lt;/em&gt; can receive the role(s) whereas &lt;code&gt;iam:AssociatedResourceARN&lt;/code&gt; specifies which &lt;em&gt;resource&lt;/em&gt; can receive the role(s).&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;evaluating-risk&#34;&gt;Evaluating Risk&lt;/h1&gt;
+&lt;p&gt;To evaluate the risks associated with principals assigned &lt;code&gt;PassRole&lt;/code&gt;, we need to understand both the outbound access that principal has as well as inbound access to that principal (e.g., a role that is assumable and has &lt;code&gt;PassRole&lt;/code&gt; permissions). For this analysis, we will describe it schematically then demonstrate how to perform it using &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph&#34; target=&#34;_blank&#34;&gt;Neph&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For outbound access, we will focus on unconditional &lt;code&gt;PassRole&lt;/code&gt; permissions as these represent the riskiest scenarios. Unconditional here means that there are no restrictions on the roles that can be passed nor on the services that can receive the roles. Schematically:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Identify all principals in an account&lt;/li&gt;
+&lt;li&gt;Retrieve their inline and attached policies&lt;/li&gt;
+&lt;li&gt;Expand policy wildcards then look for statements that allow &lt;code&gt;PassRole&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Filter those statements for ones without the IAM restrictions noted above&lt;/li&gt;
+&lt;li&gt;Validate that the effective permission set for the principal actually allows &lt;code&gt;PassRole&lt;/code&gt; (e.g., there may be both an allow and a deny for &lt;code&gt;PassRole&lt;/code&gt; across identity policies, permission boundaries, SCPs, etc).&lt;/li&gt;
+&lt;li&gt;(Optionally) Validate that the effective permission set allows the service-specific action&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;For inbound access, we will analyze trust policies for roles that have &lt;code&gt;PassRole&lt;/code&gt; permissions to identify principals that can access those roles from both within the same account as well as from external accounts. Schematically:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;For any role that has &lt;code&gt;PassRole&lt;/code&gt;, analyze the trust policy for references to allowed principals, both explicit and wildcards&lt;/li&gt;
+&lt;li&gt;For each identified principal, validate that that principal can call &lt;code&gt;AssumeRole&lt;/code&gt; against the target role with &lt;code&gt;PassRole&lt;/code&gt; permissions&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Note: you can also look for alternative mechanisms to access roles with &lt;code&gt;PassRole&lt;/code&gt; permissions, such as if another abusable permission would allow for access to that role. For example, if you have a role that can call &lt;code&gt;UpdateAssumeRolePolicy&lt;/code&gt; on the target role, you can update its trust policy to allow your role access.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;practical-analysis&#34;&gt;Practical Analysis&lt;/h1&gt;
+&lt;p&gt;For this analysis we will use &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph&#34; target=&#34;_blank&#34;&gt;Neph&lt;/a&gt; (release blog &lt;a href=&#34;https://sra.io/blog/pruning-garden-paths-in-aws-with-neph/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;), our open-source graph-based AWS security tool. For the more involved parts of the analysis, we will use the &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph/blob/main/docs/Jupyter.md&#34; target=&#34;_blank&#34;&gt;Jupyter Lab&lt;/a&gt; server included in the default Docker Compose deployment.&lt;/p&gt;
+&lt;p&gt;Neph relates both inline and attached policies to principals via an &lt;code&gt;ATTACHED&lt;/code&gt; path:&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;attachedpath.png&#34;  alt=&#34;ATTACHED path&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;ATTACHED path between two nodes&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Policy nodes are enriched to include details about abusable permissions. This data is exposed via the &lt;code&gt;iam_privesc&lt;/code&gt; and &lt;code&gt;iam_privesc_permission&lt;/code&gt; node properties.&lt;/p&gt;
+&lt;p&gt;Since Neph considers &lt;code&gt;PassRole&lt;/code&gt; an abusable permission, it will be included in these properties, making principal identification straightforward.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;nodeenrichment.png&#34;  alt=&#34;Privilege escalation enrichment&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Privilege escalation node attributes on a policy node (also applies to inline policy nodes)&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;To filter these results for unconditional results, you can use a small code snippet to walk the policy statements and check for &lt;code&gt;Resource&lt;/code&gt; and condition restrictions. The below snippet is a minimal example:&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;482563179&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;482563179&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;Statement walking&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-python&#34; &gt;&lt;code&gt;
+import json
+import copy
+from neph.nodes import record_to_stub
+from neph.aws.policies import get_allowed_actions_from_policy
+
+results = session.run(&amp;#34;&amp;#34;&amp;#34;&amp;lt;QUERY&amp;gt;&amp;#34;&amp;#34;&amp;#34;).values()
+for result in results:
+    policy = record_to_stub(result[0], include_fakes=True)
+    policy_dict = json.loads(policy.policy)
+    statements = policy_dict.get(&amp;#34;Statement&amp;#34;, []) 
+    
+    for statement in statements:
+        dummy_policy = copy.copy(policy_dict)
+        dummy_policy[&amp;#34;Statement&amp;#34;] = [statement]
+        if &amp;#34;iam:PassRole&amp;#34; in get_allowed_actions_from_policy(dummy_policy):            
+            if &amp;#34;Condition&amp;#34; not in statement:
+                # logic here
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;Given a query returning policy nodes, this will load the results into a Neph node object then deserialize the policy data.&lt;/li&gt;
+&lt;li&gt;For each statement in the policy, create a full policy containing only that statement (the &amp;ldquo;dummy&amp;rdquo;). This is to isolate the positive results by statement.&lt;/li&gt;
+&lt;li&gt;The permissions in the statement are expanded then checked to see if &lt;code&gt;iam:PassRole&lt;/code&gt; is present.&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;jupyterwalk.png&#34;  alt=&#34;Example output&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Example output using complete version of above code snippet.&lt;br&gt;AWSControlTowerExecution is an administrator role with full wildcard permissions.&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Then validate that the effective set of policies for the principal does not disallow &lt;code&gt;PassRole&lt;/code&gt; by using the Simulator. Note: &lt;code&gt;PassRole&lt;/code&gt; is only an IAM permission, not an API call. However, the Neph Simulator will still work in this case.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;passrolesim.png&#34;  alt=&#34;PassRole simulation&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Simulating PassRole using the Neph Simulator&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;This is equivalent to the following CLI command:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;code&gt;neph sim --principal &amp;quot;&amp;lt;ROLE ARN&amp;gt;&amp;quot; --action &amp;quot;iam:PassRole&amp;quot; --resource &amp;quot;*&amp;quot;&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;If you are interested in service-specific role passing actions, such as &lt;code&gt;CreateFunction&lt;/code&gt;, you can then also simulate that action in addition to &lt;code&gt;PassRole&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;This piece of the analysis provides the set of principals with &lt;code&gt;PassRole&lt;/code&gt;. For any roles within that list, it makes sense to also evaluate inbound access by analyzing the trust policies. If you’ve generated leads within Neph, you will already have inbound paths to the roles based on their trust policies. For example, if the trust policies allow assumption using an account-level trust, there will be a path to the role from that account.&lt;/p&gt;
+&lt;p&gt;Neph represents explicit principal references in trust policies using a &lt;code&gt;CAN_ASSUME&lt;/code&gt; lead relationship. A trust policy like:&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;145786239&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;145786239&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;Trust policy&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-JSON&#34; &gt;&lt;code&gt;
+{
+    &amp;#34;Version&amp;#34;: &amp;#34;2012-10-17&amp;#34;,
+    &amp;#34;Statement&amp;#34;: [
+        {
+            &amp;#34;Action&amp;#34;: &amp;#34;sts:AssumeRole&amp;#34;,
+            &amp;#34;Effect&amp;#34;: &amp;#34;Allow&amp;#34;,
+            &amp;#34;Principal&amp;#34;: {
+                &amp;#34;AWS&amp;#34;: &amp;#34;arn:aws:iam::123456789000:role/Role&amp;#34;
+            }
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;p&gt;Will lead to the creation of a path like:&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;assumerolepath.png&#34;  alt=&#34;CAN_ASSUME lead path (roles)&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;CAN_ASSUME LEAD path for explicit role trust&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;canassumepath.png&#34;  alt=&#34;CAN_ASSUME lead path (account)&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;CAN_ASSUME LEAD path for account-level trusts&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;If roles trust entire accounts for assumption, Neph will use the &lt;code&gt;CAN_ASSUME&lt;/code&gt; lead as well, but with the source node being an account instead of a role. You will need to expand that to the principals from that account by using the &lt;code&gt;account_id&lt;/code&gt; attribute.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;roleinsourceaccount.png&#34;  alt=&#34;CAN_ASSUME lead and role&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Role in account (bottom) that has CAN_ASSUME lead (top)&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Additional analysis should then be performed to validate the source node can assume the role by using the Simulator to make an &lt;code&gt;AssumeRole&lt;/code&gt; call from the source node to the target that has &lt;code&gt;PassRole&lt;/code&gt; permissions.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;assumerolesim.png&#34;  alt=&#34;AssumeRole simulation&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Simulating AssumeRole using the Neph Simulator&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Principals that can assume roles with &lt;code&gt;PassRole&lt;/code&gt; represent additional risk as they effectively have the &lt;code&gt;PassRole&lt;/code&gt; permission.&lt;/p&gt;
+&lt;h3 id=&#34;extending-neph&#34;&gt;Extending Neph&lt;/h3&gt;
+&lt;p&gt;You can leverage Neph’s &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph/blob/main/docs/Plugins.md&#34; target=&#34;_blank&#34;&gt;extensibility&lt;/a&gt; to make initial &lt;code&gt;PassRole&lt;/code&gt; target identification easier. As noted above, Neph enriches policy nodes that include abusable permissions with additional node attributes. The code responsible for this enrichment can be found &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph/blob/8206519d1c4294cf44bf16cb77a7fdf49b8d25c0/neph/aws/nodes/iam.py#L166&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;privescenrichment.png&#34;  alt=&#34;Enrichment code snippet&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Source code for privilege escalation enrichment&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;The policy contents are checked to see if they contain any of the noted abusable permissions. Policies that do receive additional attributes. Neph also uses these abusable permissions for its privilege escalation fanout (code &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph/blob/8206519d1c4294cf44bf16cb77a7fdf49b8d25c0/neph/aws/other/fanouts.py#L25&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;Both checks can be repurposed to look for additional notable permissions, such as service-specific implementations of role passing operations like &lt;code&gt;CreateFunction&lt;/code&gt;, either by looking for those specific permissions in isolation or by looking for them cooccurring with &lt;code&gt;PassRole&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For this example, we will use the node enrichment as a basis for a new enrichment that looks for a combination of &lt;code&gt;PassRole&lt;/code&gt; and one or more service-specific implementations, like &lt;code&gt;CreateFunction&lt;/code&gt;&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;624731958&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;624731958&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;PassRole Enrichment&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-python&#34; &gt;&lt;code&gt;
+SERVICE_SPECIFIC_PASSROLE = [&amp;#34;lambda:CreationFunction&amp;#34;]
+
+class PassRoleCombinations(NodeEnrichment):
+    nodes = [IamPolicy, IamInlinePolicy, IicInlinePolicy]
+
+    @classmethod
+    @add_session()
+    def enrich(cls, stub, session: Session = None):
+        if hasattr(stub, &amp;#34;policy&amp;#34;) and (policy := getattr(stub, &amp;#34;policy&amp;#34;)) is not None:
+            policy_json = json.loads(policy)
+            allowed_actions = get_allowed_actions_from_policy(policy_json)
+            has_passrole = &amp;#34;iam:PassRole&amp;#34; in allowed_actions
+            service_permissions = list(filter(lambda x: x in allowed_actions, SERVICE_SPECIFIC_PASSROLE))
+
+            if has_passrole and len(service_permissions) &amp;gt; 0:
+                parent = stub.get_parent()
+                if parent == IamPolicy:
+                    match = f&amp;#34;&amp;#34;&amp;#34;MATCH (policy:{IamPolicy.label}{{arn: &amp;#34;{stub.arn}&amp;#34;}})&amp;#34;&amp;#34;&amp;#34;
+                elif parent in [IamInlinePolicy, IicInlinePolicy]:
+                    match = f&amp;#34;&amp;#34;&amp;#34;MATCH (policy:{IamInlinePolicy.label}|{IicInlinePolicy.label}{{principal_arn: &amp;#34;{stub.principal_arn}&amp;#34;, name: &amp;#34;{stub.name}&amp;#34;, policy: &amp;#39;{stub.policy}&amp;#39; }})&amp;#34;&amp;#34;&amp;#34;
+                else:
+                    return
+
+                permissions_str = json.dumps(service_permissions)
+                query = f&amp;#34;&amp;#34;&amp;#34;
+                {match}
+                SET policy.passrole_combination = &amp;#34;true&amp;#34;
+                SET policy.passrole_combination_permissions = &amp;#39;{permissions_str}&amp;#39;
+                &amp;#34;&amp;#34;&amp;#34;
+                session.run(query)
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;This class is largely the same as the one linked &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph/blob/8206519d1c4294cf44bf16cb77a7fdf49b8d25c0/neph/aws/nodes/iam.py#L166&#34; target=&#34;_blank&#34;&gt;above&lt;/a&gt;. The main difference is that it checks &lt;em&gt;both&lt;/em&gt; for &lt;code&gt;PassRole&lt;/code&gt; and the service permissions whereas the original only checks for abusable permissions, which includes &lt;code&gt;PassRole&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;You can modify the &lt;code&gt;SERVICE_SPECIFIC_PASSROLE&lt;/code&gt; list as needed to include additional permissions&lt;/li&gt;
+&lt;li&gt;This adds the &lt;code&gt;passrole_combination&lt;/code&gt; and &lt;code&gt;passrole_combination_permissions&lt;/code&gt; node attributes on matched nodes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;After installing and running the enrichment (details &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph/blob/main/docs/Plugins.md&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;), you can query for matches based on the added attributes, &lt;code&gt;passrole_combination&lt;/code&gt; and &lt;code&gt;passrole_combination_permissions&lt;/code&gt;.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;newenrichment.png&#34;  alt=&#34;New enrichment result&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Policy node with new attributes from custom enrichment&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;hr&gt;
+&lt;h1 id=&#34;closing&#34;&gt;Closing&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;PassRole&lt;/code&gt; is a highly privileged permission in AWS that requires a nuanced approach to understanding its risk. Using tools like Neph, you can better understand the inbound and outbound attack paths related to principals with &lt;code&gt;PassRole&lt;/code&gt; permissions.&lt;/p&gt;
+&lt;p&gt;If you have any questions or concerns, feel free to reach out to &lt;a href=&#34;https://x.com/2xxeformyshirt&#34; target=&#34;_blank&#34;&gt;@2xxeformyshirt&lt;/a&gt;. Neph source code can be found &lt;a href=&#34;https://github.com/SecurityRiskAdvisors/neph&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>
