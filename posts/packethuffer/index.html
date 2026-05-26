@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>PacketHuffer: Making Sense of Kismet Data :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PacketHuffer is a tool to help wireless operators make sense of their recon data obtained from Kismet. It deduplicate information across multiple captures, and allows you to identify interesting networks, and run custom queries on the data." />
+<meta name="keywords" content="kismet, wireless" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/packethuffer/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="PacketHuffer: Making Sense of Kismet Data">
+<meta property="og:description" content="PacketHuffer is a tool to help wireless operators make sense of their recon data obtained from Kismet. It deduplicate information across multiple captures, and allows you to identify interesting networks, and run custom queries on the data." />
+<meta property="og:url" content="https://labs.sra.io/posts/packethuffer/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-05-26 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/packethuffer/">PacketHuffer: Making Sense of Kismet Data</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-05-26</time><span class="post-author">Liam Geyer</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/kismet/">kismet</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/wireless/">wireless</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="background">Background<a href="#background" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p><a href="https://www.kismetwireless.net/" target="_blank">Kismet</a> is a widely-used tool for wireless reconnaissance and other RF information gathering. Wireless reconnaissance, or wardriving, is a key part of wireless engagements during which operators survey the wireless networks and devices in a given area. Kismet is used to easily ingest data from multiple sources (WiFi, BLE, GPS) and identify potentially vulnerable networks and interesting devices.</p>
+<p>Kismet provides output in the form of KismetDB <code>.kismet</code> files, which are SQLite databases.</p>
+
+  <figure class="center" >
+    <img src="kismetdb-sqlite.png"  alt="KismetDB SQLite File"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Viewing a KismetDB file using DB Browser for SQLite.</figcaption>
+    
+  </figure>
+
+
+<p>There are limited tools available to easily pull out Access Points (APs) from these files, and things get especially tricky when dealing with large batches of captures. Enter <a href="https://github.com/SecurityRiskAdvisors/packethuffer" target="_blank"><em>PacketHuffer</em></a>.</p>
+<h1 id="packethuffer">PacketHuffer<a href="#packethuffer" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>The primary motivations of <a href="https://github.com/SecurityRiskAdvisors/packethuffer" target="_blank">PacketHuffer</a> are to ease the struggle of dealing with multiple Kismet captures, implement out of the box rules/detections for items of interest a-la BloodHound, and add flexibility for the easy viewing and analysis of wireless recon data. PacketHuffer takes information from batches of kismet files, extracts the wireless devices, and provides a de-duplicated/concise view of identified networks. The tool has both a CLI and Web GUI, and allows for JSON and XLSX data exports.</p>
+
+  <figure class="center" >
+    <img src="viewing-data.png"  alt="Network Data in the PacketHuffer GUI"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Viewing a KismetDB file using the PacketHuffer GUI.</figcaption>
+    
+  </figure>
+
+
+<p>The GUI displays a single record per SSID and aggregates information from all supplied Kismet files. In addition to the data provided by Kismet, PacketHuffer performs analysis to provide columns such as <code>mfp_status</code> and <code>is_enterprise</code>. These columns provide additional insight based on the Kismet data to make querying and filtering the data easier.  For example, <code>mfp_status</code>, which indicates whether protected management frames are required for a network in a distinct column, is derived from Kismet&rsquo;s <code>dot11.advertisedssid.wpa_mfp_required</code> and <code>dot11.advertisedssid.wpa_mfp_supported</code> attributes.</p>
+
+  <figure class="center" >
+    <img src="cli.png"  alt="PacketHuffer CLI Use"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Processing Kismet files using the PacketHuffer CLI.</figcaption>
+    
+  </figure>
+
+
+<p>Sample anonymized JSON output:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;SSID&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;0&#34;</span>: <span style="color:#e6db74">&#34;DIKomLAG78&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;1&#34;</span>: <span style="color:#e6db74">&#34;af8oiic6bv&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;2&#34;</span>: <span style="color:#e6db74">&#34;B10MKwloKl&#34;</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;crypt_string&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;0&#34;</span>: <span style="color:#e6db74">&#34;open&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;1&#34;</span>: <span style="color:#e6db74">&#34;wpa2 wpa2-eap aes-ccmp&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;2&#34;</span>: <span style="color:#e6db74">&#34;open&#34;</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;mfp_status&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;0&#34;</span>: <span style="color:#e6db74">&#34;Disabled&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;1&#34;</span>: <span style="color:#e6db74">&#34;Disabled&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;2&#34;</span>: <span style="color:#e6db74">&#34;Disabled&#34;</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;is_wpa2&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;0&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;1&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;2&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;is_psk&#34;</span>:
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;0&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;1&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;2&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">[SNIPPED]</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="rules">Rules<a href="#rules" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>A main focus of the tool is the ability to use YAML defined rules and custom queries to identify interesting networks, providing operators with an intuitive UI for Kismet data. PacketHuffer rules consist of a condition and guidance. Networks that meet the criteria for a given rule will have information added to the <code>guidance</code> column.</p>
+<p>The following rule can be used to identify potential deauth candidates, it identifies WPA-PSK networks without protected management frames.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">deauth</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">condition</span>: <span style="color:#e6db74">&#34;mfp_status == &#39;Disabled&#39; and is_wpa == True and is_psk == True&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">guidance</span>: <span style="color:#e6db74">&#34;WPA(2)-PSK network with management frame protection disabled, potential deauthentication candidate.&#34;</span>
+</span></span></code></pre></div>
+  <figure class="center" >
+    <img src="rule-filtering.png"  alt="Using Rule Filtering"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Using rules to identify open networks while hiding hotspots<br>and APs with locally administered MAC addresses.</figcaption>
+    
+  </figure>
+
+
+<h3 id="default-rules">Default Rules<a href="#default-rules" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>The default PacketHuffer config currently ships with the following rules:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Name</th>
+          <th>Logic</th>
+          <th>Guidance</th>
+          <th>Note</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>hidden_networks</td>
+          <td>advertised_SSID == ''</td>
+          <td>Hidden network, SSID identified by examining device probes and responses.</td>
+          <td>PacketHuffer/Kismet will automatically reveal hidden network names by parsing device probes/associations.</td>
+      </tr>
+      <tr>
+          <td>deauth</td>
+          <td>mfp_status == &lsquo;Disabled&rsquo; and is_wpa == True and is_psk == True</td>
+          <td>WPA(2)-PSK network with management frame protection disabled, potential deauthentication candidate.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>pmkid_candidate</td>
+          <td>is_wpa == True and is_psk == True</td>
+          <td>WPA(2)-PSK network, potential PMKID attack candidate.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>dragonblood</td>
+          <td>is_wpa3_transition == True and mfp_status == &lsquo;Disabled&rsquo;</td>
+          <td>Network is in WPA3 transition mode, potential WPA3 downgrade attack candidate (DragonBlood).</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>wep_encryption</td>
+          <td>is_wep == True</td>
+          <td>Network uses WEP encryption, potential candidate for ARP Request Replay Attack.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>open_network</td>
+          <td>crypt_string == &rsquo;&rsquo; or crypt_string == &rsquo;none&rsquo; or crypt_string == &lsquo;open&rsquo;</td>
+          <td>Open network with no encryption.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>hotspots</td>
+          <td>hotspot == True</td>
+          <td>This network&rsquo;s OUI maps to a hotspot or mobile device vendor.</td>
+          <td>This is determined based on OUI lookups / vendors</td>
+      </tr>
+      <tr>
+          <td>locally_administered_mac</td>
+          <td>locally_administered_mac == True</td>
+          <td>This network&rsquo;s MAC is in the range for loclly administered MACs. This may be randomized by a mobile OS/privacy feature.</td>
+          <td>This flags as true if the 2nd character of the MAC is in a locally administered range</td>
+      </tr>
+      <tr>
+          <td>evil_twin</td>
+          <td>is_enterprise == True</td>
+          <td>Enterprise network with EAP enabled. Check the EAP method(s) in use, potential candidate for evil-twin attacks or relay attacks w/sycophant.</td>
+          <td>More work will need to be done here to determine if specific guidance can be given based on EAP types</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="custom-queries">Custom Queries<a href="#custom-queries" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>In addition to rules, users can filter data using custom queries using <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html" target="_blank">Pandas syntax</a>. We can extend the deauth example from above by only identifying networks with connected clients.</p>
+
+  <figure class="center" >
+    <img src="custom-query.png"  alt="Making Custom Queries"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Using custom queries to identify PSK networks<br>with more than 5 connected clients.</figcaption>
+    
+  </figure>
+
+
+<p>This can be used to identify networks based on specific criteria, e.g. a specific string in the SSID, or to test logic for rule creation.</p>
+<h2 id="handling-multiple-captures">Handling Multiple Captures<a href="#handling-multiple-captures" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Warwalking generally involves the collection of GPS data to locate identified networks, but this isn&rsquo;t always feasible depending on the site. When performing recon of small sites such as office buildings, GPS data isn&rsquo;t helpful in pinpointing network locations. To combat this, I wanted a way to view networks found across a series of captures scoped to a specific area (e.g. floor-1.kismet, floor-2.kismet) and identify which files each network was present in.</p>
+<p>When PacketHuffer processes multiple captures, data is de-duplicated by device MAC address, PacketHuffer will provide a single row of data for each broadcasted SSID. The <code>source_db</code> column provides a list of capture files each network was identified in.</p>
+
+  <figure class="center" >
+    <img src="multi-capture.png"  alt="Networks identified in multiple capture files"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Viewing networks identified in multiple capture files.</figcaption>
+    
+  </figure>
+
+
+<p>The row displayed for each SSID will be the record from the last time the network was seen by Kismet. Some columns such as <code>channel</code>, <code>num_connected_clients</code>, and <code>devmac</code> will contain aggregated data from all records.</p>
+<h1 id="closing">Closing<a href="#closing" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>It can be difficult to turn wireless recon data into an actionable plan. Using tools like PacketHuffer, you can more easily make sense of Kismet data and identify targets on wireless engagements.</p>
+<p>PacketHuffer source code can be found <a href="https://github.com/SecurityRiskAdvisors/packethuffer" target="_blank">here</a>. Feel free to contribute with additional rules and detection logic.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
