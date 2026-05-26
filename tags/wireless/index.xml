@@ -156,7 +156,7 @@
       &lt;tr&gt;
           &lt;td&gt;locally_administered_mac&lt;/td&gt;
           &lt;td&gt;locally_administered_mac == True&lt;/td&gt;
-          &lt;td&gt;This network&amp;rsquo;s MAC is in the range for loclly administered MACs. This may be randomized by a mobile OS/privacy feature.&lt;/td&gt;
+          &lt;td&gt;This network&amp;rsquo;s MAC is in the range for locally administered MACs. This may be randomized by a mobile OS/privacy feature.&lt;/td&gt;
           &lt;td&gt;This flags as true if the 2nd character of the MAC is in a locally administered range&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr&gt;
