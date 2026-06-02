@@ -6,7 +6,47 @@
     <description>Recent content in Tags on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 26 May 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 02 Jun 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Offsec</title>
+      <link>https://labs.sra.io/tags/offsec/</link>
+      <pubDate>Tue, 02 Jun 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/offsec/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>Persistence</title>
+      <link>https://labs.sra.io/tags/persistence/</link>
+      <pubDate>Tue, 02 Jun 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/persistence/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>Pycache</title>
+      <link>https://labs.sra.io/tags/pycache/</link>
+      <pubDate>Tue, 02 Jun 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/pycache/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>Python</title>
+      <link>https://labs.sra.io/tags/python/</link>
+      <pubDate>Tue, 02 Jun 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/python/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
     <item>
       <title>Kismet</title>
       <link>https://labs.sra.io/tags/kismet/</link>
@@ -33,16 +73,6 @@
       <pubDate>Tue, 19 May 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/enumeration/</guid>
-      <description></description>
-      <content></content>
-    </item>
-    
-    <item>
-      <title>Offsec</title>
-      <link>https://labs.sra.io/tags/offsec/</link>
-      <pubDate>Tue, 19 May 2026 12:00:00 +0000</pubDate>
-      
-      <guid>https://labs.sra.io/tags/offsec/</guid>
       <description></description>
       <content></content>
     </item>

