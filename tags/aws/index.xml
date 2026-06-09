@@ -46,8 +46,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;326194785&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;326194785&#34;&gt;
+    &lt;input id=&#34;943178265&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;943178265&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via a Resource&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -73,8 +73,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;146278395&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;146278395&#34;&gt;
+    &lt;input id=&#34;486317295&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;486317295&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:PassedToService&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -104,8 +104,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;897354216&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;897354216&#34;&gt;
+    &lt;input id=&#34;563247819&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;563247819&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:AssociatedResourceARN&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -179,8 +179,8 @@
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;257869413&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;257869413&#34;&gt;
+    &lt;input id=&#34;456938127&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;456938127&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Statement walking&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -242,8 +242,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;135684297&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;135684297&#34;&gt;
+    &lt;input id=&#34;615243897&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;615243897&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Trust policy&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -323,8 +323,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;432596178&#34; type=&#34;checkbox&#34; checked /&gt;
-    &lt;label for=&#34;432596178&#34;&gt;
+    &lt;input id=&#34;765943218&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;765943218&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;PassRole Enrichment&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
