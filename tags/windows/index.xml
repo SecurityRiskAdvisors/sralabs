@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Windows on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+    <link>https://labs.sra.io/tags/windows/</link>
+    <description>Recent content in Windows on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 16 Jun 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/windows/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Defensive Applications of Windows Process Mitigations</title>
+      <link>https://labs.sra.io/posts/processmitigations/</link>
+      <pubDate>Tue, 16 Jun 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/processmitigations/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection-reference&#34; target=&#34;_blank&#34;&gt;Process Mitigations&lt;/a&gt; are a Windows feature that enables exploit mitigations on either a per-process or system-wide basis. This post explores our research into potential defensive applications of Process Mitigations to prevent commodity attack techniques as well the limitations of the control.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;how-do-they-work&#34;&gt;How do they work?&lt;/h1&gt;
+&lt;p&gt;Process Mitigations provide the following protections (click to expand):&lt;/p&gt;
+&lt;details&gt;
+&lt;summary&gt;&lt;b&gt;System-wide&lt;/b&gt;&lt;/summary&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Name&lt;/th&gt;
+          &lt;th&gt;Description&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Control flow guard (CFG)&lt;/td&gt;
+          &lt;td&gt;Ensures control flow integrity for indirect calls. Can optionally suppress exports and use strict CFG.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Data Execution Prevention (DEP)&lt;/td&gt;
+          &lt;td&gt;Prevents code from being run from data-only memory pages such as the heap and stacks. Only configurable for 32-bit (x86) apps, permanently enabled for all other architectures. Can optionally enable ATL thunk emulation.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Force randomization for images (Mandatory ASLR)&lt;/td&gt;
+          &lt;td&gt;Forcibly relocates images not compiled with /DYNAMICBASE. Can optionally fail loading images that don&amp;rsquo;t have relocation information.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Randomize memory allocations (Bottom-Up ASLR)&lt;/td&gt;
+          &lt;td&gt;Randomizes locations for virtual memory allocations. It includes system structure heaps, stacks, TEBs, and PEBs. Can optionally use a wider randomization variance for 64-bit processes.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate exception chains (SEHOP)&lt;/td&gt;
+          &lt;td&gt;Ensures the integrity of an exception chain during exception dispatches. Only configurable for 32-bit (x86) applications.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate heap integrity&lt;/td&gt;
+          &lt;td&gt;Terminates a process when heap corruption is detected.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/details&gt;
+&lt;details&gt;
+&lt;summary&gt;&lt;b&gt;Per-process&lt;/b&gt;&lt;/summary&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Name&lt;/th&gt;
+          &lt;th&gt;Description&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Control flow guard (CFG)&lt;/td&gt;
+          &lt;td&gt;Ensures control flow integrity for indirect calls. Can optionally suppress exports and use strict CFG.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Data Execution Prevention (DEP)&lt;/td&gt;
+          &lt;td&gt;Prevents code from being run from data-only memory pages such as the heap and stacks. Only configurable for 32-bit (x86) apps, permanently enabled for all other architectures. Can optionally enable ATL thunk emulation.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Force randomization for images (Mandatory ASLR)&lt;/td&gt;
+          &lt;td&gt;Forcibly relocates images not compiled with /DYNAMICBASE. Can optionally fail loading images that don&amp;rsquo;t have relocation information.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Randomize memory allocations (Bottom-Up ASLR)&lt;/td&gt;
+          &lt;td&gt;Randomizes locations for virtual memory allocations. It includes system structure heaps, stacks, TEBs, and PEBs. Can optionally use a wider randomization variance for 64-bit processes.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate exception chains (SEHOP)&lt;/td&gt;
+          &lt;td&gt;Ensures the integrity of an exception chain during exception dispatches. Only configurable for 32-bit (x86) applications.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate heap integrity&lt;/td&gt;
+          &lt;td&gt;Terminates a process when heap corruption is detected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Arbitrary code guard (ACG)&lt;/td&gt;
+          &lt;td&gt;Prevents the introduction of non-image-backed executable code and prevents code pages from being modified. Can optionally allow thread opt-out and allow remote downgrade (configurable only with PowerShell).&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Block low integrity images&lt;/td&gt;
+          &lt;td&gt;Prevents the loading of images marked with Low Integrity.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Block remote images&lt;/td&gt;
+          &lt;td&gt;Prevents loading of images from remote devices.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Block untrusted fonts&lt;/td&gt;
+          &lt;td&gt;Prevents loading any GDI-based fonts not installed in the system fonts directory, notably fonts from the web.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Code integrity guard&lt;/td&gt;
+          &lt;td&gt;Restricts loading of images signed by Microsoft, WHQL, or higher. Can optionally allow Microsoft Store signed images.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Disable extension points&lt;/td&gt;
+          &lt;td&gt;Disables various extensibility mechanisms that allow DLL injection into all processes, such as AppInit DLLs, window hooks, and Winsock service providers.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Disable Win32k system calls&lt;/td&gt;
+          &lt;td&gt;Prevents an app from using the Win32k system call table.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Don&amp;rsquo;t allow child processes&lt;/td&gt;
+          &lt;td&gt;Prevents an app from creating child processes.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Export address filtering (EAF)&lt;/td&gt;
+          &lt;td&gt;Detects dangerous operations that are resolved by malicious code. Can optionally validate access by modules commonly used by exploits.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Import address filtering (IAF)&lt;/td&gt;
+          &lt;td&gt;Detects dangerous operations that are resolved by a malicious code.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Simulate execution (SimExec)&lt;/td&gt;
+          &lt;td&gt;Ensures that calls to sensitive APIs return to legitimate callers. Only configurable for 32-bit (x86) applications. Not compatible with ACG.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate API invocation (CallerCheck)&lt;/td&gt;
+          &lt;td&gt;Ensures that legitimate callers invoke sensitive APIs. Only configurable for 32-bit (x86) applications. Not compatible with ACG&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate handle usage&lt;/td&gt;
+          &lt;td&gt;Causes an exception to be raised on any invalid handle references.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate image dependency integrity&lt;/td&gt;
+          &lt;td&gt;Enforces code signing for Windows image dependency loading.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate stack integrity (StackPivot)&lt;/td&gt;
+          &lt;td&gt;Ensures that the stack hasn&amp;rsquo;t been redirected for sensitive APIs. Not compatible with ACG.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/details&gt;
+&lt;p&gt;&lt;em&gt;Source: &lt;a href=&#34;https://learn.microsoft.com/en-us/defender-endpoint/customize-exploit-protection&#34; target=&#34;_blank&#34;&gt;Microsoft&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;a href=&#34;https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection-reference&#34; target=&#34;_blank&#34;&gt;Process Mitigations&lt;/a&gt; are a Windows feature that enables exploit mitigations on either a per-process or system-wide basis. This post explores our research into potential defensive applications of Process Mitigations to prevent commodity attack techniques as well the limitations of the control.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;how-do-they-work&#34;&gt;How do they work?&lt;/h1&gt;
+&lt;p&gt;Process Mitigations provide the following protections (click to expand):&lt;/p&gt;
+&lt;details&gt;
+&lt;summary&gt;&lt;b&gt;System-wide&lt;/b&gt;&lt;/summary&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Name&lt;/th&gt;
+          &lt;th&gt;Description&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Control flow guard (CFG)&lt;/td&gt;
+          &lt;td&gt;Ensures control flow integrity for indirect calls. Can optionally suppress exports and use strict CFG.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Data Execution Prevention (DEP)&lt;/td&gt;
+          &lt;td&gt;Prevents code from being run from data-only memory pages such as the heap and stacks. Only configurable for 32-bit (x86) apps, permanently enabled for all other architectures. Can optionally enable ATL thunk emulation.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Force randomization for images (Mandatory ASLR)&lt;/td&gt;
+          &lt;td&gt;Forcibly relocates images not compiled with /DYNAMICBASE. Can optionally fail loading images that don&amp;rsquo;t have relocation information.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Randomize memory allocations (Bottom-Up ASLR)&lt;/td&gt;
+          &lt;td&gt;Randomizes locations for virtual memory allocations. It includes system structure heaps, stacks, TEBs, and PEBs. Can optionally use a wider randomization variance for 64-bit processes.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate exception chains (SEHOP)&lt;/td&gt;
+          &lt;td&gt;Ensures the integrity of an exception chain during exception dispatches. Only configurable for 32-bit (x86) applications.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate heap integrity&lt;/td&gt;
+          &lt;td&gt;Terminates a process when heap corruption is detected.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/details&gt;
+&lt;details&gt;
+&lt;summary&gt;&lt;b&gt;Per-process&lt;/b&gt;&lt;/summary&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Name&lt;/th&gt;
+          &lt;th&gt;Description&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Control flow guard (CFG)&lt;/td&gt;
+          &lt;td&gt;Ensures control flow integrity for indirect calls. Can optionally suppress exports and use strict CFG.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Data Execution Prevention (DEP)&lt;/td&gt;
+          &lt;td&gt;Prevents code from being run from data-only memory pages such as the heap and stacks. Only configurable for 32-bit (x86) apps, permanently enabled for all other architectures. Can optionally enable ATL thunk emulation.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Force randomization for images (Mandatory ASLR)&lt;/td&gt;
+          &lt;td&gt;Forcibly relocates images not compiled with /DYNAMICBASE. Can optionally fail loading images that don&amp;rsquo;t have relocation information.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Randomize memory allocations (Bottom-Up ASLR)&lt;/td&gt;
+          &lt;td&gt;Randomizes locations for virtual memory allocations. It includes system structure heaps, stacks, TEBs, and PEBs. Can optionally use a wider randomization variance for 64-bit processes.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate exception chains (SEHOP)&lt;/td&gt;
+          &lt;td&gt;Ensures the integrity of an exception chain during exception dispatches. Only configurable for 32-bit (x86) applications.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate heap integrity&lt;/td&gt;
+          &lt;td&gt;Terminates a process when heap corruption is detected.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Arbitrary code guard (ACG)&lt;/td&gt;
+          &lt;td&gt;Prevents the introduction of non-image-backed executable code and prevents code pages from being modified. Can optionally allow thread opt-out and allow remote downgrade (configurable only with PowerShell).&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Block low integrity images&lt;/td&gt;
+          &lt;td&gt;Prevents the loading of images marked with Low Integrity.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Block remote images&lt;/td&gt;
+          &lt;td&gt;Prevents loading of images from remote devices.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Block untrusted fonts&lt;/td&gt;
+          &lt;td&gt;Prevents loading any GDI-based fonts not installed in the system fonts directory, notably fonts from the web.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Code integrity guard&lt;/td&gt;
+          &lt;td&gt;Restricts loading of images signed by Microsoft, WHQL, or higher. Can optionally allow Microsoft Store signed images.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Disable extension points&lt;/td&gt;
+          &lt;td&gt;Disables various extensibility mechanisms that allow DLL injection into all processes, such as AppInit DLLs, window hooks, and Winsock service providers.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Disable Win32k system calls&lt;/td&gt;
+          &lt;td&gt;Prevents an app from using the Win32k system call table.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Don&amp;rsquo;t allow child processes&lt;/td&gt;
+          &lt;td&gt;Prevents an app from creating child processes.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Export address filtering (EAF)&lt;/td&gt;
+          &lt;td&gt;Detects dangerous operations that are resolved by malicious code. Can optionally validate access by modules commonly used by exploits.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Import address filtering (IAF)&lt;/td&gt;
+          &lt;td&gt;Detects dangerous operations that are resolved by a malicious code.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Simulate execution (SimExec)&lt;/td&gt;
+          &lt;td&gt;Ensures that calls to sensitive APIs return to legitimate callers. Only configurable for 32-bit (x86) applications. Not compatible with ACG.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate API invocation (CallerCheck)&lt;/td&gt;
+          &lt;td&gt;Ensures that legitimate callers invoke sensitive APIs. Only configurable for 32-bit (x86) applications. Not compatible with ACG&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate handle usage&lt;/td&gt;
+          &lt;td&gt;Causes an exception to be raised on any invalid handle references.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate image dependency integrity&lt;/td&gt;
+          &lt;td&gt;Enforces code signing for Windows image dependency loading.&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Validate stack integrity (StackPivot)&lt;/td&gt;
+          &lt;td&gt;Ensures that the stack hasn&amp;rsquo;t been redirected for sensitive APIs. Not compatible with ACG.&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/details&gt;
+&lt;p&gt;&lt;em&gt;Source: &lt;a href=&#34;https://learn.microsoft.com/en-us/defender-endpoint/customize-exploit-protection&#34; target=&#34;_blank&#34;&gt;Microsoft&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Likely one of the most well-known applications of Process Mitigations is Cobalt Strike&amp;rsquo;s &lt;a href=&#34;https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/post-exploitation_blocking-dlls-child-processes.htm&#34; target=&#34;_blank&#34;&gt;blockdll&lt;/a&gt; feature. This configures the C2 implant to spawn child processes with a Process Mitigation that prevents loading non-Microsoft DLLs, which notably prevents loading EDR-related DLLs that are not cross-signed by Microsoft (see &lt;a href=&#34;https://blog.xpnsec.com/protecting-your-malware/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;https://www.orangecyberdefense.com/global/blog/cybersecurity/fairy-law&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt; for more details).&lt;/p&gt;
+&lt;p&gt;Under the hood, Process Mitigations are deployed either during/after process creation or persistently via a system configuration change. When creating a new process, the caller can specify a Mitigation policy in the process startup information like:&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;124963857&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;124963857&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;cpp&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;CreateProcess with Mitigation Policy&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-cpp&#34; &gt;&lt;code&gt;
+
+#include &amp;#34;pch.h&amp;#34;
+#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;Windows.h&amp;gt;
+
+int main()
+{
+	PROCESS_INFORMATION pi = {};
+	STARTUPINFOEXA si = {};
+	SIZE_T attributeSize = 0;
+	
+	InitializeProcThreadAttributeList(NULL, 1, 0, &amp;amp;attributeSize);
+	PPROC_THREAD_ATTRIBUTE_LIST attributes = (PPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, attributeSize);
+	InitializeProcThreadAttributeList(attributes, 1, 0, &amp;amp;attributeSize);
+
+	DWORD64 policy = PROCESS_CREATION_MITIGATION_POLICY_BLOCK_NON_MICROSOFT_BINARIES_ALWAYS_ON;
+	UpdateProcThreadAttribute(attributes, 0, PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY, &amp;amp;policy, sizeof(DWORD64), NULL, NULL);
+	si.lpAttributeList = attributes;
+
+	CreateProcessA(NULL, (LPSTR)&amp;#34;notepad&amp;#34;, NULL, NULL, TRUE, EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, &amp;amp;si.StartupInfo, &amp;amp;pi);
+	HeapFree(GetProcessHeap(), HEAP_ZERO_MEMORY, attributes);
+
+	return 0;
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;p&gt;&lt;em&gt;Source: &lt;a href=&#34;https://www.ired.team/offensive-security/defense-evasion/preventing-3rd-party-dlls-from-injecting-into-your-processes&#34; target=&#34;_blank&#34;&gt;ired.team&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Other related APIs include: &lt;a href=&#34;https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessmitigationpolicy&#34; target=&#34;_blank&#34;&gt;SetProcessMitigationPolicy&lt;/a&gt; and &lt;a href=&#34;https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessmitigationpolicy&#34; target=&#34;_blank&#34;&gt;GetProcessMitigationPolicy&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;To persistently configure a Mitigation Policy, you can use the PowerShell &lt;a href=&#34;https://learn.microsoft.com/en-us/powershell/module/processmitigations/set-processmitigation?view=windowsserver2025-ps&#34; target=&#34;_blank&#34;&gt;Set-ProcessMitigation&lt;/a&gt; cmdlet to configure both system-wide and per-process settings. Alternatively, you can directly write changes to the Registry. For per-process options, Process Mitigations use &lt;a href=&#34;https://learn.microsoft.com/en-us/previous-versions/windows/desktop/xperf/image-file-execution-options&#34; target=&#34;_blank&#34;&gt;Image File Execution Options&lt;/a&gt; (IFEO) under the hood via the &lt;a href=&#34;https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection-reference#how-mitigations-are-applied&#34; target=&#34;_blank&#34;&gt;MitigationOptions subkey&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;prior-defensive-applications&#34;&gt;Prior defensive applications&lt;/h1&gt;
+&lt;p&gt;While not widely used, there are some notable applications of Process Mitigations for defensive purposes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://twitter.com/GabrielLandau&#34; target=&#34;_blank&#34;&gt;Gabriel Landau&lt;/a&gt; of Elastic Security lists the &lt;code&gt;NoRemoteImages&lt;/code&gt; option, set via a &lt;a href=&#34;https://github.com/gabriellandau/PPLFault/tree/main/NoFault&#34; target=&#34;_blank&#34;&gt;driver&lt;/a&gt;, as a mitigation for his &lt;a href=&#34;https://github.com/gabriellandau/PPLFault&#34; target=&#34;_blank&#34;&gt;PPLFault&lt;/a&gt; exploit chain (see &lt;a href=&#34;https://i.blackhat.com/Asia-23/AS-23-Landau-PPLdump-Is-Dead-Long-Live-PPLdump.pdf&#34; target=&#34;_blank&#34;&gt;slide #44&lt;/a&gt; or the &lt;a href=&#34;https://youtu.be/5xteW8Tm410?t=1563&#34; target=&#34;_blank&#34;&gt;talk recording&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://twitter.com/ElliotKillick&#34; target=&#34;_blank&#34;&gt;Elliot Killick&lt;/a&gt; discussed using the &lt;code&gt;MicrosoftSignedOnly&lt;/code&gt; option to mitigate DLL sideloading for specific applications &lt;a href=&#34;https://elliotonsecurity.com/perfect-dll-hijacking/#mitigation-detection&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://bsky.app/profile/slowerzs.net&#34; target=&#34;_blank&#34;&gt;Nathan Blondel&lt;/a&gt; discussed the implications of Arbitrary Code Guard on injection into PPL processes &lt;a href=&#34;https://blog.slowerzs.net/posts/pplsystem/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;As part of the Chrome browser sandbox &lt;a href=&#34;https://source.chromium.org/chromium/chromium/src/&amp;#43;/main:sandbox/win/src/&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;example-appinit-dlls&#34;&gt;Example: AppInit DLLs&lt;/h1&gt;
+&lt;p&gt;As example, we will demonstrate how Process Mitigations can be used to prevent &lt;a href=&#34;https://attack.mitre.org/techniques/T1546/010/&#34; target=&#34;_blank&#34;&gt;AppInit DLL persistence&lt;/a&gt;. AppInit DLLs allow an attacker with administrative rights to inject their own DLL into any process that loads &lt;code&gt;user32.dll&lt;/code&gt; by configuring a Registry key.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;appinitregistry.png&#34;  alt=&#34;AppInit DLL Registry settings&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;The malicious DLL &lt;code&gt;c:\inject.dll&lt;/code&gt; spawns a message box on load.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;dllloadmessagebox.png&#34;  alt=&#34;Message box spawned&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;The &lt;a href=&#34;https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection-reference#disable-extension-points&#34; target=&#34;_blank&#34;&gt;extensions point mitigation&lt;/a&gt; is a per-process mitigation that disables AppInit DLLs, IMEs, and Event Hooks.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;getprocmitpsoutput.png&#34;  alt=&#34;Mitigation applies&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Any process configured with this mitigation will ignore the DLL specificed in the AppInit DLL Registry settings.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;limitiations-for-commodity-attacks&#34;&gt;Limitiations for commodity attacks&lt;/h1&gt;
+&lt;p&gt;System-wide mitigations are primarily focused on exploit protections whereas per-process mitigations can be applied for additional uses, like the above example. Because per-process mitigations are controlled by IFEO, they are ultimately limited by the same limitation of other IFEO controls. Notably, that IFEO must be set based on a process&amp;rsquo; file name (or a subset of matches via the &lt;a href=&#34;https://www.geoffchappell.com/studies/windows/win32/ntdll/api/rtl/rtlexec/openimagefileoptionskey.htm&#34; target=&#34;_blank&#34;&gt;FilterFullPath&lt;/a&gt; option). You cannot set global IFEO mitigations options. This also means that per-process mitigations can be easily bypassed by simply renaming/moving the target process.&lt;/p&gt;
+&lt;p&gt;Due to this, Process Mitigations are largely unsuitable as a general control for commodity attacks. Though they may be suitable in more limited capacities, such as mitigating specific attacks against a specific process that requires a static path (e.g., things in &lt;code&gt;System32&lt;/code&gt;). Ultimately, we decided to not pursue this approach further.&lt;/p&gt;
+&lt;p&gt;If you have any questions or concerns, feel free to reach out to &lt;a href=&#34;https://x.com/2xxeformyshirt&#34; target=&#34;_blank&#34;&gt;@2xxeformyshirt&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;additional-resources&#34;&gt;Additional resources&lt;/h1&gt;
+&lt;p&gt;Additional useful public research around Process Mitigations include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://x.com/yarden_shafir&#34; target=&#34;_blank&#34;&gt;Yarden Shafir&lt;/a&gt;&amp;rsquo;s post &lt;a href=&#34;https://windows-internals.com/understanding-a-new-mitigation-module-tampering-protection/&#34; target=&#34;_blank&#34;&gt;Understanding a New Mitigation: Module Tampering Protection&lt;/a&gt;, 2022 Paranoia talk &lt;a href=&#34;https://github.com/yardenshafir/conference_talks/blob/main/Paranoia_2022_security_mitigations.pdf&#34; target=&#34;_blank&#34;&gt;Security Features You&amp;rsquo;ve Never Heard of (but should)&lt;/a&gt;, and tool &lt;a href=&#34;https://github.com/yardenshafir/MitigationFlagsCliTool&#34; target=&#34;_blank&#34;&gt;MitigationFlagsCliTool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://x.com/tiraniddo&#34; target=&#34;_blank&#34;&gt;James Forshaw&lt;/a&gt;&amp;rsquo;s 2016 TROOPERS talk &lt;a href=&#34;https://troopers.de/media/filer_public/f6/07/f6076037-85e0-42b7-9a51-507986edafce/the_joy_of_sandbox_mitigations_export.pdf&#34; target=&#34;_blank&#34;&gt;The Joy of
+Sandbox Mitigations&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://x.com/EmericNasi&#34; target=&#34;_blank&#34;&gt;Emeric Nasi&lt;/a&gt;&amp;rsquo;s &lt;a href=&#34;https://blog.sevagas.com/IMG/pdf/code_injection_series_part4.pdf&#34; target=&#34;_blank&#34;&gt;Code Injection series part 4&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>

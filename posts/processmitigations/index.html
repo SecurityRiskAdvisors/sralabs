@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Defensive Applications of Windows Process Mitigations :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Process Mitigations are a Windows feature that enables exploit mitigations on either a per-process or system-wide basis. This post explores our research into potential defensive applications of Process Mitigations to prevent commodity attack techniques as well the limitations of the control." />
+<meta name="keywords" content="windows, processmitigations, defense" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/processmitigations/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Defensive Applications of Windows Process Mitigations">
+<meta property="og:description" content="Process Mitigations are a Windows feature that enables exploit mitigations on either a per-process or system-wide basis. This post explores our research into potential defensive applications of Process Mitigations to prevent commodity attack techniques as well the limitations of the control." />
+<meta property="og:url" content="https://labs.sra.io/posts/processmitigations/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-06-16 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/processmitigations/">Defensive Applications of Windows Process Mitigations</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-06-16</time><span class="post-author">Evan Perotti</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/windows/">windows</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/processmitigations/">processmitigations</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/defense/">defense</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <p><a href="https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection-reference" target="_blank">Process Mitigations</a> are a Windows feature that enables exploit mitigations on either a per-process or system-wide basis. This post explores our research into potential defensive applications of Process Mitigations to prevent commodity attack techniques as well the limitations of the control.</p>
+<hr>
+<h1 id="how-do-they-work">How do they work?<a href="#how-do-they-work" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Process Mitigations provide the following protections (click to expand):</p>
+<details>
+<summary><b>System-wide</b></summary>
+<table>
+  <thead>
+      <tr>
+          <th>Name</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Control flow guard (CFG)</td>
+          <td>Ensures control flow integrity for indirect calls. Can optionally suppress exports and use strict CFG.</td>
+      </tr>
+      <tr>
+          <td>Data Execution Prevention (DEP)</td>
+          <td>Prevents code from being run from data-only memory pages such as the heap and stacks. Only configurable for 32-bit (x86) apps, permanently enabled for all other architectures. Can optionally enable ATL thunk emulation.</td>
+      </tr>
+      <tr>
+          <td>Force randomization for images (Mandatory ASLR)</td>
+          <td>Forcibly relocates images not compiled with /DYNAMICBASE. Can optionally fail loading images that don&rsquo;t have relocation information.</td>
+      </tr>
+      <tr>
+          <td>Randomize memory allocations (Bottom-Up ASLR)</td>
+          <td>Randomizes locations for virtual memory allocations. It includes system structure heaps, stacks, TEBs, and PEBs. Can optionally use a wider randomization variance for 64-bit processes.</td>
+      </tr>
+      <tr>
+          <td>Validate exception chains (SEHOP)</td>
+          <td>Ensures the integrity of an exception chain during exception dispatches. Only configurable for 32-bit (x86) applications.</td>
+      </tr>
+      <tr>
+          <td>Validate heap integrity</td>
+          <td>Terminates a process when heap corruption is detected.</td>
+      </tr>
+  </tbody>
+</table>
+</details>
+<details>
+<summary><b>Per-process</b></summary>
+<table>
+  <thead>
+      <tr>
+          <th>Name</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Control flow guard (CFG)</td>
+          <td>Ensures control flow integrity for indirect calls. Can optionally suppress exports and use strict CFG.</td>
+      </tr>
+      <tr>
+          <td>Data Execution Prevention (DEP)</td>
+          <td>Prevents code from being run from data-only memory pages such as the heap and stacks. Only configurable for 32-bit (x86) apps, permanently enabled for all other architectures. Can optionally enable ATL thunk emulation.</td>
+      </tr>
+      <tr>
+          <td>Force randomization for images (Mandatory ASLR)</td>
+          <td>Forcibly relocates images not compiled with /DYNAMICBASE. Can optionally fail loading images that don&rsquo;t have relocation information.</td>
+      </tr>
+      <tr>
+          <td>Randomize memory allocations (Bottom-Up ASLR)</td>
+          <td>Randomizes locations for virtual memory allocations. It includes system structure heaps, stacks, TEBs, and PEBs. Can optionally use a wider randomization variance for 64-bit processes.</td>
+      </tr>
+      <tr>
+          <td>Validate exception chains (SEHOP)</td>
+          <td>Ensures the integrity of an exception chain during exception dispatches. Only configurable for 32-bit (x86) applications.</td>
+      </tr>
+      <tr>
+          <td>Validate heap integrity</td>
+          <td>Terminates a process when heap corruption is detected.</td>
+      </tr>
+      <tr>
+          <td>Arbitrary code guard (ACG)</td>
+          <td>Prevents the introduction of non-image-backed executable code and prevents code pages from being modified. Can optionally allow thread opt-out and allow remote downgrade (configurable only with PowerShell).</td>
+      </tr>
+      <tr>
+          <td>Block low integrity images</td>
+          <td>Prevents the loading of images marked with Low Integrity.</td>
+      </tr>
+      <tr>
+          <td>Block remote images</td>
+          <td>Prevents loading of images from remote devices.</td>
+      </tr>
+      <tr>
+          <td>Block untrusted fonts</td>
+          <td>Prevents loading any GDI-based fonts not installed in the system fonts directory, notably fonts from the web.</td>
+      </tr>
+      <tr>
+          <td>Code integrity guard</td>
+          <td>Restricts loading of images signed by Microsoft, WHQL, or higher. Can optionally allow Microsoft Store signed images.</td>
+      </tr>
+      <tr>
+          <td>Disable extension points</td>
+          <td>Disables various extensibility mechanisms that allow DLL injection into all processes, such as AppInit DLLs, window hooks, and Winsock service providers.</td>
+      </tr>
+      <tr>
+          <td>Disable Win32k system calls</td>
+          <td>Prevents an app from using the Win32k system call table.</td>
+      </tr>
+      <tr>
+          <td>Don&rsquo;t allow child processes</td>
+          <td>Prevents an app from creating child processes.</td>
+      </tr>
+      <tr>
+          <td>Export address filtering (EAF)</td>
+          <td>Detects dangerous operations that are resolved by malicious code. Can optionally validate access by modules commonly used by exploits.</td>
+      </tr>
+      <tr>
+          <td>Import address filtering (IAF)</td>
+          <td>Detects dangerous operations that are resolved by a malicious code.</td>
+      </tr>
+      <tr>
+          <td>Simulate execution (SimExec)</td>
+          <td>Ensures that calls to sensitive APIs return to legitimate callers. Only configurable for 32-bit (x86) applications. Not compatible with ACG.</td>
+      </tr>
+      <tr>
+          <td>Validate API invocation (CallerCheck)</td>
+          <td>Ensures that legitimate callers invoke sensitive APIs. Only configurable for 32-bit (x86) applications. Not compatible with ACG</td>
+      </tr>
+      <tr>
+          <td>Validate handle usage</td>
+          <td>Causes an exception to be raised on any invalid handle references.</td>
+      </tr>
+      <tr>
+          <td>Validate image dependency integrity</td>
+          <td>Enforces code signing for Windows image dependency loading.</td>
+      </tr>
+      <tr>
+          <td>Validate stack integrity (StackPivot)</td>
+          <td>Ensures that the stack hasn&rsquo;t been redirected for sensitive APIs. Not compatible with ACG.</td>
+      </tr>
+  </tbody>
+</table>
+</details>
+<p><em>Source: <a href="https://learn.microsoft.com/en-us/defender-endpoint/customize-exploit-protection" target="_blank">Microsoft</a></em></p>
+<p>Likely one of the most well-known applications of Process Mitigations is Cobalt Strike&rsquo;s <a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/post-exploitation_blocking-dlls-child-processes.htm" target="_blank">blockdll</a> feature. This configures the C2 implant to spawn child processes with a Process Mitigation that prevents loading non-Microsoft DLLs, which notably prevents loading EDR-related DLLs that are not cross-signed by Microsoft (see <a href="https://blog.xpnsec.com/protecting-your-malware/" target="_blank">here</a> and <a href="https://www.orangecyberdefense.com/global/blog/cybersecurity/fairy-law" target="_blank">here</a> for more details).</p>
+<p>Under the hood, Process Mitigations are deployed either during/after process creation or persistently via a system configuration change. When creating a new process, the caller can specify a Mitigation policy in the process startup information like:</p>
+
+
+
+  <div class="collapsable-code">
+    <input id="287145963" type="checkbox"  />
+    <label for="287145963">
+      <span class="collapsable-code__language">cpp</span>
+      <span class="collapsable-code__title">CreateProcess with Mitigation Policy</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-cpp" ><code>
+
+#include &#34;pch.h&#34;
+#include &lt;iostream&gt;
+#include &lt;Windows.h&gt;
+
+int main()
+{
+	PROCESS_INFORMATION pi = {};
+	STARTUPINFOEXA si = {};
+	SIZE_T attributeSize = 0;
+	
+	InitializeProcThreadAttributeList(NULL, 1, 0, &amp;attributeSize);
+	PPROC_THREAD_ATTRIBUTE_LIST attributes = (PPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, attributeSize);
+	InitializeProcThreadAttributeList(attributes, 1, 0, &amp;attributeSize);
+
+	DWORD64 policy = PROCESS_CREATION_MITIGATION_POLICY_BLOCK_NON_MICROSOFT_BINARIES_ALWAYS_ON;
+	UpdateProcThreadAttribute(attributes, 0, PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY, &amp;policy, sizeof(DWORD64), NULL, NULL);
+	si.lpAttributeList = attributes;
+
+	CreateProcessA(NULL, (LPSTR)&#34;notepad&#34;, NULL, NULL, TRUE, EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, &amp;si.StartupInfo, &amp;pi);
+	HeapFree(GetProcessHeap(), HEAP_ZERO_MEMORY, attributes);
+
+	return 0;
+}
+
+</code></pre>
+  </div>
+
+
+<p><em>Source: <a href="https://www.ired.team/offensive-security/defense-evasion/preventing-3rd-party-dlls-from-injecting-into-your-processes" target="_blank">ired.team</a></em></p>
+<p>Other related APIs include: <a href="https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessmitigationpolicy" target="_blank">SetProcessMitigationPolicy</a> and <a href="https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocessmitigationpolicy" target="_blank">GetProcessMitigationPolicy</a>.</p>
+<p>To persistently configure a Mitigation Policy, you can use the PowerShell <a href="https://learn.microsoft.com/en-us/powershell/module/processmitigations/set-processmitigation?view=windowsserver2025-ps" target="_blank">Set-ProcessMitigation</a> cmdlet to configure both system-wide and per-process settings. Alternatively, you can directly write changes to the Registry. For per-process options, Process Mitigations use <a href="https://learn.microsoft.com/en-us/previous-versions/windows/desktop/xperf/image-file-execution-options" target="_blank">Image File Execution Options</a> (IFEO) under the hood via the <a href="https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection-reference#how-mitigations-are-applied" target="_blank">MitigationOptions subkey</a>.</p>
+<hr>
+<h1 id="prior-defensive-applications">Prior defensive applications<a href="#prior-defensive-applications" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>While not widely used, there are some notable applications of Process Mitigations for defensive purposes:</p>
+<ul>
+<li><a href="https://twitter.com/GabrielLandau" target="_blank">Gabriel Landau</a> of Elastic Security lists the <code>NoRemoteImages</code> option, set via a <a href="https://github.com/gabriellandau/PPLFault/tree/main/NoFault" target="_blank">driver</a>, as a mitigation for his <a href="https://github.com/gabriellandau/PPLFault" target="_blank">PPLFault</a> exploit chain (see <a href="https://i.blackhat.com/Asia-23/AS-23-Landau-PPLdump-Is-Dead-Long-Live-PPLdump.pdf" target="_blank">slide #44</a> or the <a href="https://youtu.be/5xteW8Tm410?t=1563" target="_blank">talk recording</a>)</li>
+<li><a href="https://twitter.com/ElliotKillick" target="_blank">Elliot Killick</a> discussed using the <code>MicrosoftSignedOnly</code> option to mitigate DLL sideloading for specific applications <a href="https://elliotonsecurity.com/perfect-dll-hijacking/#mitigation-detection" target="_blank">here</a></li>
+<li><a href="https://bsky.app/profile/slowerzs.net" target="_blank">Nathan Blondel</a> discussed the implications of Arbitrary Code Guard on injection into PPL processes <a href="https://blog.slowerzs.net/posts/pplsystem/" target="_blank">here</a></li>
+<li>As part of the Chrome browser sandbox <a href="https://source.chromium.org/chromium/chromium/src/&#43;/main:sandbox/win/src/" target="_blank">here</a></li>
+</ul>
+<hr>
+<h1 id="example-appinit-dlls">Example: AppInit DLLs<a href="#example-appinit-dlls" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>As example, we will demonstrate how Process Mitigations can be used to prevent <a href="https://attack.mitre.org/techniques/T1546/010/" target="_blank">AppInit DLL persistence</a>. AppInit DLLs allow an attacker with administrative rights to inject their own DLL into any process that loads <code>user32.dll</code> by configuring a Registry key.</p>
+
+  <figure class="center" >
+    <img src="appinitregistry.png"  alt="AppInit DLL Registry settings"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<p>The malicious DLL <code>c:\inject.dll</code> spawns a message box on load.</p>
+
+  <figure class="center" >
+    <img src="dllloadmessagebox.png"  alt="Message box spawned"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<p>The <a href="https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection-reference#disable-extension-points" target="_blank">extensions point mitigation</a> is a per-process mitigation that disables AppInit DLLs, IMEs, and Event Hooks.</p>
+
+  <figure class="center" >
+    <img src="getprocmitpsoutput.png"  alt="Mitigation applies"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<p>Any process configured with this mitigation will ignore the DLL specificed in the AppInit DLL Registry settings.</p>
+<hr>
+<h1 id="limitiations-for-commodity-attacks">Limitiations for commodity attacks<a href="#limitiations-for-commodity-attacks" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>System-wide mitigations are primarily focused on exploit protections whereas per-process mitigations can be applied for additional uses, like the above example. Because per-process mitigations are controlled by IFEO, they are ultimately limited by the same limitation of other IFEO controls. Notably, that IFEO must be set based on a process&rsquo; file name (or a subset of matches via the <a href="https://www.geoffchappell.com/studies/windows/win32/ntdll/api/rtl/rtlexec/openimagefileoptionskey.htm" target="_blank">FilterFullPath</a> option). You cannot set global IFEO mitigations options. This also means that per-process mitigations can be easily bypassed by simply renaming/moving the target process.</p>
+<p>Due to this, Process Mitigations are largely unsuitable as a general control for commodity attacks. Though they may be suitable in more limited capacities, such as mitigating specific attacks against a specific process that requires a static path (e.g., things in <code>System32</code>). Ultimately, we decided to not pursue this approach further.</p>
+<p>If you have any questions or concerns, feel free to reach out to <a href="https://x.com/2xxeformyshirt" target="_blank">@2xxeformyshirt</a>.</p>
+<hr>
+<h1 id="additional-resources">Additional resources<a href="#additional-resources" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Additional useful public research around Process Mitigations include:</p>
+<ul>
+<li><a href="https://x.com/yarden_shafir" target="_blank">Yarden Shafir</a>&rsquo;s post <a href="https://windows-internals.com/understanding-a-new-mitigation-module-tampering-protection/" target="_blank">Understanding a New Mitigation: Module Tampering Protection</a>, 2022 Paranoia talk <a href="https://github.com/yardenshafir/conference_talks/blob/main/Paranoia_2022_security_mitigations.pdf" target="_blank">Security Features You&rsquo;ve Never Heard of (but should)</a>, and tool <a href="https://github.com/yardenshafir/MitigationFlagsCliTool" target="_blank">MitigationFlagsCliTool</a></li>
+<li><a href="https://x.com/tiraniddo" target="_blank">James Forshaw</a>&rsquo;s 2016 TROOPERS talk <a href="https://troopers.de/media/filer_public/f6/07/f6076037-85e0-42b7-9a51-507986edafce/the_joy_of_sandbox_mitigations_export.pdf" target="_blank">The Joy of
+Sandbox Mitigations</a></li>
+<li><a href="https://x.com/EmericNasi" target="_blank">Emeric Nasi</a>&rsquo;s <a href="https://blog.sevagas.com/IMG/pdf/code_injection_series_part4.pdf" target="_blank">Code Injection series part 4</a></li>
+</ul>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
