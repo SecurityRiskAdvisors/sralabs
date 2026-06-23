@@ -3,7 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://labs.sra.io/</loc>
-    <lastmod>2026-06-16T12:00:00+00:00</lastmod>
+    <lastmod>2026-06-23T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/api/</loc>
+    <lastmod>2026-06-23T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/</loc>
+    <lastmod>2026-06-23T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/</loc>
+    <lastmod>2026-06-23T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/wadler/</loc>
+    <lastmod>2026-06-23T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/web/</loc>
+    <lastmod>2026-06-23T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/defense/</loc>
     <lastmod>2026-06-16T12:00:00+00:00</lastmod>
@@ -11,13 +26,7 @@
     <loc>https://labs.sra.io/posts/processmitigations/</loc>
     <lastmod>2026-06-16T12:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://labs.sra.io/posts/</loc>
-    <lastmod>2026-06-16T12:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://labs.sra.io/tags/processmitigations/</loc>
-    <lastmod>2026-06-16T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/</loc>
     <lastmod>2026-06-16T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/windows/</loc>

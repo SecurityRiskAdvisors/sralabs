@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>The WADLer: WADL I do with these files? :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The WADLer is a tool for automatically parsing and testing API endpoints pulled from Web Application Description Language (WADL) files." />
+<meta name="keywords" content="web, api" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/wadler/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="The WADLer: WADL I do with these files?">
+<meta property="og:description" content="The WADLer is a tool for automatically parsing and testing API endpoints pulled from Web Application Description Language (WADL) files." />
+<meta property="og:url" content="https://labs.sra.io/posts/wadler/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-06-23 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/wadler/">The WADLer: WADL I do with these files?</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-06-23</time><span class="post-author">Liam Geyer</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/web/">web</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/api/">api</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="background">Background<a href="#background" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>On a recent external engagement I discovered an API with an exposed <code>application.wadl</code> file while digging through <a href="https://github.com/projectdiscovery/nuclei" target="_blank">Nuclei</a> results. The file contained definitions for over 150 API endpoints, more than I could easily test by hand.</p>
+<p>Web Application Description Language (WADL) files contain XML definitions for REST APIs. They&rsquo;re similar to OpenAPI JSON files, WSDL files, and other API definition files.</p>
+<p>An example WADL file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;application</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://wadl.dev.java.net/2009/02&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;resources</span> <span style="color:#a6e22e">base=</span><span style="color:#e6db74">&#34;http://localhost:8000/&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;resource</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;users&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;method</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;GET&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;request&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;param</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;role&#34;</span> <span style="color:#a6e22e">required=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#a6e22e">style=</span><span style="color:#e6db74">&#34;query&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;string&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/request&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;response</span> <span style="color:#a6e22e">status=</span><span style="color:#e6db74">&#34;200&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/response&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;/method&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/resource&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;resource</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;users&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;method</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;POST&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;request&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;param</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;body&#34;</span> <span style="color:#a6e22e">required=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#a6e22e">style=</span><span style="color:#e6db74">&#34;body&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;string&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/request&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;response</span> <span style="color:#a6e22e">status=</span><span style="color:#e6db74">&#34;200&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/response&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;/method&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/resource&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;resource</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;users/{id}&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;method</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;PUT&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;request&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;param</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;id&#34;</span> <span style="color:#a6e22e">required=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#a6e22e">style=</span><span style="color:#e6db74">&#34;template&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;int&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;param</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;body&#34;</span> <span style="color:#a6e22e">required=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#a6e22e">style=</span><span style="color:#e6db74">&#34;body&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;string&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/request&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;response</span> <span style="color:#a6e22e">status=</span><span style="color:#e6db74">&#34;200&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/response&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;/method&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/resource&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;resource</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;user&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;method</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;DELETE&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;request&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;param</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;id&#34;</span> <span style="color:#a6e22e">required=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#a6e22e">style=</span><span style="color:#e6db74">&#34;query&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;int&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/request&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;response</span> <span style="color:#a6e22e">status=</span><span style="color:#e6db74">&#34;200&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/response&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;/method&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/resource&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;resource</span> <span style="color:#a6e22e">path=</span><span style="color:#e6db74">&#34;application.wadl&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;method</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;GET&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;request&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/request&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;response</span> <span style="color:#a6e22e">status=</span><span style="color:#e6db74">&#34;200&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">&lt;representation</span> <span style="color:#a6e22e">mediaType=</span><span style="color:#e6db74">&#34;application/json&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#f92672">&lt;/response&gt;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f92672">&lt;/method&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/resource&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;/resources&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/application&gt;</span>
+</span></span></code></pre></div><p>Although there is existing tooling for automatically testing APIs from WSDL and OpenAPI files, I was unable to find anything existing to parse and test APIs from WADLs.</p>
+<h1 id="the-wadler">The WADLer<a href="#the-wadler" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p><a href="https://github.com/SecurityRiskAdvisors/WADLer" target="_blank">The WADLer</a> was created to fill this gap and allow for the quick and easy testing of API endpoints from WADL files. It parses a remote or local WADL file, identifies all endpoints, and sends a test request with appropriate content. This can be helpful in quickly identifying interesting API endpoints and endpoints lacking authentication requirements.</p>
+
+  <figure class="center" >
+    <img src="waddler.png"  alt="WADLer CLI Use"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Testing endpoints from a local WADL file while proxying to Burp & saving a JSON report.</figcaption>
+    
+  </figure>
+
+
+<p>The WADLer supports the use of web proxies and can generate a JSON report outlining all requests made and their results.</p>
+
+  <figure class="center" >
+    <img src="waddler-burp.png"  alt="WADLer traffic in BurpSuite"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Observing proxied WADLer traffic in BurpSuite.</figcaption>
+    
+  </figure>
+
+
+<p>Example JSON report:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;method&#34;</span>: <span style="color:#e6db74">&#34;GET&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;url&#34;</span>: <span style="color:#e6db74">&#34;http://localhost:8000/users&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;status_code&#34;</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;reason&#34;</span>: <span style="color:#e6db74">&#34;OK&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_time&#34;</span>: <span style="color:#ae81ff">0.006547</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_size&#34;</span>: <span style="color:#ae81ff">48</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_body&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Fetched users&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;filter&#34;</span>: <span style="color:#e6db74">&#34;test_role&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;method&#34;</span>: <span style="color:#e6db74">&#34;POST&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;url&#34;</span>: <span style="color:#e6db74">&#34;http://localhost:8000/users&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;status_code&#34;</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;reason&#34;</span>: <span style="color:#e6db74">&#34;OK&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_time&#34;</span>: <span style="color:#ae81ff">0.004864</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_size&#34;</span>: <span style="color:#ae81ff">54</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_body&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;User created&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;user&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;body&#34;</span>: <span style="color:#e6db74">&#34;test_body&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;method&#34;</span>: <span style="color:#e6db74">&#34;PUT&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;url&#34;</span>: <span style="color:#e6db74">&#34;http://localhost:8000/users/123&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;status_code&#34;</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;reason&#34;</span>: <span style="color:#e6db74">&#34;OK&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_time&#34;</span>: <span style="color:#ae81ff">0.003647</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_size&#34;</span>: <span style="color:#ae81ff">66</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;response_body&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;User updated&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#ae81ff">123</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;updated&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;body&#34;</span>: <span style="color:#e6db74">&#34;test_body&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>You can then use <code>jq</code> to filter results and obtain only successful API requests:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Pull out full info</span>
+</span></span><span style="display:flex;"><span>jq <span style="color:#e6db74">&#39;[.[] | select(.status_code == 200).url]&#39;</span> output.json
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Pull out URLs only</span>
+</span></span><span style="display:flex;"><span>jq <span style="color:#e6db74">&#39;[.[] | select(.status_code == 200).url]&#39;</span> output.json
+</span></span></code></pre></div><h1 id="closing">Closing<a href="#closing" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>WADL files are valuable pieces of enticement information that can provide details on API endpoints without fuzzing. Using The WADLer, you can quickly identify interesting API endpoints and endpoints lacking authentication.</p>
+<p>Source code for The WADLer can be found <a href="https://github.com/SecurityRiskAdvisors/WADLer" target="_blank">here</a>.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
