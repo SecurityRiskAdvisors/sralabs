@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Isolating Build Jobs :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="There are many posts covering the best practices for mitigating supply chain attacks. Beyond these, developers can further limit their blast radius by isolating build stages from publishing stages. This post highlights how this pattern can be implemented and how it is largely ignored by vendor documentation." />
+<meta name="keywords" content="supplychain, cicd" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/cicd_protected_build_jobs/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Isolating Build Jobs">
+<meta property="og:description" content="There are many posts covering the best practices for mitigating supply chain attacks. Beyond these, developers can further limit their blast radius by isolating build stages from publishing stages. This post highlights how this pattern can be implemented and how it is largely ignored by vendor documentation." />
+<meta property="og:url" content="https://labs.sra.io/posts/cicd_protected_build_jobs/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-06-30 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/cicd_protected_build_jobs/">Isolating Build Jobs</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-06-30</time><span class="post-author">Jonn Callahan</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/supplychain/">supplychain</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cicd/">cicd</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="overview">Overview<a href="#overview" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>We live in an age of rampant supply chain attacks. This class of attacks has been around for a long while, but TeamPCP has significantly increased their visibility among security professionals, developers, and executives alike. TeamPCP&rsquo;s Shai-Hulud needs no introduction, but it is still worth briefly covering their TTPs and the TTPs of campaigns like it.</p>
+<p>TeamPCP, and many other groups, have adopted a rapid smash-and-grab style of attacks. They sacrifice covert, long-term infiltration for rapid exploitation and blast radius amplification. The first step is to compromise either a developer with significant access to an open source project or a misconfigured pipeline, such as via poisoned pipeline execution. This initial foothold provides the ability to publish malicious packages, overwriting legitimate ones. While the exact malware bundled into these packages varies, the end result is the same: on installation, all well known credential locations are pillaged. These credentials are then used to publish a new set of malicious packages. This process repeats, rapidly spreading across the open source ecosystems and internal systems.</p>
+<p>There are two key take aways with this methodology. First, the malicious packages are setup to detonate immediately on installation. This occurs during the build phase, the continuous integration piece of CI/CD workflows. Second, the malware actively publishes malicious packages. This is the publish phase, the continuous deployment piece.</p>
+<p>Despite being two distinct phases, these attackers have found success pivoting from one phase to the other. This is largely because developers have stopped delineating between them. CI/CD is regularly treated as a singular thing.</p>
+<h1 id="isolate-the-build-phase-protect-the-publish-phase">Isolate the Build Phase; Protect the Publish Phase<a href="#isolate-the-build-phase-protect-the-publish-phase" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Described through this lens, the solution becomes obvious: don&rsquo;t give your build phase jobs the ability to publish packages. Lets look at a simple GitHub Action workflow. We&rsquo;re going to assume no lock file is used so the package installation step could feasibly pull in a compromised package.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Publish Package to npmjs</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">release</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">types</span>: [<span style="color:#ae81ff">published]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># expose the NPM token for publishing to NPM</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">NODE_AUTH_TOKEN</span>: <span style="color:#ae81ff">${{ secrets.NPM_TOKEN }}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">build</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">permissions</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">contents</span>: <span style="color:#ae81ff">read</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">id-token</span>: <span style="color:#ae81ff">write</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># checkout source code</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v6</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># install nodejs</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/setup-node@v4</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">node-version</span>: <span style="color:#e6db74">&#34;24.x&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">registry-url</span>: <span style="color:#e6db74">&#34;https://registry.npmjs.org&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># pull &amp; detonate malicious package</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm ci</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># push new package version</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm publish</span>
+</span></span></code></pre></div><p>While this example is contrived, it is also a pattern I&rsquo;ve seen used in multiple environments. An Action defined this way exposes the NPM authentication token to every step of every job, despite it only being needed for the final <code>npm publish</code> command. This fundamentally is a violation of the principle of least privilege, exposing an access token to things that do not need it. For this particular example, the fix is ostensibly straightforward: only map the <code>NPM_TOKEN</code> secret to an env var when publishing.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Publish Package to npmjs</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">release</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">types</span>: [<span style="color:#ae81ff">published]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">build</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">permissions</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">contents</span>: <span style="color:#ae81ff">read</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">id-token</span>: <span style="color:#ae81ff">write</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># checkout source code</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v6</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># install nodejs</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/setup-node@v4</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">node-version</span>: <span style="color:#e6db74">&#34;20.x&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">registry-url</span>: <span style="color:#e6db74">&#34;https://registry.npmjs.org&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># no NPM token available for theft during execution</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm ci</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># NPM token only exposed during the publish step</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm publish --provenance</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">NODE_AUTH_TOKEN</span>: <span style="color:#ae81ff">${{ secrets.NPM_TOKEN }}</span>
+</span></span></code></pre></div><p>While an improvement, there are still issues with this. The first problem is due to NPM&rsquo;s lifecycle scripts. While many malicious packages embed their execution within the <code>postinstall</code> or similar hooks that trigger on installation, NPM also exposes hooks that trigger on publish, such as <code>postpublish</code>. Putting the NPM-specific problem aside, there is a second issue: an OIDC token is issued to all job steps. Whether or not this is an issue depends on if there are any third-party resources configured to allow authentication via this pipeline&rsquo;s identity.</p>
+<h1 id="oidc">OIDC<a href="#oidc" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Historically, these campaigns have largely targeted and leveraged long lived access tokens. Leveraging OIDC instead does provide a slight mitigation, at least so far. Attackers cannot simply exfiltrate tokens and immediately begin using them. Instead, they must first exchange the OIDC token for a short-lived access token against the given service. Discussing the details of OIDC is far outside the scope of this post, but you can refer to <a href="https://curity.io/resources/learn/openid-connect-overview/" target="_blank">this post</a> from Curity.io for details. GitHub also has some <a href="https://curity.io/resources/learn/openid-connect-overview/" target="_blank">documentation</a> on using OIDC within a CI/CD context.</p>
+<p>Technically speaking, there is nothing stopping a supply chain attack from leveraging stolen OIDC tokens. And in fact, the recent <a href="https://www.akamai.com/blog/security-research/mini-shai-hulud-worm-returns-goes-public" target="_blank">Mini Shai-Hulud variant</a> did exactly this. However, this specific attack was limited to targeting NPM. From what I&rsquo;ve seen publicly discussed, other services where not targeted. To see how this works with OIDC, lets take a look at the Action from NPM&rsquo;s own <a href="https://docs.npmjs.com/trusted-publishers" target="_blank">documentation</a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Publish Package</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">permissions</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># Issue an OIDC token</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">id-token</span>: <span style="color:#ae81ff">write</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">contents</span>: <span style="color:#ae81ff">read</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">publish</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v6</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/setup-node@v6</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">node-version</span>: <span style="color:#e6db74">&#34;24&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">registry-url</span>: <span style="color:#e6db74">&#34;https://registry.npmjs.org&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">package-manager-cache</span>: <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm ci</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm run build --if-present</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm test</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm publish</span>
+</span></span></code></pre></div><p>As in the example above, an OIDC token is exposed to all jobs. Fixing this is conceptually identical to isolating secrets. However, due to how GitHub Actions work, the tokens cannot be controlled at the step level which means we now need two jobs. Fixing the example above:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Publish Package to npmjs</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">release</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">types</span>: [<span style="color:#ae81ff">published]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">build</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># No OIDC token is available during this job</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">permissions</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">contents</span>: <span style="color:#ae81ff">read</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v6</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/setup-node@v6</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">node-version</span>: <span style="color:#e6db74">&#34;24&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">registry-url</span>: <span style="color:#e6db74">&#34;https://registry.npmjs.org&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">package-manager-cache</span>: <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm ci</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm run build --if-present</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># Upload the package as an artifact, allowing it to be</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># referenced in the publish job</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/upload-artifact@v4</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">name</span>: <span style="color:#ae81ff">npm-package</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">path</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            .
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            !node_modules
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            !.git</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">retention-days</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">publish</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">needs</span>: <span style="color:#ae81ff">build</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Expose an OIDC token</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">permissions</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">contents</span>: <span style="color:#ae81ff">read</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">id-token</span>: <span style="color:#ae81ff">write</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/setup-node@v4</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">node-version</span>: <span style="color:#e6db74">&#34;24.x&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">registry-url</span>: <span style="color:#e6db74">&#34;https://registry.npmjs.org&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># Download the artifact</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/download-artifact@v4</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">name</span>: <span style="color:#ae81ff">npm-package</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># Publish using the OIDC token</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm publish</span>
+</span></span></code></pre></div><h1 id="oidc-quirks">OIDC Quirks<a href="#oidc-quirks" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>There is a practical limitation to exploiting OIDC configurations en-masse, namely that environment-specific information must be included when exchanging an OIDC token for credentials. The amount of information required varies depending on the service you are authenticating against. For example, NPM only requires you to provide an audience, which is static across all environments using this configuration. In other words, an attacker doesn&rsquo;t need to understand anything about the environment they&rsquo;re targetting. More specifically: all the environment specific information an attacker needs is embedded directly within the OIDC token itself.</p>
+<p>In contrast, authenticating against AWS requires more information. Specifically, you must provide an IAM role ARN to assume. Here is a (slightly modified) example from GitHub&rsquo;s <a href="https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws" target="_blank">documentation</a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">AWS example workflow</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">permissions</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">id-token</span>: <span style="color:#ae81ff">write</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">contents</span>: <span style="color:#ae81ff">read</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">S3PackageUpload</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Git clone the repository</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v6</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">configure aws credentials</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">aws-actions/configure-aws-credentials@v6</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># this value is unique in every environment</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">role-to-assume</span>: <span style="color:#ae81ff">arn:aws:iam::000012345789:role/s3-publish</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">role-session-name</span>: <span style="color:#ae81ff">githubworkflow</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">aws-region</span>: <span style="color:#ae81ff">us-east-1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Copy index.html to s3</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          aws s3 cp ./index.html s3://my_bucket/</span>
+</span></span></code></pre></div><p>In this context, a piece of malware could not immediately pivot to exchanging the OIDC token for AWS credentials without first discovering the role ARN. This should not be treated as a security control by any means, but it is a notable quirk worth calling out. Unfortunately, this quirk nets you nothing for public package providers. PyPI, Crates.io, and other similar platforms operate like NPM does. Further, this information could also be exposed depending on how a pipeline is built. If a repository is checked out during the exploited job, this information could be enumerated from the on-disk pipeline file. Alternatively, it is relatively common to expose this information as environment variables.</p>
+<p>As an aside, it is interesting to note that GitHub&rsquo;s example exposes the OIDC token to all jobs by configuring it at the root of the Action manifest. This is fine in the context of this specific example, but the documentation itself does not include any warnings about this. The AWS <a href="https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/" target="_blank">blog post</a> on this topic does the same. As mentioned above, the same is true for NPM&rsquo;s own <a href="https://docs.npmjs.com/trusted-publishers" target="_blank">documentation</a>, and their examples are fully exploitable out-of-the-box.</p>
+<h1 id="gold-standard-protections">Gold Standard Protections<a href="#gold-standard-protections" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>While this is certainly useful, it is not the most significant means of mitigating supply chain attacks. Discussing these in detail is outside the scope of this post, but as a brief recap there are two primary controls every organization should adopt.</p>
+<p>First, all package dependencies should avoid version tags. Generally speaking, tags are mutable, and this is exactly what this class of attacks take advantage of. That safe v2.3.1 package you installed last week may be overwritten with malware next week. Instead, dependencies should rely on commit hash pinning. Commit hashes are immutable; they cannot be overwritten. All modern package management systems allow for lock files to be generated against commit hashes. This should also be used for reusable workflows. For example, the AWS role assumption workflow referenced above could be rewritten as: <code>aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502</code>.</p>
+<p>Second, package managers should be configured with a dependency cooldown. This control again emerges from observing the smash-and-grab nature of these campaigns. Malicious packages are published with little regard for stealth, and because of this, are quickly detected and taken down. These packages may be alive for a few hours, or even a few minutes. Dependency cooldown is a configuration that tells a package manager to ignore packages that have been published within a given window.</p>
+<p>There are nuances to this, such as GitHub&rsquo;s immutable releases which allows you to safely rely on known-safe version tags. Or configuring internal artifact registries that upstream public registries. There are also framework-specific protections you can enable, such as disabling lifecycle scripts during <code>npm</code> execution using the <code>--ignore-scripts</code> flag.</p>
+<h1 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>It is important to again stress that this mitigation is tailored to modern adversarial campaigns. This is a mitigation against direct credential exfiltration from payloads that trigger during the build stage. A sophisticated attacker could cause malicious code to trigger during deployment, or even post-deployment when the package is live within the environment. This is particularly notable when dealing with dependency confusion attacks, a far more targeted class of supply chain attacks. But again: security is best implemented in layers.</p>
+<p>If you have not already configured your organization&rsquo;s environment with commit hash pinning and dependency cooldown, go do that now. Right now. But security is best implemented in layers. If you&rsquo;ve already got this wrangled, it&rsquo;s worth looking into isolating the build phases of your pipelines. This won&rsquo;t do anything to prevent developers themselves from pulling a malicious packages, but pipelines are what have significant environment access. A compromised publish pipeline functionally has administrator rights within production environments. And while these campaigns have largely acted as worms, there is nothing stopping them from advancing their capabilities and broadening their post-compromise target list.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
