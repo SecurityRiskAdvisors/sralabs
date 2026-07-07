@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Git&#39;ing gud with Tailscale :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="We use [Tailscale](https://tailscale.com) as our VPN solution internally here at SRA for accessing a lot of our internal systems as well as for having a static egress IP (via exit nodes) for services that only allow IP-based access controls. We developed a GitOps solution to manage the Tailscale [policy](https://tailscale.com/docs/features/tailnet-policy-file) that governs our network. In this blog, we will walk through this solution." />
+<meta name="keywords" content="tailscale, gitops, engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/tailscalegitops/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Git&#39;ing gud with Tailscale">
+<meta property="og:description" content="We use [Tailscale](https://tailscale.com) as our VPN solution internally here at SRA for accessing a lot of our internal systems as well as for having a static egress IP (via exit nodes) for services that only allow IP-based access controls. We developed a GitOps solution to manage the Tailscale [policy](https://tailscale.com/docs/features/tailnet-policy-file) that governs our network. In this blog, we will walk through this solution." />
+<meta property="og:url" content="https://labs.sra.io/posts/tailscalegitops/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-07-07 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/tailscalegitops/">Git&rsquo;ing gud with Tailscale</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-07-07</time><span class="post-author">Evan Perotti</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/tailscale/">tailscale</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/gitops/">gitops</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/engineering/">engineering</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <p>We use <a href="https://tailscale.com" target="_blank">Tailscale</a> as our VPN solution internally here at SRA for accessing a lot of our internal systems as well as for having a static egress IP (via exit nodes) for services that only allow IP-based access controls. We developed a GitOps solution to manage the Tailscale <a href="https://tailscale.com/docs/features/tailnet-policy-file" target="_blank">policy</a> that governs our network. In this blog, we will walk through this solution.</p>
+<hr>
+<h2 id="the-policy-file">The Policy File<a href="#the-policy-file" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Each Tailscale customer network (the &ldquo;Tailnet&rdquo;) is governed by a policy file defined in <a href="https://github.com/tailscale/hujson" target="_blank">HuJSON</a>. Essentially just JSON with comments and trailing commas and another name for <a href="https://nigeltao.github.io/blog/2021/json-with-commas-comments.html" target="_blank">JWCC</a>. The policy specification is fairly involved and feature rich, but at its core, it manages Grants that allow or deny connections to destinations. These Grants are fairly expressive and allow for you to specify sources/destinations not just by IPs and ranges, but also by user principals, directory groups, roles, and tags.</p>
+<p>Unfortunately, Tailscale does not provide fine-grained access controls to policies. You cannot delegate access to edit routes for specific network segments or users. You can either edit the entire policy or nothing.</p>
+<p>To workaround this, we moved policy file management to our internal source control system, Azure DevOps (&ldquo;ADO&rdquo;).</p>
+<hr>
+<h2 id="gitops">GitOps<a href="#gitops" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>GitOps is just management of infrastructure resources via Git. In our case, we manage write access to a policy HuJSON file via Azure DevOps&rsquo; repository access controls then push the policy changes to our Tailnet via a pipeline.</p>
+<p>The policy file is a singular HuJSON document, which is not particularly conducive to easy management since it makes it difficult to see which sections apply to any given area. In our approach, we broke the policy file into smaller HuJSON files, taking inspiration from conventions seen in Linux configuration file management (e.g., Apache/nginx sites, RC files, crontabs, etc). Then we stitch it back together before pushing. This makes management much easier, as someone reviewing the policy or a pull request (PR) can focus on an individual concern(s). When new services are added, they are contained in their individual policy file.</p>
+
+  <figure class="center" >
+    <img src="policyfiletree.png"  alt="Directory tree of individual policy files"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Directory tree of individual policy files</figcaption>
+    
+  </figure>
+
+
+<p>This structure also allows you leverage your source control system&rsquo;s path-based rules. For example, you can trigger validation or have stricter controls for grants while being more lenient for additions to tests.</p>
+<p>We wrote a small Python utility to combine these individual files together. The script is packaged into a Wheel then made available to the build pipeline via an internal package repository hosted on Azure DevOps&rsquo; Artifacts. A minimal version of this is included below:</p>
+
+
+
+  <div class="collapsable-code">
+    <input id="1" type="checkbox" checked />
+    <label for="1">
+      <span class="collapsable-code__language">python</span>
+      <span class="collapsable-code__title">Policy file combiner</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-python" ><code>
+import pathlib
+import argparse
+import json
+
+from pywuffs import JsonDecoderQuirks
+from pywuffs.aux import JsonDecoder, JsonDecoderConfig
+
+
+_decoder_config = JsonDecoderConfig()
+# JWCC is basically just HuJSON by another name.
+# Wuffs is used for loading HuJSON files.
+# The Wuffs JSON CLI utility, jsonptr, support JWCC
+# Quirks for JWCC are found here:
+# https://github.com/google/wuffs/blob/3d6c609dc12de3c81e1b8079ceecf96370b086a2/example/jsonptr/jsonptr.cc#L785
+_decoder_config.quirks = [
+    JsonDecoderQuirks.ALLOW_COMMENT_LINE,
+    JsonDecoderQuirks.ALLOW_COMMENT_BLOCK,
+    JsonDecoderQuirks.ALLOW_EXTRA_COMMA,
+]
+_decoder = JsonDecoder(_decoder_config)
+
+
+def _load_hujson_file(path: pathlib.Path) -&gt; dict:
+    &#34;&#34;&#34;
+    Given a path, load the file contents then attempt to deserialize using Wuffs
+
+    :param path: Path to HuJSON file
+    &#34;&#34;&#34;
+    data = path.read_bytes()
+    decoded = _decoder.decode(data)
+    if decoded.error_message == &#34;&#34;:
+        return decoded.parsed
+    else:
+        raise Exception(f&#34;Cannot load JSON from {path.as_posix()}&#34;)
+
+
+def main(out_file: str, units: str):
+    &#34;&#34;&#34;
+    Load all HuJSON files from the given units directory and stitch into single standard JSON file
+
+    The units directory is essentially a file system equivalent of the Tailnet ACL file contents.
+    The structure should be
+
+        [units directory]
+            |- root.hujson
+            |- &lt;key 1 directory&gt;
+                |- &lt;hujson file&gt;
+                |- ...
+            |- &lt;key 2 directory&gt;
+                |- &lt;hujson file&gt;
+                |- ...
+
+    Where &#34;root.hujson&#34; contains the top-level keys for the ACL file, such as the &#34;tagOwners&#34; key.
+    Each key directory should be named after the ACL key, such as &#34;ssh&#34;, &#34;acls&#34;, and &#34;tests&#34;.
+    Each file in that directory should be a list item to append to that key.
+
+    For example, units/ssh/foo-1.json with the following contents:
+        [{&#34;action&#34;: &#34;check&#34;, &#34;src&#34;: [&#34;bar@example.com&#34;], &#34;dst&#34;: [&#34;tag:baz&#34;], &#34;users&#34;: [&#34;autogroup:nonroot&#34;]}]
+    Will get added to the final ACL JSON as
+        &#34;ssh&#34;: [{&#34;action&#34;: &#34;check&#34;, &#34;src&#34;: [&#34;bar@example.com&#34;], &#34;dst&#34;: [&#34;tag:baz&#34;], &#34;users&#34;: [&#34;autogroup:nonroot&#34;]}, ...]
+    &#34;&#34;&#34;
+    out_file = pathlib.Path(out_file)
+    units_root = pathlib.Path(units)
+
+    root_json = units_root / &#34;root.hujson&#34;
+    root_json = _load_hujson_file(root_json)
+
+    for json_file in units_root.rglob(&#34;*/*.hujson&#34;):
+        root_json.setdefault(json_file.parent.name, []).extend(_load_hujson_file(json_file))
+
+    out_file.write_text(json.dumps(root_json, indent=4))
+
+
+def cli_main():
+    parser = argparse.ArgumentParser(prog=&#34;tailnetgen&#34;)
+    parser.add_argument(&#34;-o&#34;, &#34;--out-file&#34;, required=True)
+    parser.add_argument(&#34;-u&#34;, &#34;--units&#34;, required=False, default=&#34;units/&#34;)
+    args = parser.parse_args()
+    main(args.out_file, args.units)
+
+
+if __name__ == &#34;__main__&#34;:
+    cli_main()
+</code></pre>
+  </div>
+
+
+<p>To modify the policy, users open a pull request against the primary branch. This triggers a validation pipeline that generates the new policy then validates it against Tailscale&rsquo;s <a href="https://tailscale.com/api#tag/policyfile/post/tailnet/%7btailnet%7d/acl/validate" target="_blank">validation API</a>, which verifies both the correctness of the JSON and runs any defined <a href="https://tailscale.com/docs/reference/syntax/policy-file#tests" target="_blank">policy tests</a>.</p>
+
+  <figure class="center" >
+    <img src="prvalidate.png"  alt="ADO validation pipeline"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >ADO validation pipeline</figcaption>
+    
+  </figure>
+
+
+<p>Once the pipeline runs and validates, two human reviewers are required to approve the change.</p>
+
+  <figure class="center" >
+    <img src="branchpolicy.png"  alt="ADO reviewer policy"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >ADO reviewer policy</figcaption>
+    
+  </figure>
+
+
+<p>Finally, once the approved changes are merged, another pipeline triggers to push the updated policy into production.</p>
+<p>For both the validation and production pipelines, we use Tailscale&rsquo;s <a href="https://github.com/tailscale/tailscale/tree/main/cmd/gitops-pusher" target="_blank">gitops-pusher</a> CLI utility as a client for the Tailscale API. Credentials are stored in an Azure Key Vault accessible by the pipeline&rsquo;s Service Principal.</p>
+
+  <figure class="center" >
+    <img src="azsecrets.png"  alt="Azure secrets mapped into ADO"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Azure secrets mapped into ADO</figcaption>
+    
+  </figure>
+
+
+<hr>
+<h2 id="tailsnitch">Tailsnitch<a href="#tailsnitch" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Earlier this year, Adversis released <a href="https://github.com/Adversis/tailsnitch" target="_blank">tailsnitch</a>, a CLI tool for performing security auditing of Tailscale environments. It covers both the policy file and tenant configurations.</p>
+<p>In our evaluations, some of the checks seemed useful. However, its operating model is incompatible with our GitOps approach. Tailsnitch works against your production configurations, always pulling data live. This means you cannot validate that a change is insecure before pushing it to production. In our case, we&rsquo;d want to run it during the validation phase against our policy candidate then block the merge if its found to be insecure.</p>
+<p>However, some preliminary works shows that you can simply patch the policy lookup to achieve &ldquo;offline&rdquo; evaluation. The below patch file overrides the <code>GetACLHuJSON</code> (<code>pkg/client/client.go</code>) function to use a local policy file defined in the  environment variable <code>ACL_FILE_PATH</code>. After applying the patch (<code>patch -p0 &lt; patch</code>) then rebuilding <code>tailsnitch</code> (<code>make build</code>), policy evaluation functions will evaluate the local policy for issues (but online functions like evaluating tenant configuration will fail).</p>
+
+
+
+  <div class="collapsable-code">
+    <input id="2" type="checkbox" checked />
+    <label for="2">
+      <span class="collapsable-code__language">diff</span>
+      <span class="collapsable-code__title">tailsnitch patch</span>
+      <span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide"></span>
+    </label>
+    <pre class="language-diff" ><code>
+--- pkg/client/client.go
+&#43;&#43;&#43; pkg/client/client.go
+@@ -243,14 &#43;243,17 @@ func (c *Client) GetACL(ctx context.Context) (*tailscale.ACL, error) {
+ 
+ // GetACLHuJSON fetches the ACL policy in HuJSON format
+ func (c *Client) GetACLHuJSON(ctx context.Context) (*tailscale.ACLHuJSON, error) {
+-	if err := c.wait(ctx); err != nil {
+-		return nil, err
+-	}
+-	acl, err := c.ts.ACLHuJSON(ctx)
+&#43;	path := os.Getenv(&#34;ACL_FILE_PATH&#34;)
+&#43;
+&#43;	data, err := os.ReadFile(path)
+ 	if err != nil {
+-		return nil, classifyError(err, &#34;GetACLHuJSON&#34;, &#34;ACL policy&#34;)
+&#43;		return nil, err
+ 	}
+-	return acl, nil
+&#43;
+&#43;	var acl tailscale.ACLHuJSON
+&#43;	acl.ACL = string(data)
+&#43;
+&#43;	return &amp;acl, nil
+ }
+ 
+ // GetDevices fetches all devices in the tailnet
+
+</code></pre>
+  </div>
+
+
+<hr>
+<h2 id="closing">Closing<a href="#closing" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>If you have any questions or concerns, feel free to reach out to <a href="https://x.com/2xxeformyshirt" target="_blank">@2xxeformyshirt</a>.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

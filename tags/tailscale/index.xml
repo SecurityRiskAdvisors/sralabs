@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tailscale on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+    <link>https://labs.sra.io/tags/tailscale/</link>
+    <description>Recent content in Tailscale on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 07 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/tailscale/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Git&#39;ing gud with Tailscale</title>
+      <link>https://labs.sra.io/posts/tailscalegitops/</link>
+      <pubDate>Tue, 07 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/tailscalegitops/</guid>
+      <description>&lt;p&gt;We use &lt;a href=&#34;https://tailscale.com&#34; target=&#34;_blank&#34;&gt;Tailscale&lt;/a&gt; as our VPN solution internally here at SRA for accessing a lot of our internal systems as well as for having a static egress IP (via exit nodes) for services that only allow IP-based access controls. We developed a GitOps solution to manage the Tailscale &lt;a href=&#34;https://tailscale.com/docs/features/tailnet-policy-file&#34; target=&#34;_blank&#34;&gt;policy&lt;/a&gt; that governs our network. In this blog, we will walk through this solution.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;the-policy-file&#34;&gt;The Policy File&lt;/h2&gt;
+&lt;p&gt;Each Tailscale customer network (the &amp;ldquo;Tailnet&amp;rdquo;) is governed by a policy file defined in &lt;a href=&#34;https://github.com/tailscale/hujson&#34; target=&#34;_blank&#34;&gt;HuJSON&lt;/a&gt;. Essentially just JSON with comments and trailing commas and another name for &lt;a href=&#34;https://nigeltao.github.io/blog/2021/json-with-commas-comments.html&#34; target=&#34;_blank&#34;&gt;JWCC&lt;/a&gt;. The policy specification is fairly involved and feature rich, but at its core, it manages Grants that allow or deny connections to destinations. These Grants are fairly expressive and allow for you to specify sources/destinations not just by IPs and ranges, but also by user principals, directory groups, roles, and tags.&lt;/p&gt;</description>
+      <content>&lt;p&gt;We use &lt;a href=&#34;https://tailscale.com&#34; target=&#34;_blank&#34;&gt;Tailscale&lt;/a&gt; as our VPN solution internally here at SRA for accessing a lot of our internal systems as well as for having a static egress IP (via exit nodes) for services that only allow IP-based access controls. We developed a GitOps solution to manage the Tailscale &lt;a href=&#34;https://tailscale.com/docs/features/tailnet-policy-file&#34; target=&#34;_blank&#34;&gt;policy&lt;/a&gt; that governs our network. In this blog, we will walk through this solution.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;the-policy-file&#34;&gt;The Policy File&lt;/h2&gt;
+&lt;p&gt;Each Tailscale customer network (the &amp;ldquo;Tailnet&amp;rdquo;) is governed by a policy file defined in &lt;a href=&#34;https://github.com/tailscale/hujson&#34; target=&#34;_blank&#34;&gt;HuJSON&lt;/a&gt;. Essentially just JSON with comments and trailing commas and another name for &lt;a href=&#34;https://nigeltao.github.io/blog/2021/json-with-commas-comments.html&#34; target=&#34;_blank&#34;&gt;JWCC&lt;/a&gt;. The policy specification is fairly involved and feature rich, but at its core, it manages Grants that allow or deny connections to destinations. These Grants are fairly expressive and allow for you to specify sources/destinations not just by IPs and ranges, but also by user principals, directory groups, roles, and tags.&lt;/p&gt;
+&lt;p&gt;Unfortunately, Tailscale does not provide fine-grained access controls to policies. You cannot delegate access to edit routes for specific network segments or users. You can either edit the entire policy or nothing.&lt;/p&gt;
+&lt;p&gt;To workaround this, we moved policy file management to our internal source control system, Azure DevOps (&amp;ldquo;ADO&amp;rdquo;).&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;gitops&#34;&gt;GitOps&lt;/h2&gt;
+&lt;p&gt;GitOps is just management of infrastructure resources via Git. In our case, we manage write access to a policy HuJSON file via Azure DevOps&amp;rsquo; repository access controls then push the policy changes to our Tailnet via a pipeline.&lt;/p&gt;
+&lt;p&gt;The policy file is a singular HuJSON document, which is not particularly conducive to easy management since it makes it difficult to see which sections apply to any given area. In our approach, we broke the policy file into smaller HuJSON files, taking inspiration from conventions seen in Linux configuration file management (e.g., Apache/nginx sites, RC files, crontabs, etc). Then we stitch it back together before pushing. This makes management much easier, as someone reviewing the policy or a pull request (PR) can focus on an individual concern(s). When new services are added, they are contained in their individual policy file.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;policyfiletree.png&#34;  alt=&#34;Directory tree of individual policy files&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Directory tree of individual policy files&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;This structure also allows you leverage your source control system&amp;rsquo;s path-based rules. For example, you can trigger validation or have stricter controls for grants while being more lenient for additions to tests.&lt;/p&gt;
+&lt;p&gt;We wrote a small Python utility to combine these individual files together. The script is packaged into a Wheel then made available to the build pipeline via an internal package repository hosted on Azure DevOps&amp;rsquo; Artifacts. A minimal version of this is included below:&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;1&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;1&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;Policy file combiner&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-python&#34; &gt;&lt;code&gt;
+import pathlib
+import argparse
+import json
+
+from pywuffs import JsonDecoderQuirks
+from pywuffs.aux import JsonDecoder, JsonDecoderConfig
+
+
+_decoder_config = JsonDecoderConfig()
+# JWCC is basically just HuJSON by another name.
+# Wuffs is used for loading HuJSON files.
+# The Wuffs JSON CLI utility, jsonptr, support JWCC
+# Quirks for JWCC are found here:
+# https://github.com/google/wuffs/blob/3d6c609dc12de3c81e1b8079ceecf96370b086a2/example/jsonptr/jsonptr.cc#L785
+_decoder_config.quirks = [
+    JsonDecoderQuirks.ALLOW_COMMENT_LINE,
+    JsonDecoderQuirks.ALLOW_COMMENT_BLOCK,
+    JsonDecoderQuirks.ALLOW_EXTRA_COMMA,
+]
+_decoder = JsonDecoder(_decoder_config)
+
+
+def _load_hujson_file(path: pathlib.Path) -&amp;gt; dict:
+    &amp;#34;&amp;#34;&amp;#34;
+    Given a path, load the file contents then attempt to deserialize using Wuffs
+
+    :param path: Path to HuJSON file
+    &amp;#34;&amp;#34;&amp;#34;
+    data = path.read_bytes()
+    decoded = _decoder.decode(data)
+    if decoded.error_message == &amp;#34;&amp;#34;:
+        return decoded.parsed
+    else:
+        raise Exception(f&amp;#34;Cannot load JSON from {path.as_posix()}&amp;#34;)
+
+
+def main(out_file: str, units: str):
+    &amp;#34;&amp;#34;&amp;#34;
+    Load all HuJSON files from the given units directory and stitch into single standard JSON file
+
+    The units directory is essentially a file system equivalent of the Tailnet ACL file contents.
+    The structure should be
+
+        [units directory]
+            |- root.hujson
+            |- &amp;lt;key 1 directory&amp;gt;
+                |- &amp;lt;hujson file&amp;gt;
+                |- ...
+            |- &amp;lt;key 2 directory&amp;gt;
+                |- &amp;lt;hujson file&amp;gt;
+                |- ...
+
+    Where &amp;#34;root.hujson&amp;#34; contains the top-level keys for the ACL file, such as the &amp;#34;tagOwners&amp;#34; key.
+    Each key directory should be named after the ACL key, such as &amp;#34;ssh&amp;#34;, &amp;#34;acls&amp;#34;, and &amp;#34;tests&amp;#34;.
+    Each file in that directory should be a list item to append to that key.
+
+    For example, units/ssh/foo-1.json with the following contents:
+        [{&amp;#34;action&amp;#34;: &amp;#34;check&amp;#34;, &amp;#34;src&amp;#34;: [&amp;#34;bar@example.com&amp;#34;], &amp;#34;dst&amp;#34;: [&amp;#34;tag:baz&amp;#34;], &amp;#34;users&amp;#34;: [&amp;#34;autogroup:nonroot&amp;#34;]}]
+    Will get added to the final ACL JSON as
+        &amp;#34;ssh&amp;#34;: [{&amp;#34;action&amp;#34;: &amp;#34;check&amp;#34;, &amp;#34;src&amp;#34;: [&amp;#34;bar@example.com&amp;#34;], &amp;#34;dst&amp;#34;: [&amp;#34;tag:baz&amp;#34;], &amp;#34;users&amp;#34;: [&amp;#34;autogroup:nonroot&amp;#34;]}, ...]
+    &amp;#34;&amp;#34;&amp;#34;
+    out_file = pathlib.Path(out_file)
+    units_root = pathlib.Path(units)
+
+    root_json = units_root / &amp;#34;root.hujson&amp;#34;
+    root_json = _load_hujson_file(root_json)
+
+    for json_file in units_root.rglob(&amp;#34;*/*.hujson&amp;#34;):
+        root_json.setdefault(json_file.parent.name, []).extend(_load_hujson_file(json_file))
+
+    out_file.write_text(json.dumps(root_json, indent=4))
+
+
+def cli_main():
+    parser = argparse.ArgumentParser(prog=&amp;#34;tailnetgen&amp;#34;)
+    parser.add_argument(&amp;#34;-o&amp;#34;, &amp;#34;--out-file&amp;#34;, required=True)
+    parser.add_argument(&amp;#34;-u&amp;#34;, &amp;#34;--units&amp;#34;, required=False, default=&amp;#34;units/&amp;#34;)
+    args = parser.parse_args()
+    main(args.out_file, args.units)
+
+
+if __name__ == &amp;#34;__main__&amp;#34;:
+    cli_main()
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;p&gt;To modify the policy, users open a pull request against the primary branch. This triggers a validation pipeline that generates the new policy then validates it against Tailscale&amp;rsquo;s &lt;a href=&#34;https://tailscale.com/api#tag/policyfile/post/tailnet/%7btailnet%7d/acl/validate&#34; target=&#34;_blank&#34;&gt;validation API&lt;/a&gt;, which verifies both the correctness of the JSON and runs any defined &lt;a href=&#34;https://tailscale.com/docs/reference/syntax/policy-file#tests&#34; target=&#34;_blank&#34;&gt;policy tests&lt;/a&gt;.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;prvalidate.png&#34;  alt=&#34;ADO validation pipeline&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;ADO validation pipeline&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Once the pipeline runs and validates, two human reviewers are required to approve the change.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;branchpolicy.png&#34;  alt=&#34;ADO reviewer policy&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;ADO reviewer policy&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Finally, once the approved changes are merged, another pipeline triggers to push the updated policy into production.&lt;/p&gt;
+&lt;p&gt;For both the validation and production pipelines, we use Tailscale&amp;rsquo;s &lt;a href=&#34;https://github.com/tailscale/tailscale/tree/main/cmd/gitops-pusher&#34; target=&#34;_blank&#34;&gt;gitops-pusher&lt;/a&gt; CLI utility as a client for the Tailscale API. Credentials are stored in an Azure Key Vault accessible by the pipeline&amp;rsquo;s Service Principal.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;azsecrets.png&#34;  alt=&#34;Azure secrets mapped into ADO&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Azure secrets mapped into ADO&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;hr&gt;
+&lt;h2 id=&#34;tailsnitch&#34;&gt;Tailsnitch&lt;/h2&gt;
+&lt;p&gt;Earlier this year, Adversis released &lt;a href=&#34;https://github.com/Adversis/tailsnitch&#34; target=&#34;_blank&#34;&gt;tailsnitch&lt;/a&gt;, a CLI tool for performing security auditing of Tailscale environments. It covers both the policy file and tenant configurations.&lt;/p&gt;
+&lt;p&gt;In our evaluations, some of the checks seemed useful. However, its operating model is incompatible with our GitOps approach. Tailsnitch works against your production configurations, always pulling data live. This means you cannot validate that a change is insecure before pushing it to production. In our case, we&amp;rsquo;d want to run it during the validation phase against our policy candidate then block the merge if its found to be insecure.&lt;/p&gt;
+&lt;p&gt;However, some preliminary works shows that you can simply patch the policy lookup to achieve &amp;ldquo;offline&amp;rdquo; evaluation. The below patch file overrides the &lt;code&gt;GetACLHuJSON&lt;/code&gt; (&lt;code&gt;pkg/client/client.go&lt;/code&gt;) function to use a local policy file defined in the  environment variable &lt;code&gt;ACL_FILE_PATH&lt;/code&gt;. After applying the patch (&lt;code&gt;patch -p0 &amp;lt; patch&lt;/code&gt;) then rebuilding &lt;code&gt;tailsnitch&lt;/code&gt; (&lt;code&gt;make build&lt;/code&gt;), policy evaluation functions will evaluate the local policy for issues (but online functions like evaluating tenant configuration will fail).&lt;/p&gt;
+
+
+
+  &lt;div class=&#34;collapsable-code&#34;&gt;
+    &lt;input id=&#34;2&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;2&#34;&gt;
+      &lt;span class=&#34;collapsable-code__language&#34;&gt;diff&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__title&#34;&gt;tailsnitch patch&lt;/span&gt;
+      &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;pre class=&#34;language-diff&#34; &gt;&lt;code&gt;
+--- pkg/client/client.go
+&amp;#43;&amp;#43;&amp;#43; pkg/client/client.go
+@@ -243,14 &amp;#43;243,17 @@ func (c *Client) GetACL(ctx context.Context) (*tailscale.ACL, error) {
+ 
+ // GetACLHuJSON fetches the ACL policy in HuJSON format
+ func (c *Client) GetACLHuJSON(ctx context.Context) (*tailscale.ACLHuJSON, error) {
+-	if err := c.wait(ctx); err != nil {
+-		return nil, err
+-	}
+-	acl, err := c.ts.ACLHuJSON(ctx)
+&amp;#43;	path := os.Getenv(&amp;#34;ACL_FILE_PATH&amp;#34;)
+&amp;#43;
+&amp;#43;	data, err := os.ReadFile(path)
+ 	if err != nil {
+-		return nil, classifyError(err, &amp;#34;GetACLHuJSON&amp;#34;, &amp;#34;ACL policy&amp;#34;)
+&amp;#43;		return nil, err
+ 	}
+-	return acl, nil
+&amp;#43;
+&amp;#43;	var acl tailscale.ACLHuJSON
+&amp;#43;	acl.ACL = string(data)
+&amp;#43;
+&amp;#43;	return &amp;amp;acl, nil
+ }
+ 
+ // GetDevices fetches all devices in the tailnet
+
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+
+
+&lt;hr&gt;
+&lt;h2 id=&#34;closing&#34;&gt;Closing&lt;/h2&gt;
+&lt;p&gt;If you have any questions or concerns, feel free to reach out to &lt;a href=&#34;https://x.com/2xxeformyshirt&#34; target=&#34;_blank&#34;&gt;@2xxeformyshirt&lt;/a&gt;.&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>
