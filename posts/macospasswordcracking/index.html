@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>macOS Password Cracking :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="macOS is a relatively common sight within many modern company environments. Despite this, there don&#39;t seem to be many decent sources around for how to dump local user hashes for offline pasword cracking attacks. This post is a short writeup on how to access and transform hashes into a form hashcat can use." />
+<meta name="keywords" content="macos, offsec, passwordcracking" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/macospasswordcracking/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="macOS Password Cracking">
+<meta property="og:description" content="macOS is a relatively common sight within many modern company environments. Despite this, there don&#39;t seem to be many decent sources around for how to dump local user hashes for offline pasword cracking attacks. This post is a short writeup on how to access and transform hashes into a form hashcat can use." />
+<meta property="og:url" content="https://labs.sra.io/posts/macospasswordcracking/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-07-14 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/macospasswordcracking/">macOS Password Cracking</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-07-14</time><span class="post-author">Jonn Callahan</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/macos/">macos</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/offsec/">offsec</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/passwordcracking/">passwordcracking</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="macos">macOS<a href="#macos" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>So you&rsquo;ve got elevated access to a macOS machine and for whatever reason, you now need to target the local user password hashes. Unlike traditional Linux environments, this is a bit more convoluted than grabbing <code>/etc/shadow</code> and calling it a day, enough so that I figured it&rsquo;s worth documenting. For this post, we&rsquo;ll assume you want to target the <code>ryleh</code> user. Let&rsquo;s start by first dumping the user details:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo dscl . -read /Users/ryleh
+</span></span></code></pre></div>
+  <figure class="center" >
+    <img src="user_list.png"  alt="Listing user details"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<p>This lists a lot of information but for this we&rsquo;re particularly interested in the <code>ShadowHashData</code> block. Get this info out of the environment and onto your own machine. Going forward, I&rsquo;ll assume you&rsquo;re working within a Linux environment (Ubuntu, specifically).</p>
+<h1 id="ubuntu">Ubuntu<a href="#ubuntu" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>To massage this data into a useable format, we&rsquo;ll need the <code>plistutil</code> package (<code>apt install libplist-utils</code>). Assuming the previous <code>ShadowHashData</code> data is now local within <code>ryleh.hashdata</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat ryleh.hashdata | xxd -p -r &gt; ryleh.bin.plist
+</span></span><span style="display:flex;"><span>plistutil -i ryleh.bin.plist -o ryleh.plist -f xml1
+</span></span></code></pre></div><p>This gives us a proper plist, with all the data we need embedded within.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE plist PUBLIC &#34;-//Apple//DTD PLIST 1.0//EN&#34; &#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#34;&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;plist</span> <span style="color:#a6e22e">version=</span><span style="color:#e6db74">&#34;1.0&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;dict&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;key&gt;</span>SRP-RFC5054-4096-SHA512-PBKDF2<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;dict&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>verifier<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;data&gt;</span>
+</span></span><span style="display:flex;"><span>		Q7hXEJ8cG/jhRgvBtieRXmanSUcpNm4ssPxjcUUWQcxUnu8JUv0WkKZYh8Tx
+</span></span><span style="display:flex;"><span>		DhOyQk786DdjSuqUWOV+vmVTedb3slWC98Y1/TPxUTBk9wtqoNh1ESc6ayys
+</span></span><span style="display:flex;"><span>		339H4zNi+KcZ47zHgHgyWFbWpWZm/BLm4H4Vq5oO0s/UAmT+3bhTGOFrhgGq
+</span></span><span style="display:flex;"><span>		P0faR8i1f1uSrw/S0I2kPgq312jGO91/2VLb9niC5i1mEfciFU+s0YyoBg/E
+</span></span><span style="display:flex;"><span>		8UGtSpdg5X+MYQotKzeiSi/CMAeyHCpSpzyc35kngTHYDcFzTUB5hDB1MOJY
+</span></span><span style="display:flex;"><span>		GPUXJiimMzd5LefrLsdizNDW0Dm6GT8YLCyx6LLBy0UTdE9gHPNt6xO7Iv2N
+</span></span><span style="display:flex;"><span>		VwfK5d1H3nD27Ko6pSi0x+H5WdHMQ96/MdMgSLpsNWPF0U6ybpU03nFr6MPE
+</span></span><span style="display:flex;"><span>		dqw+hiuAaXju9I8zNcsPt4twVxbG9dlcvGjlpWA+2+tsuq7oCeYyVdNM9Lfa
+</span></span><span style="display:flex;"><span>		W7ELmZTKH06eQVmBMgO8MwCC6g79x22v1fPYuywPQGSnhQV8P9QJGkev0Kvx
+</span></span><span style="display:flex;"><span>		BiwQ1IBcF/bzx2fUCx+f6BSpu0DMDQsUW2gjbB6VaBJOWYCsp6XZPQFYpVf6
+</span></span><span style="display:flex;"><span>		5K7GYNLjVBySEUUsTS3sSJhdJac+xlCWrf8C1/3lDU3Bmy4Eku371ErlCLc4
+</span></span><span style="display:flex;"><span>		x+PcnwNaS6wLAn+c3eOhV78=
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/data&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>salt<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;data&gt;</span>
+</span></span><span style="display:flex;"><span>		GkTtt96MhhhLVE7gQdaLUL9j/emkaBT5TKHGnhkF2kk=
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/data&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>iterations<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;integer&gt;</span>131578<span style="color:#f92672">&lt;/integer&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;/dict&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;key&gt;</span>SALTED-SHA512-PBKDF2<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;dict&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>entropy<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;data&gt;</span>
+</span></span><span style="display:flex;"><span>		dyGspnfdJffuNG5N1I8RJQRSxubbknBEswHF8Dwz3wbVzel0qf42rv6kqJe8
+</span></span><span style="display:flex;"><span>		TiN2V7gzrZb+6YAqy60q5ha4lvXccsjaG5DAgl4hnS1byPUUyontKx2EXeul
+</span></span><span style="display:flex;"><span>		3bKt9pDuLU3i/lnx2eLVedIizn0pG2XzJYKPLR23xcNn1lnU5IA=
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/data&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>salt<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;data&gt;</span>
+</span></span><span style="display:flex;"><span>		t52inmMU3tpPKQzYSdD5NloeBtXHBOcH+sfJeCVOySM=
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;/data&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;key&gt;</span>iterations<span style="color:#f92672">&lt;/key&gt;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">&lt;integer&gt;</span>133333<span style="color:#f92672">&lt;/integer&gt;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&lt;/dict&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dict&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/plist&gt;</span>
+</span></span></code></pre></div><p>Now we extract the <code>entropy</code> and <code>salt</code> keys out of the <code>SALTED-SHA512-PBKDF2</code> block, using <code>xxd</code> to hexdump them:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>entropy<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;dyGspnfdJffuNG5N1I8RJQRSxubbknBEswHF8Dwz3wbVzel0qf42rv6kqJe8TiN2V7&#34;</span><span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;gzrZb+6YAqy60q5ha4lvXccsjaG5DAgl4hnS1byPUUyontKx2EXeul3bKt9pDuLU3i/lnx2eLV&#34;</span><span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;edIizn0pG2XzJYKPLR23xcNn1lnU5IA=&#34;</span>
+</span></span><span style="display:flex;"><span>salt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;t52inmMU3tpPKQzYSdD5NloeBtXHBOcH+sfJeCVOySM=&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo $entropy | base64 -d | xxd -p -c <span style="color:#ae81ff">2000</span>
+</span></span><span style="display:flex;"><span>echo $salt | base64 -d | xxd -p -c <span style="color:#ae81ff">2000</span>
+</span></span></code></pre></div><p>These values are then combined with the iteration count in the following format:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ml$&lt;iterations&gt;$&lt;salt&gt;$&lt;entropy&gt;
+</span></span></code></pre></div><p>Using the example data above, we get the following hash:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ml$133333$b79da29e6314deda4f290cd849d0f9365a1e06d5c704e707fac7c978254ec923$7721
+</span></span><span style="display:flex;"><span>aca677dd25f7ee346e4dd48f11250452c6e6db927044b301c5f03c33df06d5cde974a9fe36aefea4
+</span></span><span style="display:flex;"><span>a897bc4e237657b833ad96fee9802acbad2ae616b896f5dc72c8da1b90c0825e219d2d5bc8f514ca
+</span></span><span style="display:flex;"><span>89ed2b1d845deba5ddb2adf690ee2d4de2fe59f1d9e2d579d222ce7d291b65f325828f2d1db7c5c3
+</span></span><span style="display:flex;"><span>67d659d4e480
+</span></span></code></pre></div><p>Target this via hashcat mode <code>7100</code> and away you go.</p>
+
+  <figure class="center" >
+    <img src="hashcat.png"  alt="Crasking the hash"   style="border-radius: 8px;"  />
+    
+  </figure>
+
+
+<h1 id="on-cracking">On Cracking<a href="#on-cracking" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>It&rsquo;s worth noting that this particular hashing scheme is relatively slow. If you&rsquo;re used to harvesting &amp; cracking NetNTLM hashes from Windows environments, you&rsquo;re about to be in for a bad time. Even with a relatively strong password cracking setup (we have multiple 4x 3080Ti servers), you&rsquo;ll need to perform more targetted and granular attacks. No running OneRuleToRuleThemStill or d3adhob0 against your favorite 500mb wordlist. Even the &ldquo;smaller&rdquo; lists, like rockyou, will likely still be far too large.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

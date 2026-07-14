@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Macos on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+    <link>https://labs.sra.io/tags/macos/</link>
+    <description>Recent content in Macos on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 14 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/macos/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>macOS Password Cracking</title>
+      <link>https://labs.sra.io/posts/macospasswordcracking/</link>
+      <pubDate>Tue, 14 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/macospasswordcracking/</guid>
+      <description>&lt;h1 id=&#34;macos&#34;&gt;macOS&lt;/h1&gt;
+&lt;p&gt;So you&amp;rsquo;ve got elevated access to a macOS machine and for whatever reason, you now need to target the local user password hashes. Unlike traditional Linux environments, this is a bit more convoluted than grabbing &lt;code&gt;/etc/shadow&lt;/code&gt; and calling it a day, enough so that I figured it&amp;rsquo;s worth documenting. For this post, we&amp;rsquo;ll assume you want to target the &lt;code&gt;ryleh&lt;/code&gt; user. Let&amp;rsquo;s start by first dumping the user details:&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;macos&#34;&gt;macOS&lt;/h1&gt;
+&lt;p&gt;So you&amp;rsquo;ve got elevated access to a macOS machine and for whatever reason, you now need to target the local user password hashes. Unlike traditional Linux environments, this is a bit more convoluted than grabbing &lt;code&gt;/etc/shadow&lt;/code&gt; and calling it a day, enough so that I figured it&amp;rsquo;s worth documenting. For this post, we&amp;rsquo;ll assume you want to target the &lt;code&gt;ryleh&lt;/code&gt; user. Let&amp;rsquo;s start by first dumping the user details:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo dscl . -read /Users/ryleh
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;user_list.png&#34;  alt=&#34;Listing user details&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;This lists a lot of information but for this we&amp;rsquo;re particularly interested in the &lt;code&gt;ShadowHashData&lt;/code&gt; block. Get this info out of the environment and onto your own machine. Going forward, I&amp;rsquo;ll assume you&amp;rsquo;re working within a Linux environment (Ubuntu, specifically).&lt;/p&gt;
+&lt;h1 id=&#34;ubuntu&#34;&gt;Ubuntu&lt;/h1&gt;
+&lt;p&gt;To massage this data into a useable format, we&amp;rsquo;ll need the &lt;code&gt;plistutil&lt;/code&gt; package (&lt;code&gt;apt install libplist-utils&lt;/code&gt;). Assuming the previous &lt;code&gt;ShadowHashData&lt;/code&gt; data is now local within &lt;code&gt;ryleh.hashdata&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat ryleh.hashdata | xxd -p -r &amp;gt; ryleh.bin.plist
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;plistutil -i ryleh.bin.plist -o ryleh.plist -f xml1
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This gives us a proper plist, with all the data we need embedded within.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!DOCTYPE plist PUBLIC &amp;#34;-//Apple//DTD PLIST 1.0//EN&amp;#34; &amp;#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&amp;#34;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;plist&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;version=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;dict&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;SRP-RFC5054-4096-SHA512-PBKDF2&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;dict&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;verifier&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		Q7hXEJ8cG/jhRgvBtieRXmanSUcpNm4ssPxjcUUWQcxUnu8JUv0WkKZYh8Tx
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		DhOyQk786DdjSuqUWOV+vmVTedb3slWC98Y1/TPxUTBk9wtqoNh1ESc6ayys
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		339H4zNi+KcZ47zHgHgyWFbWpWZm/BLm4H4Vq5oO0s/UAmT+3bhTGOFrhgGq
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		P0faR8i1f1uSrw/S0I2kPgq312jGO91/2VLb9niC5i1mEfciFU+s0YyoBg/E
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		8UGtSpdg5X+MYQotKzeiSi/CMAeyHCpSpzyc35kngTHYDcFzTUB5hDB1MOJY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		GPUXJiimMzd5LefrLsdizNDW0Dm6GT8YLCyx6LLBy0UTdE9gHPNt6xO7Iv2N
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		VwfK5d1H3nD27Ko6pSi0x+H5WdHMQ96/MdMgSLpsNWPF0U6ybpU03nFr6MPE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		dqw+hiuAaXju9I8zNcsPt4twVxbG9dlcvGjlpWA+2+tsuq7oCeYyVdNM9Lfa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		W7ELmZTKH06eQVmBMgO8MwCC6g79x22v1fPYuywPQGSnhQV8P9QJGkev0Kvx
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		BiwQ1IBcF/bzx2fUCx+f6BSpu0DMDQsUW2gjbB6VaBJOWYCsp6XZPQFYpVf6
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		5K7GYNLjVBySEUUsTS3sSJhdJac+xlCWrf8C1/3lDU3Bmy4Eku371ErlCLc4
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		x+PcnwNaS6wLAn+c3eOhV78=
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;salt&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		GkTtt96MhhhLVE7gQdaLUL9j/emkaBT5TKHGnhkF2kk=
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;iterations&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;integer&amp;gt;&lt;/span&gt;131578&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/integer&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/dict&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;SALTED-SHA512-PBKDF2&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;dict&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;entropy&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		dyGspnfdJffuNG5N1I8RJQRSxubbknBEswHF8Dwz3wbVzel0qf42rv6kqJe8
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		TiN2V7gzrZb+6YAqy60q5ha4lvXccsjaG5DAgl4hnS1byPUUyontKx2EXeul
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		3bKt9pDuLU3i/lnx2eLVedIizn0pG2XzJYKPLR23xcNn1lnU5IA=
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;salt&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		t52inmMU3tpPKQzYSdD5NloeBtXHBOcH+sfJeCVOySM=
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/data&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;key&amp;gt;&lt;/span&gt;iterations&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;integer&amp;gt;&lt;/span&gt;133333&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/integer&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/dict&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/dict&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/plist&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we extract the &lt;code&gt;entropy&lt;/code&gt; and &lt;code&gt;salt&lt;/code&gt; keys out of the &lt;code&gt;SALTED-SHA512-PBKDF2&lt;/code&gt; block, using &lt;code&gt;xxd&lt;/code&gt; to hexdump them:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;entropy&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;dyGspnfdJffuNG5N1I8RJQRSxubbknBEswHF8Dwz3wbVzel0qf42rv6kqJe8TiN2V7&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;gzrZb+6YAqy60q5ha4lvXccsjaG5DAgl4hnS1byPUUyontKx2EXeul3bKt9pDuLU3i/lnx2eLV&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;edIizn0pG2XzJYKPLR23xcNn1lnU5IA=&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;salt&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;t52inmMU3tpPKQzYSdD5NloeBtXHBOcH+sfJeCVOySM=&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;echo $entropy | base64 -d | xxd -p -c &lt;span style=&#34;color:#ae81ff&#34;&gt;2000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;echo $salt | base64 -d | xxd -p -c &lt;span style=&#34;color:#ae81ff&#34;&gt;2000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;These values are then combined with the iteration count in the following format:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ml$&amp;lt;iterations&amp;gt;$&amp;lt;salt&amp;gt;$&amp;lt;entropy&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Using the example data above, we get the following hash:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ml$133333$b79da29e6314deda4f290cd849d0f9365a1e06d5c704e707fac7c978254ec923$7721
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;aca677dd25f7ee346e4dd48f11250452c6e6db927044b301c5f03c33df06d5cde974a9fe36aefea4
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;a897bc4e237657b833ad96fee9802acbad2ae616b896f5dc72c8da1b90c0825e219d2d5bc8f514ca
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;89ed2b1d845deba5ddb2adf690ee2d4de2fe59f1d9e2d579d222ce7d291b65f325828f2d1db7c5c3
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;67d659d4e480
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Target this via hashcat mode &lt;code&gt;7100&lt;/code&gt; and away you go.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;hashcat.png&#34;  alt=&#34;Crasking the hash&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;h1 id=&#34;on-cracking&#34;&gt;On Cracking&lt;/h1&gt;
+&lt;p&gt;It&amp;rsquo;s worth noting that this particular hashing scheme is relatively slow. If you&amp;rsquo;re used to harvesting &amp;amp; cracking NetNTLM hashes from Windows environments, you&amp;rsquo;re about to be in for a bad time. Even with a relatively strong password cracking setup (we have multiple 4x 3080Ti servers), you&amp;rsquo;ll need to perform more targetted and granular attacks. No running OneRuleToRuleThemStill or d3adhob0 against your favorite 500mb wordlist. Even the &amp;ldquo;smaller&amp;rdquo; lists, like rockyou, will likely still be far too large.&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>

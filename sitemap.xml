@@ -3,7 +3,25 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://labs.sra.io/</loc>
-    <lastmod>2026-07-07T12:00:00+00:00</lastmod>
+    <lastmod>2026-07-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/macos/</loc>
+    <lastmod>2026-07-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/macospasswordcracking/</loc>
+    <lastmod>2026-07-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/offsec/</loc>
+    <lastmod>2026-07-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/passwordcracking/</loc>
+    <lastmod>2026-07-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/</loc>
+    <lastmod>2026-07-14T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/</loc>
+    <lastmod>2026-07-14T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/engineering/</loc>
     <lastmod>2026-07-07T12:00:00+00:00</lastmod>
@@ -12,12 +30,6 @@
     <lastmod>2026-07-07T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/gitops/</loc>
-    <lastmod>2026-07-07T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/posts/</loc>
-    <lastmod>2026-07-07T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/</loc>
     <lastmod>2026-07-07T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/tailscale/</loc>
@@ -69,9 +81,6 @@
     <lastmod>2026-06-09T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/posts/pythonpycacheprefix/</loc>
-    <lastmod>2026-06-02T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/offsec/</loc>
     <lastmod>2026-06-02T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/persistence/</loc>
