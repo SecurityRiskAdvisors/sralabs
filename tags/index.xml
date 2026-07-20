@@ -6,13 +6,33 @@
     <description>Recent content in Tags on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 20 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Advisory</title>
       <link>https://labs.sra.io/tags/advisory/</link>
-      <pubDate>Fri, 17 Jul 2026 12:00:00 +0000</pubDate>
+      <pubDate>Mon, 20 Jul 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/advisory/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>CVE-2026-13380</title>
+      <link>https://labs.sra.io/tags/cve-2026-13380/</link>
+      <pubDate>Mon, 20 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/cve-2026-13380/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>CVE-2026-13381</title>
+      <link>https://labs.sra.io/tags/cve-2026-13381/</link>
+      <pubDate>Mon, 20 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/cve-2026-13381/</guid>
       <description></description>
       <content></content>
     </item>

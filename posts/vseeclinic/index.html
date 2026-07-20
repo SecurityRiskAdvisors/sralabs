@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   
-    <title>Advisory: Quest Coexistence Manager for Notes :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+    <title>Advisory: VSee Clinic :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests." />
-<meta name="keywords" content="advisory, CVE-2025-12874" />
+<meta name="description" content="SRA has identified multiple vulnerabilities in VSee Clinic that can lead to unauthorized access to and deletion of files as well as exposure of SFTP credentials." />
+<meta name="keywords" content="advisory, CVE-2026-13381, CVE-2026-13380" />
 
   <meta name="robots" content="noodp" />
 
-<link rel="canonical" href="https://labs.sra.io/posts/questcoexistence/" />
+<link rel="canonical" href="https://labs.sra.io/posts/vseeclinic/" />
 
 
 
@@ -42,9 +42,9 @@
 
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="Advisory: Quest Coexistence Manager for Notes">
-<meta property="og:description" content="SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests." />
-<meta property="og:url" content="https://labs.sra.io/posts/questcoexistence/" />
+<meta property="og:title" content="Advisory: VSee Clinic">
+<meta property="og:description" content="SRA has identified multiple vulnerabilities in VSee Clinic that can lead to unauthorized access to and deletion of files as well as exposure of SFTP credentials." />
+<meta property="og:url" content="https://labs.sra.io/posts/vseeclinic/" />
 <meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
 
   
@@ -55,7 +55,7 @@
 <meta property="og:image:height" content="627">
 
 
-  <meta property="article:published_time" content="2025-12-19 12:00:00 &#43;0000 UTC" />
+  <meta property="article:published_time" content="2026-07-20 12:00:00 &#43;0000 UTC" />
 
 
 
@@ -171,9 +171,9 @@
     
 <article class="post">
   <h1 class="post-title">
-    <a href="https://labs.sra.io/posts/questcoexistence/">Advisory: Quest Coexistence Manager for Notes</a>
+    <a href="https://labs.sra.io/posts/vseeclinic/">Advisory: VSee Clinic</a>
   </h1>
-  <div class="post-meta"><time class="post-date">2025-12-19</time><span class="post-author">Security Risk Advisors</span>
+  <div class="post-meta"><time class="post-date">2026-07-20</time><span class="post-author">Security Risk Advisors</span>
     
 </div>
 
@@ -182,7 +182,9 @@
       
       #<a href="https://labs.sra.io/tags/advisory/">advisory</a>&nbsp;
       
-      #<a href="https://labs.sra.io/tags/cve-2025-12874/">CVE-2025-12874</a>&nbsp;
+      #<a href="https://labs.sra.io/tags/cve-2026-13381/">CVE-2026-13381</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2026-13380/">CVE-2026-13380</a>&nbsp;
       
     </span>
   
@@ -194,7 +196,7 @@
 
   <div class="post-content"><div>
         <h1 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
-<p>SRA has identified a vulnerability in Quest Coexistence Manager for Notes that can lead to bypassing access controls, poisoning web caches, hijacking sessions, or triggering unintended internal requests.</p>
+<p>SRA has identified multiple vulnerabilities in VSee Clinic that can lead to unauthorized access to and deletion of files as well as exposure of SFTP credentials.</p>
 <h1 id="cve-identifiers">CVE Identifiers<a href="#cve-identifiers" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
 <table>
   <thead>
@@ -205,31 +207,48 @@
   </thead>
   <tbody>
       <tr>
-          <td>CVE-2025-12874</td>
-          <td>HTTP Request Smuggling in Quest Coexistence Manager for Notes</td>
+          <td>CVE-2026-13380</td>
+          <td>VSee Clinic and API Insecure Direct Object Reference in File API Allows Unauthorized File Access and Deletion</td>
+      </tr>
+      <tr>
+          <td>CVE-2026-13381</td>
+          <td>VSee Clinic and API Exposes Cleartext SFTP Credentials in Unauthenticated HTTP Responses</td>
       </tr>
   </tbody>
 </table>
 <h1 id="vulnerability-details--description">Vulnerability Details / Description<a href="#vulnerability-details--description" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
-<p>Quest Coexistence Manager for Notes (3.8.2045) is vulnerable in the Free/Busy Connector to HTTP request smuggling from an unauthenticated remote attacker. The front-end and back-end components rely on inconsistent header parsing, resulting in desynchronized request boundaries. In this case, the front-end server uses the <code>Content-Length</code> header to determine the end of the request body, forwarding the full request. The back-end server interprets the request using <code>Transfer-Encoding: chunked</code>, processing only the first chunk (declared as zero-length) and treating the remaining bytes as a new, separate request. The attacker embeds a second, hidden request in the body of the original message. Due to the parsing mismatch, this smuggled request is processed independently by the back-end server.</p>
+<h2 id="cve-2026-13380-vsee-clinic-and-api-insecure-direct-object-reference-in-file-api-allows-unauthorized-file-access-and-deletion">CVE-2026-13380: VSee Clinic and API Insecure Direct Object Reference in File API Allows Unauthorized File Access and Deletion<a href="#cve-2026-13380-vsee-clinic-and-api-insecure-direct-object-reference-in-file-api-allows-unauthorized-file-access-and-deletion" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>VSee Clinic 7.1.26 and API 1.3.0 contain an Insecure Direct Object Reference (IDOR) vulnerability in the /v1.3.0/api/files endpoint. An authenticated attacker can manipulate the &lsquo;remark&rsquo; request parameter to enumerate, retrieve, and delete files belonging to other users on the application server.</p>
 <p><strong>Severity</strong></p>
-<p>The CVSS base score of this vulnerability has been calculated to be 6.3 (Medium).</p>
-<p>CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/U:Clear</p>
+<p>The CVSS base score of this vulnerability has been calculated to be 9.0 (Critical)</p>
+<p>CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:N</p>
+<h2 id="cve-2026-13381-vsee-clinic-and-api-exposes-cleartext-sftp-credentials-in-unauthenticated-http-responses">CVE-2026-13381: VSee Clinic and API Exposes Cleartext SFTP Credentials in Unauthenticated HTTP Responses<a href="#cve-2026-13381-vsee-clinic-and-api-exposes-cleartext-sftp-credentials-in-unauthenticated-http-responses" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>VSee Clinic 7.1.26 and VSee Clinic API 1.3.0 exposes cleartext SFTP credentials in the HTTP responses of three unauthenticated endpoints. The credentials are present in these responses only when SFTP connections have been configured within the application. No authentication is required to retrieve these credentials. An unauthenticated remote attacker who observes any of these HTTP responses on an instance where SFTP is configured can obtain the credentials and use them to access the associated SFTP server.</p>
+<p><strong>Severity</strong></p>
+<p>The CVSS base score of this vulnerability has been calculated to be 8.7 (High)</p>
+<p>CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N</p>
 <h1 id="affected-versions-and-models">Affected Versions and Models<a href="#affected-versions-and-models" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
-<p>Quest Coexistence Manager for Notes 3.8.2045</p>
+<p>VSee Clinic from 7.1.26 before 7.1.26.1. VSee Clinic API from 1.3.0 before 1.3.0.1.</p>
+<p>VSee Clinic API&rsquo;s default status is uknown for CVE-2026-13380 and unaffected for CVE-2026-13381.</p>
 <h1 id="mitre-cwe-weakness-enumeration">MITRE CWE Weakness Enumeration<a href="#mitre-cwe-weakness-enumeration" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
-<p>CWE-444: Inconsistent Interpretation of HTTP Requests</p>
+<p>CVE-2026-13380</p>
+<ul>
+<li>CWE-201 Insertion of sensitive information into sent data</li>
+<li>CWE-312 Cleartext storage of sensitive information</li>
+</ul>
+<p>CVE-2026-13381</p>
+<ul>
+<li>CWE-639 Authorization bypass through user-controlled key</li>
+</ul>
 <h1 id="remediation-options">Remediation Options<a href="#remediation-options" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
-<p>Update Quest Coexistence Manager for Notes to latest version.</p>
+<p>Update VSee Clinic to 7.1.26.1 or later and VSee Clinic API to 1.3.0.1 or later</p>
 <h1 id="source">Source<a href="#source" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
-<p>This vulnerability was discovered by Cam Lischke as part of research performed by Security Risk Advisors.</p>
+<p>These vulnerabilities were discovered by Chris Jones, Drew Young, and Maguire Younes as part of research performed by Security Risk Advisors.</p>
 <h1 id="timeframe">Timeframe<a href="#timeframe" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
 <ul>
-<li>November 3, 2025 – SRA submits vulnerability support case to Quest.</li>
-<li>November 4 through November 7, 2025 – SRA submits details of vulnerability to Quest.</li>
-<li>December 9, 2025 – SRA notifies Quest of intent to publicly disclose.</li>
-<li>December 12, 2025 – Quest acknowledges intent to publicly disclose.</li>
-<li>December 17, 2025 – Quest notifies SRA of intent to create a knowledge base article for Quest Support Portal</li>
+<li>June 16, 2026 - SRA submits vulnerability to vendor</li>
+<li>June 24, 2026 - Vendor releases fix</li>
+<li>July 20, 2026 - SRA publishes CVEs and advisory</li>
 </ul>
 
       </div></div>

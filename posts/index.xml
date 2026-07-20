@@ -6,7 +6,95 @@
     <description>Recent content in Posts on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 20 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Advisory: VSee Clinic</title>
+      <link>https://labs.sra.io/posts/vseeclinic/</link>
+      <pubDate>Mon, 20 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/vseeclinic/</guid>
+      <description>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in VSee Clinic that can lead to unauthorized access to and deletion of files as well as exposure of SFTP credentials.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2026-13380&lt;/td&gt;
+          &lt;td&gt;VSee Clinic and API Insecure Direct Object Reference in File API Allows Unauthorized File Access and Deletion&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2026-13381&lt;/td&gt;
+          &lt;td&gt;VSee Clinic and API Exposes Cleartext SFTP Credentials in Unauthenticated HTTP Responses&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2026-13380-vsee-clinic-and-api-insecure-direct-object-reference-in-file-api-allows-unauthorized-file-access-and-deletion&#34;&gt;CVE-2026-13380: VSee Clinic and API Insecure Direct Object Reference in File API Allows Unauthorized File Access and Deletion&lt;/h2&gt;
+&lt;p&gt;VSee Clinic 7.1.26 and API 1.3.0 contain an Insecure Direct Object Reference (IDOR) vulnerability in the /v1.3.0/api/files endpoint. An authenticated attacker can manipulate the &amp;lsquo;remark&amp;rsquo; request parameter to enumerate, retrieve, and delete files belonging to other users on the application server.&lt;/p&gt;</description>
+      <content>&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;SRA has identified multiple vulnerabilities in VSee Clinic that can lead to unauthorized access to and deletion of files as well as exposure of SFTP credentials.&lt;/p&gt;
+&lt;h1 id=&#34;cve-identifiers&#34;&gt;CVE Identifiers&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;CVE ID&lt;/th&gt;
+          &lt;th&gt;CVE Name&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2026-13380&lt;/td&gt;
+          &lt;td&gt;VSee Clinic and API Insecure Direct Object Reference in File API Allows Unauthorized File Access and Deletion&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CVE-2026-13381&lt;/td&gt;
+          &lt;td&gt;VSee Clinic and API Exposes Cleartext SFTP Credentials in Unauthenticated HTTP Responses&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;vulnerability-details--description&#34;&gt;Vulnerability Details / Description&lt;/h1&gt;
+&lt;h2 id=&#34;cve-2026-13380-vsee-clinic-and-api-insecure-direct-object-reference-in-file-api-allows-unauthorized-file-access-and-deletion&#34;&gt;CVE-2026-13380: VSee Clinic and API Insecure Direct Object Reference in File API Allows Unauthorized File Access and Deletion&lt;/h2&gt;
+&lt;p&gt;VSee Clinic 7.1.26 and API 1.3.0 contain an Insecure Direct Object Reference (IDOR) vulnerability in the /v1.3.0/api/files endpoint. An authenticated attacker can manipulate the &amp;lsquo;remark&amp;rsquo; request parameter to enumerate, retrieve, and delete files belonging to other users on the application server.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 9.0 (Critical)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:N&lt;/p&gt;
+&lt;h2 id=&#34;cve-2026-13381-vsee-clinic-and-api-exposes-cleartext-sftp-credentials-in-unauthenticated-http-responses&#34;&gt;CVE-2026-13381: VSee Clinic and API Exposes Cleartext SFTP Credentials in Unauthenticated HTTP Responses&lt;/h2&gt;
+&lt;p&gt;VSee Clinic 7.1.26 and VSee Clinic API 1.3.0 exposes cleartext SFTP credentials in the HTTP responses of three unauthenticated endpoints. The credentials are present in these responses only when SFTP connections have been configured within the application. No authentication is required to retrieve these credentials. An unauthenticated remote attacker who observes any of these HTTP responses on an instance where SFTP is configured can obtain the credentials and use them to access the associated SFTP server.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.7 (High)&lt;/p&gt;
+&lt;p&gt;CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N&lt;/p&gt;
+&lt;h1 id=&#34;affected-versions-and-models&#34;&gt;Affected Versions and Models&lt;/h1&gt;
+&lt;p&gt;VSee Clinic from 7.1.26 before 7.1.26.1. VSee Clinic API from 1.3.0 before 1.3.0.1.&lt;/p&gt;
+&lt;p&gt;VSee Clinic API&amp;rsquo;s default status is uknown for CVE-2026-13380 and unaffected for CVE-2026-13381.&lt;/p&gt;
+&lt;h1 id=&#34;mitre-cwe-weakness-enumeration&#34;&gt;MITRE CWE Weakness Enumeration&lt;/h1&gt;
+&lt;p&gt;CVE-2026-13380&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-201 Insertion of sensitive information into sent data&lt;/li&gt;
+&lt;li&gt;CWE-312 Cleartext storage of sensitive information&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CVE-2026-13381&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CWE-639 Authorization bypass through user-controlled key&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;remediation-options&#34;&gt;Remediation Options&lt;/h1&gt;
+&lt;p&gt;Update VSee Clinic to 7.1.26.1 or later and VSee Clinic API to 1.3.0.1 or later&lt;/p&gt;
+&lt;h1 id=&#34;source&#34;&gt;Source&lt;/h1&gt;
+&lt;p&gt;These vulnerabilities were discovered by Chris Jones, Drew Young, and Maguire Younes as part of research performed by Security Risk Advisors.&lt;/p&gt;
+&lt;h1 id=&#34;timeframe&#34;&gt;Timeframe&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;June 16, 2026 - SRA submits vulnerability to vendor&lt;/li&gt;
+&lt;li&gt;June 24, 2026 - Vendor releases fix&lt;/li&gt;
+&lt;li&gt;July 20, 2026 - SRA publishes CVEs and advisory&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    </item>
+    
     <item>
       <title>Advisory: Sangoma Switchvox SMB</title>
       <link>https://labs.sra.io/posts/switchvox/</link>
@@ -81,7 +169,7 @@
 &lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 8.6 (High)&lt;/p&gt;
 &lt;p&gt;CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:N/SC:L/SI:L/SA:L&lt;/p&gt;
 &lt;h2 id=&#34;cve-2026-9586-unauthenticated-sql-injection-leading-to-remote-code-execution-in-switchvox-smb&#34;&gt;CVE-2026-9586 Unauthenticated SQL Injection Leading to Remote Code Execution in Switchvox SMB&lt;/h2&gt;
-&lt;p&gt;An unauthenticated SQL injection vulnerability exists in Sangoma Switchvox SMB Edition 8.3 (104997). The /pa endpoint processes XML content beginning with &lt;PolycomIPPhone&gt; and directly concatenates the user-controlled PhoneIP value into PostgreSQL queries without sanitization or parameterization. An unauthenticated remote attacker can execute arbitrary SQL statements against the backend PostgreSQL database using a single crafted request, including database operations and remote code execution.&lt;/p&gt;
+&lt;p&gt;An unauthenticated SQL injection vulnerability exists in Sangoma Switchvox SMB Edition 8.3 (104997). The /pa endpoint processes XML content beginning with &lt;code&gt;&amp;lt;PolycomIPPhone&amp;gt;&lt;/code&gt; and directly concatenates the user-controlled PhoneIP value into PostgreSQL queries without sanitization or parameterization. An unauthenticated remote attacker can execute arbitrary SQL statements against the backend PostgreSQL database using a single crafted request, including database operations and remote code execution.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Severity&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;The CVSS base score of this vulnerability has been calculated to be 9.3 (Critical)&lt;/p&gt;
 &lt;p&gt;CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N&lt;/p&gt;
@@ -1142,8 +1230,8 @@ if __name__ == &amp;#34;__main__&amp;#34;:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;231785649&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;231785649&#34;&gt;
+    &lt;input id=&#34;895742163&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;895742163&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;cpp&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;CreateProcess with Mitigation Policy&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -2712,8 +2800,8 @@ sequenceDiagram
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;862197453&#34; type=&#34;checkbox&#34; checked /&gt;
-    &lt;label for=&#34;862197453&#34;&gt;
+    &lt;input id=&#34;196832457&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;196832457&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;PYTHON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;CaptinCredz Plugin&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -2824,8 +2912,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;642139587&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;642139587&#34;&gt;
+    &lt;input id=&#34;142975836&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;142975836&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via a Resource&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -2851,8 +2939,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;235761849&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;235761849&#34;&gt;
+    &lt;input id=&#34;681437295&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;681437295&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:PassedToService&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -2882,8 +2970,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;159264738&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;159264738&#34;&gt;
+    &lt;input id=&#34;175289643&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;175289643&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Restricting PassRole via iam:AssociatedResourceARN&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -2957,8 +3045,8 @@ class Plugin:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;261975843&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;261975843&#34;&gt;
+    &lt;input id=&#34;916487523&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;916487523&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Statement walking&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -3020,8 +3108,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;523879641&#34; type=&#34;checkbox&#34;  /&gt;
-    &lt;label for=&#34;523879641&#34;&gt;
+    &lt;input id=&#34;835674921&#34; type=&#34;checkbox&#34;  /&gt;
+    &lt;label for=&#34;835674921&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;JSON&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;Trust policy&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -3101,8 +3189,8 @@ for result in results:
 
 
   &lt;div class=&#34;collapsable-code&#34;&gt;
-    &lt;input id=&#34;546713892&#34; type=&#34;checkbox&#34; checked /&gt;
-    &lt;label for=&#34;546713892&#34;&gt;
+    &lt;input id=&#34;714895623&#34; type=&#34;checkbox&#34; checked /&gt;
+    &lt;label for=&#34;714895623&#34;&gt;
       &lt;span class=&#34;collapsable-code__language&#34;&gt;python&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__title&#34;&gt;PassRole Enrichment&lt;/span&gt;
       &lt;span class=&#34;collapsable-code__toggle&#34; data-label-expand=&#34;Show&#34; data-label-collapse=&#34;Hide&#34;&gt;&lt;/span&gt;
@@ -3308,7 +3396,7 @@ class PassRoleCombinations(NodeEnrichment):
     </item>
     
     <item>
-      <title>Milner ImageDirector Capture</title>
+      <title>Advisory: Milner ImageDirector Capture</title>
       <link>https://labs.sra.io/posts/milnerimagedirector/</link>
       <pubDate>Tue, 20 Jan 2026 12:00:00 +0000</pubDate>
       
@@ -3448,7 +3536,7 @@ class PassRoleCombinations(NodeEnrichment):
     </item>
     
     <item>
-      <title>Quest Coexistence Manager for Notes</title>
+      <title>Advisory: Quest Coexistence Manager for Notes</title>
       <link>https://labs.sra.io/posts/questcoexistence/</link>
       <pubDate>Fri, 19 Dec 2025 12:00:00 +0000</pubDate>
       
@@ -3514,7 +3602,7 @@ class PassRoleCombinations(NodeEnrichment):
     </item>
     
     <item>
-      <title>Brivo Access Control Systems</title>
+      <title>Advisory: Brivo Access Control Systems</title>
       <link>https://labs.sra.io/posts/brivoacs/</link>
       <pubDate>Mon, 19 Feb 2024 12:00:00 +0000</pubDate>
       

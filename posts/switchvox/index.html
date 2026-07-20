@@ -235,7 +235,7 @@
 <p>The CVSS base score of this vulnerability has been calculated to be 8.6 (High)</p>
 <p>CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:N/SC:L/SI:L/SA:L</p>
 <h2 id="cve-2026-9586-unauthenticated-sql-injection-leading-to-remote-code-execution-in-switchvox-smb">CVE-2026-9586 Unauthenticated SQL Injection Leading to Remote Code Execution in Switchvox SMB<a href="#cve-2026-9586-unauthenticated-sql-injection-leading-to-remote-code-execution-in-switchvox-smb" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
-<p>An unauthenticated SQL injection vulnerability exists in Sangoma Switchvox SMB Edition 8.3 (104997). The /pa endpoint processes XML content beginning with <PolycomIPPhone> and directly concatenates the user-controlled PhoneIP value into PostgreSQL queries without sanitization or parameterization. An unauthenticated remote attacker can execute arbitrary SQL statements against the backend PostgreSQL database using a single crafted request, including database operations and remote code execution.</p>
+<p>An unauthenticated SQL injection vulnerability exists in Sangoma Switchvox SMB Edition 8.3 (104997). The /pa endpoint processes XML content beginning with <code>&lt;PolycomIPPhone&gt;</code> and directly concatenates the user-controlled PhoneIP value into PostgreSQL queries without sanitization or parameterization. An unauthenticated remote attacker can execute arbitrary SQL statements against the backend PostgreSQL database using a single crafted request, including database operations and remote code execution.</p>
 <p><strong>Severity</strong></p>
 <p>The CVSS base score of this vulnerability has been calculated to be 9.3 (Critical)</p>
 <p>CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N</p>
