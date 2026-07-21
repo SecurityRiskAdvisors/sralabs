@@ -6,7 +6,57 @@
     <description>Recent content in Tags on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 20 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 21 Jul 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cve</title>
+      <link>https://labs.sra.io/tags/cve/</link>
+      <pubDate>Tue, 21 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/cve/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>CVE-2026-9585</title>
+      <link>https://labs.sra.io/tags/cve-2026-9585/</link>
+      <pubDate>Tue, 21 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/cve-2026-9585/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>CVE-2026-9586</title>
+      <link>https://labs.sra.io/tags/cve-2026-9586/</link>
+      <pubDate>Tue, 21 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/cve-2026-9586/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>CVE-2026-9587</title>
+      <link>https://labs.sra.io/tags/cve-2026-9587/</link>
+      <pubDate>Tue, 21 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/cve-2026-9587/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
+    <item>
+      <title>CVE-2026-9588</title>
+      <link>https://labs.sra.io/tags/cve-2026-9588/</link>
+      <pubDate>Tue, 21 Jul 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/tags/cve-2026-9588/</guid>
+      <description></description>
+      <content></content>
+    </item>
+    
     <item>
       <title>Advisory</title>
       <link>https://labs.sra.io/tags/advisory/</link>
@@ -33,46 +83,6 @@
       <pubDate>Mon, 20 Jul 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/cve-2026-13381/</guid>
-      <description></description>
-      <content></content>
-    </item>
-    
-    <item>
-      <title>CVE-2026-9585</title>
-      <link>https://labs.sra.io/tags/cve-2026-9585/</link>
-      <pubDate>Fri, 17 Jul 2026 12:00:00 +0000</pubDate>
-      
-      <guid>https://labs.sra.io/tags/cve-2026-9585/</guid>
-      <description></description>
-      <content></content>
-    </item>
-    
-    <item>
-      <title>CVE-2026-9586</title>
-      <link>https://labs.sra.io/tags/cve-2026-9586/</link>
-      <pubDate>Fri, 17 Jul 2026 12:00:00 +0000</pubDate>
-      
-      <guid>https://labs.sra.io/tags/cve-2026-9586/</guid>
-      <description></description>
-      <content></content>
-    </item>
-    
-    <item>
-      <title>CVE-2026-9587</title>
-      <link>https://labs.sra.io/tags/cve-2026-9587/</link>
-      <pubDate>Fri, 17 Jul 2026 12:00:00 +0000</pubDate>
-      
-      <guid>https://labs.sra.io/tags/cve-2026-9587/</guid>
-      <description></description>
-      <content></content>
-    </item>
-    
-    <item>
-      <title>CVE-2026-9588</title>
-      <link>https://labs.sra.io/tags/cve-2026-9588/</link>
-      <pubDate>Fri, 17 Jul 2026 12:00:00 +0000</pubDate>
-      
-      <guid>https://labs.sra.io/tags/cve-2026-9588/</guid>
       <description></description>
       <content></content>
     </item>
@@ -343,16 +353,6 @@
       <pubDate>Tue, 12 May 2026 12:00:00 +0000</pubDate>
       
       <guid>https://labs.sra.io/tags/neph/</guid>
-      <description></description>
-      <content></content>
-    </item>
-    
-    <item>
-      <title>Cve</title>
-      <link>https://labs.sra.io/tags/cve/</link>
-      <pubDate>Tue, 05 May 2026 12:00:00 +0000</pubDate>
-      
-      <guid>https://labs.sra.io/tags/cve/</guid>
       <description></description>
       <content></content>
     </item>

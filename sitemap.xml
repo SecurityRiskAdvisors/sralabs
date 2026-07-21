@@ -3,7 +3,31 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://labs.sra.io/</loc>
-    <lastmod>2026-07-20T12:00:00+00:00</lastmod>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/cve/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/cve-2026-9585/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/cve-2026-9586/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/cve-2026-9587/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/cve-2026-9588/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/switchvox-post/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/</loc>
+    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/advisory/</loc>
     <lastmod>2026-07-20T12:00:00+00:00</lastmod>
@@ -17,25 +41,7 @@
     <loc>https://labs.sra.io/tags/cve-2026-13381/</loc>
     <lastmod>2026-07-20T12:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://labs.sra.io/posts/</loc>
-    <lastmod>2026-07-20T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/</loc>
-    <lastmod>2026-07-20T12:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://labs.sra.io/posts/switchvox/</loc>
-    <lastmod>2026-07-17T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/cve-2026-9585/</loc>
-    <lastmod>2026-07-17T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/cve-2026-9586/</loc>
-    <lastmod>2026-07-17T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/cve-2026-9587/</loc>
-    <lastmod>2026-07-17T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/cve-2026-9588/</loc>
     <lastmod>2026-07-17T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/macos/</loc>
@@ -150,9 +156,6 @@
     <lastmod>2026-05-12T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/posts/milnerimagedirector-post/</loc>
-    <lastmod>2026-05-05T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/cve/</loc>
     <lastmod>2026-05-05T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/cve-2025-58740/</loc>
