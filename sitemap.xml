@@ -3,7 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://labs.sra.io/</loc>
-    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
+    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/advisory/</loc>
+    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/ellucian/</loc>
+    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/cve-2026-6881/</loc>
+    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/</loc>
+    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/</loc>
+    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/cve/</loc>
     <lastmod>2026-07-21T12:00:00+00:00</lastmod>
@@ -22,15 +37,6 @@
   </url><url>
     <loc>https://labs.sra.io/posts/switchvox-post/</loc>
     <lastmod>2026-07-21T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/posts/</loc>
-    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/</loc>
-    <lastmod>2026-07-21T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/advisory/</loc>
-    <lastmod>2026-07-20T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/posts/vseeclinic/</loc>
     <lastmod>2026-07-20T12:00:00+00:00</lastmod>

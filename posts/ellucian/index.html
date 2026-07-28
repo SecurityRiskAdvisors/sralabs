@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Advisory: Ellucian Advance :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SRA has identified a SQL injection vulnerability in Ellucian Advance Web and Legacy Advance." />
+<meta name="keywords" content="advisory, CVE-2026-6881" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/ellucian/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Advisory: Ellucian Advance">
+<meta property="og:description" content="SRA has identified a SQL injection vulnerability in Ellucian Advance Web and Legacy Advance." />
+<meta property="og:url" content="https://labs.sra.io/posts/ellucian/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-07-28 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/ellucian/">Advisory: Ellucian Advance</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-07-28</time><span class="post-author">Security Risk Advisors</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/advisory/">advisory</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/cve-2026-6881/">CVE-2026-6881</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>SRA has identified a SQL injection vulnerability in Ellucian Advance Web and Legacy Advance.</p>
+<h1 id="cve-identifiers">CVE Identifiers<a href="#cve-identifiers" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<table>
+  <thead>
+      <tr>
+          <th>CVE ID</th>
+          <th>CVE Name</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>CVE-2026-6881</td>
+          <td>Authenticated SQL Injection Enables Unauthorized Access to Sensitive Information in Ellucian Advance Web and Legacy Advance</td>
+      </tr>
+  </tbody>
+</table>
+<h1 id="vulnerability-details--description">Vulnerability Details / Description<a href="#vulnerability-details--description" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<h2 id="cve-2026-6881-authenticated-sql-injection-enables-unauthorized-access-to-sensitive-information-in-ellucian-advance-web-and-legacy-advance">CVE-2026-6881 Authenticated SQL Injection Enables Unauthorized Access to Sensitive Information in Ellucian Advance Web and Legacy Advance<a href="#cve-2026-6881-authenticated-sql-injection-enables-unauthorized-access-to-sensitive-information-in-ellucian-advance-web-and-legacy-advance" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>A SQL Injection in the Giving Reports functionality in Ellucian Advance Web and Legacy Advance allows an authenticated attacker to extract sensitive information from databases via a crafted SQL query in the class credit field.</p>
+<p><strong>Severity</strong></p>
+<p>The CVSS severity level of this vulnerability has been calculated to be 9.4 (Critical)</p>
+<p>CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:L/SC:H/SI:H/SA:L</p>
+<h1 id="affected-versions-and-models">Affected Versions and Models<a href="#affected-versions-and-models" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Affects all versions of Ellucian Advance Web before AWA-2022-ORA-17.</p>
+<p>Affects all versions of Ellucian Legacy Advance before AWA-2022-ORA-17.</p>
+<p>Ellucian CRM Advance is not impacted.</p>
+<h1 id="mitre-cwe-weakness-enumeration">MITRE CWE Weakness Enumeration<a href="#mitre-cwe-weakness-enumeration" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>CWE-89 Improper neutralization of special elements used in an SQL command (&lsquo;SQL injection&rsquo;)</p>
+<h1 id="remediation-options">Remediation Options<a href="#remediation-options" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Apply hotfix AWA-2022-ORA-17.</p>
+<h1 id="source">Source<a href="#source" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>These vulnerabilities were discovered by Jeremy Slaven, Dylan Eliasson, and Mark Blaho as part of research performed by Security Risk Advisors.</p>
+<h1 id="timeframe">Timeframe<a href="#timeframe" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<ul>
+<li>April 24, 2026 - SRA submits vulnerability to vendor</li>
+<li>May 15, 2026 - Vendor releases hotfix</li>
+<li>July 28, 2026 - SRA publishes CVEs and advisory</li>
+</ul>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
