@@ -3,7 +3,25 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://labs.sra.io/</loc>
-    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
+    <lastmod>2026-09-08T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/conference/</loc>
+    <lastmod>2026-09-08T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/defcon/</loc>
+    <lastmod>2026-09-08T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/dc34recap/</loc>
+    <lastmod>2026-09-08T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/defcon34/</loc>
+    <lastmod>2026-09-08T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/posts/</loc>
+    <lastmod>2026-09-08T12:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://labs.sra.io/tags/</loc>
+    <lastmod>2026-09-08T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/advisory/</loc>
     <lastmod>2026-07-28T12:00:00+00:00</lastmod>
@@ -12,12 +30,6 @@
     <lastmod>2026-07-28T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/cve-2026-6881/</loc>
-    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/posts/</loc>
-    <lastmod>2026-07-28T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://labs.sra.io/tags/</loc>
     <lastmod>2026-07-28T12:00:00+00:00</lastmod>
   </url><url>
     <loc>https://labs.sra.io/tags/cve/</loc>

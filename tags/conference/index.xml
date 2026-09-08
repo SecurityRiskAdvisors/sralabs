@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Conference on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+    <link>https://labs.sra.io/tags/conference/</link>
+    <description>Recent content in Conference on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 08 Sep 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/conference/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DEFCON 34 Recap</title>
+      <link>https://labs.sra.io/posts/dc34recap/</link>
+      <pubDate>Tue, 08 Sep 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/dc34recap/</guid>
+      <description>&lt;p&gt;Oh my God, we&amp;rsquo;re back again! Another year, another DEFCON. And a Backstreet Boys reunion. This year we sent 12 people, gave 1 workshop, gave 1 talk, and participated in 2 panels. This post is gonna be bringing the flavor, showcasing the teams personal highlights from our DEFCON34 experience.&lt;/p&gt;
+&lt;h2 id=&#34;sra--defcon&#34;&gt;SRA @ DEFCON&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/sh0ckSec/FlipperHIDecoder&#34; target=&#34;_blank&#34;&gt;Clone to Pwn: Remote Badge Cloning with the Flipper Zero&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;Langston Clement - Physical Security Village (Talk)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Purple Teaming? Simulating the Adversary in the World of AI Systems
+&lt;ul&gt;
+&lt;li&gt;Evan Perotti - Adversary Village (Panel)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Detection Coverage Is a Hypothesis: Testing it Through Adversarial Execution Variance
+&lt;ul&gt;
+&lt;li&gt;Connor Jackson, Nahid Sarker, Raphael Soto, Russell Harvey - Adversary Village (Workshop)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;From Threat-Intel to Tested Defense, the Adversary Simulation Playbook
+&lt;ul&gt;
+&lt;li&gt;Sarah Hume - Adversary Village (Panel)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;highlights&#34;&gt;Highlights&lt;/h2&gt;
+&lt;p&gt;Across the 12 of us that went, here are our personal picks for content that stood out:&lt;/p&gt;</description>
+      <content>&lt;p&gt;Oh my God, we&amp;rsquo;re back again! Another year, another DEFCON. And a Backstreet Boys reunion. This year we sent 12 people, gave 1 workshop, gave 1 talk, and participated in 2 panels. This post is gonna be bringing the flavor, showcasing the teams personal highlights from our DEFCON34 experience.&lt;/p&gt;
+&lt;h2 id=&#34;sra--defcon&#34;&gt;SRA @ DEFCON&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/sh0ckSec/FlipperHIDecoder&#34; target=&#34;_blank&#34;&gt;Clone to Pwn: Remote Badge Cloning with the Flipper Zero&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;Langston Clement - Physical Security Village (Talk)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Purple Teaming? Simulating the Adversary in the World of AI Systems
+&lt;ul&gt;
+&lt;li&gt;Evan Perotti - Adversary Village (Panel)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Detection Coverage Is a Hypothesis: Testing it Through Adversarial Execution Variance
+&lt;ul&gt;
+&lt;li&gt;Connor Jackson, Nahid Sarker, Raphael Soto, Russell Harvey - Adversary Village (Workshop)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;From Threat-Intel to Tested Defense, the Adversary Simulation Playbook
+&lt;ul&gt;
+&lt;li&gt;Sarah Hume - Adversary Village (Panel)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;highlights&#34;&gt;Highlights&lt;/h2&gt;
+&lt;p&gt;Across the 12 of us that went, here are our personal picks for content that stood out:&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Title&lt;/th&gt;
+          &lt;th&gt;Author&lt;/th&gt;
+          &lt;th&gt;Description&lt;/th&gt;
+          &lt;th&gt;Link&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Transformers: Dark Side of the Type - Weaponizing the Conversion Layer&lt;/td&gt;
+          &lt;td&gt;Oleksandr Mirosh&lt;/td&gt;
+          &lt;td&gt;A new class of attacks that works similarly to insecure deserialization, but targets the type transformation layer rather than a deserializer.&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://i.blackhat.com/BH-USA-26/Presentations/BHUS26-Mirosh-Transformers-Dark-Side-WP.pdf&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Can AI do novel security research? Meet the HTTP Terminator&lt;/td&gt;
+          &lt;td&gt;James Kettle&lt;/td&gt;
+          &lt;td&gt;A deep dive into using AI for developing novel attack classes&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://portswigger.net/research/can-ai-do-novel-security-research&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CRLF-Powered Desync Attacks: Beheading HTTP Streams&lt;/td&gt;
+          &lt;td&gt;Tom Stacey &amp;amp; Tobia Righi&lt;/td&gt;
+          &lt;td&gt;Using HTTP Header Injection to enable novel desync attacks&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://portswigger.net/research/crlf-powered-desync-attacks&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Identity Crisis: Novel Vulnerabilities Leading to Kerberos Downgrade, DoS, and Full Domain Takeover&lt;/td&gt;
+          &lt;td&gt;Shai Laron&lt;/td&gt;
+          &lt;td&gt;Using unfilterable/invisible Unicode characters to bypass Kerberos uniquiness constraints for SPNs &amp;amp; UPNs&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://www.semperis.com/blog/identity-crisis-novel-vulnerabilities-leading-to-kerberos-downgrade-dos-and-full-domain-takeover/&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Certified Re-Pwned: escalating all the way up&lt;/td&gt;
+          &lt;td&gt;Daniel Monzon &amp;amp; Eric Labrador&lt;/td&gt;
+          &lt;td&gt;Five new ADCS exploits&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Breaking BIOS in ATMs&lt;/td&gt;
+          &lt;td&gt;Arnold Jared Morales Yepez&lt;/td&gt;
+          &lt;td&gt;Using DMA attacks for ATM jackpotting&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://www.paymentvillage.org/def-con-34/speakers&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;LaunchBreak: RCE Through Custom URIs&lt;/td&gt;
+          &lt;td&gt;Gavin Zhong, Zhengyu Liu, &amp;amp; Jinajia Yu&lt;/td&gt;
+          &lt;td&gt;RCE in Electron apps via custom URI schemas&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://media.defcon.org/DEF%20CON%2034/DEF%20CON%2034%20presentations/DEF%20CON%2034%20presentations/DEF%20CON%2034%20-%20Gavin%20Zhong%2C%20Zhengyu%20Liu%2C%20Jianjia%20Yu%20-%20LaunchBreak%20a%20Sip%20of%20Tea%2C%20a%20Click%2C%20and%20a%20Full%20Multi-stage%20Desktop%20Takeover%20-%20launchbreak%201%200.pdf&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Lights Out – Out Of Band Management Exploitation&lt;/td&gt;
+          &lt;td&gt;HD Moore&lt;/td&gt;
+          &lt;td&gt;Introduced several new BMC attack techniques&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/runzeroinc/oobscan&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Click Me: Turning URI Links into Bug Bounty RCEs&lt;/td&gt;
+          &lt;td&gt;Tobias Diehl&lt;/td&gt;
+          &lt;td&gt;Abusing Windows protocol handlers for RCE&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;What Scammers Know That Social Engineers Don&amp;rsquo;t&lt;/td&gt;
+          &lt;td&gt;Megan Squire&lt;/td&gt;
+          &lt;td&gt;Improve social engineering interactions by learning from techniques used by scammers&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Anyone Can Hack IoT - Even Easier Now&lt;/td&gt;
+          &lt;td&gt;Andrew Bellini&lt;/td&gt;
+          &lt;td&gt;Using AI to perform IoT hacking tasks&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/digitalandrew/Defcon_IoT_Talk/blob/main/Anyone%20Can%20Hack%20IoT%20-%20Even%20Easier%20Now%20%28DC34%29.pdf&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Bring Your own EDR&lt;/td&gt;
+          &lt;td&gt;Shahak Morag&lt;/td&gt;
+          &lt;td&gt;Abusing SentinelOne&amp;rsquo;s privileged COM interfaces to attack other EDR processes&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://www.akamai.com/blog/security-research/bring-your-own-edr-turn-commercial-edr-trojan-horse&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Bypassing the Human EDR&lt;/td&gt;
+          &lt;td&gt;Daniel Isler&lt;/td&gt;
+          &lt;td&gt;Identify existing phishing/scam training to create pretexts that your target won&amp;rsquo;t flag as suspicious&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Lyra&lt;/td&gt;
+          &lt;td&gt;Rafael Felix&lt;/td&gt;
+          &lt;td&gt;A cross-platform, LLVM-based obfuscator for Rust&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/hakaioffsec/lyra&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;SilentChrome&lt;/td&gt;
+          &lt;td&gt;Gordon Long&lt;/td&gt;
+          &lt;td&gt;Using chrome extension hollowing to overwrite legitimate plugins with malicious content&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/asaurusrex/Silent_Chrome&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;pathfinding.cloud&lt;/td&gt;
+          &lt;td&gt;DataDog&lt;/td&gt;
+          &lt;td&gt;AWS privilege escalation methods&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://pathfinding.cloud&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;EvilFont&lt;/td&gt;
+          &lt;td&gt;Drew G&lt;/td&gt;
+          &lt;td&gt;Hiding invisible machine-readable text in fonts to enable social engineering and prompt injection&lt;/td&gt;
+          &lt;td&gt;&lt;a href=&#34;https://github.com/DoctorEww/EvilFontTool&#34; target=&#34;_blank&#34;&gt;link&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>
