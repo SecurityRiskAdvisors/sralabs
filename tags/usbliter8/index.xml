@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Usbliter8 on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+    <link>https://labs.sra.io/tags/usbliter8/</link>
+    <description>Recent content in Usbliter8 on SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 05 Oct 2026 12:00:00 +0000</lastBuildDate><atom:link href="https://labs.sra.io/tags/usbliter8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jailbreaking the iPhone 11 Pro Max on iOS 27: Chasing Root and Stability with usbliter8</title>
+      <link>https://labs.sra.io/posts/usbliter8/</link>
+      <pubDate>Mon, 05 Oct 2026 12:00:00 +0000</pubDate>
+      
+      <guid>https://labs.sra.io/posts/usbliter8/</guid>
+      <description>&lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;TitleImage2.webp&#34;  alt=&#34;Phone booting with SRA logo and RP2350&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Phone booting with SRA logo and RP2350&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;Recently, SRA successfully jailbroke an iPhone 11 Pro Max using &lt;em&gt;usbliter8&lt;/em&gt; and &lt;em&gt;Liter8&lt;/em&gt; to turn the device into a mobile application security research platform. We reached normal boot with extended uptime, obtained root access, and installed research tools. Getting the device to stay running, however, required more investigation than gaining root access.&lt;/p&gt;
+&lt;p&gt;This post covers our testing, the SEP-dependent failures we identified, and changes we made to improve stability. These results are specific to our tested iPhone 11 Pro Max and firmware was not validated across every iPhone 11 model.&lt;/p&gt;</description>
+      <content>
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;TitleImage2.webp&#34;  alt=&#34;Phone booting with SRA logo and RP2350&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Phone booting with SRA logo and RP2350&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;h1 id=&#34;summary&#34;&gt;Summary&lt;/h1&gt;
+&lt;p&gt;Recently, SRA successfully jailbroke an iPhone 11 Pro Max using &lt;em&gt;usbliter8&lt;/em&gt; and &lt;em&gt;Liter8&lt;/em&gt; to turn the device into a mobile application security research platform. We reached normal boot with extended uptime, obtained root access, and installed research tools. Getting the device to stay running, however, required more investigation than gaining root access.&lt;/p&gt;
+&lt;p&gt;This post covers our testing, the SEP-dependent failures we identified, and changes we made to improve stability. These results are specific to our tested iPhone 11 Pro Max and firmware was not validated across every iPhone 11 model.&lt;/p&gt;
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;For mobile application testing, root access gives us visibility that a stock device restricts. Our goal was creating a physical research device capable of running &lt;em&gt;Frida&lt;/em&gt;, application decryption tools, and HTTPS interception through Burp Suite.&lt;/p&gt;
+&lt;p&gt;We started with &lt;em&gt;Liter8’s&lt;/em&gt; custom-firmware workflow for &lt;code&gt;iPhone12,5&lt;/code&gt;, board &lt;code&gt;d431ap&lt;/code&gt;, initially on iOS 27.0 build &lt;code&gt;24A437&lt;/code&gt;, then iOS 27.0.1 build &lt;code&gt;24A446&lt;/code&gt;. Credit goes to &lt;a href=&#34;https://github.com/Xplo8E&#34; target=&#34;_blank&#34;&gt;Xplo8E&lt;/a&gt; for &lt;a href=&#34;https://github.com/Xplo8E/Liter8&#34; target=&#34;_blank&#34;&gt;Liter8&lt;/a&gt;. His code and documentation gave us a great start.&lt;/p&gt;
+&lt;h1 id=&#34;the-exploit-and-the-sep-catch&#34;&gt;The Exploit and the SEP Catch&lt;/h1&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;SystemInfoPWND2.webp&#34;  alt=&#34;System information showing PWND and usbliter8&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;System information showing PWND and usbliter8&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;The usbliter8 BootROM vulnerability uses an RP2350 board to exploit a USB-controller flaw, causing writes outside the intended memory buffer and gaining code execution in the BootROM environment. The &lt;code&gt;PWND&lt;/code&gt; marker in the DFU USB serial string indicates the exploited state. Liter8 builds on this foothold to load a patched boot chain and custom iOS environment.&lt;/p&gt;
+&lt;p&gt;This is a tethered jailbreak: the exploit must be repeated after a restart as it does not compromise the Secure Enclave Processor (SEP). When the device attempts to boot by itself, it goes through it&amp;rsquo;s normal booting processes and attempts enabling the SEP. The SEP then detects the unsigned firmware stored on the device and the boot fails. This pushes the device to recovery mode. Our boot configuration keeps SEP disabled, leaving its security functions unavailable. Root access alone does not decrypt SEP-protected data. Importantly, iOS still contains processes that expect SEP to respond like pinging the modem, FaceID module, and passcode unlock — something we would spend considerable time troubleshooting.&lt;/p&gt;
+&lt;h1 id=&#34;from-custom-firmware-to-root-access&#34;&gt;From Custom Firmware to Root Access&lt;/h1&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;CustomExtractedDeviceFirmware2.webp&#34;  alt=&#34;Directory of custom extracted device firmware&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Directory of custom extracted device firmware&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;First, we extracted the IPSW (Apple&amp;rsquo;s software package to install firmware onto their family of devices) and verified the device/build profile. The archive contains operating-system disk images, bootloaders, kernelcache, and firmware. Selecting the correct components matters because multiple devices can share an IPSW, including the 11 Pro and Pro Max.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;RestoreCreate.webp&#34;  alt=&#34;Device information for the restore creation&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Device information for the restore creation&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;We then used patch resolvers to locate and modify boot-critical components. These changes address boot-policy enforcement, restore behavior, and restrictions that prevent the modified environment from running. The artifacts are packaged into Apple’s expected formats, including IM4P and personalized IMG4 containers, and verified before use.&lt;/p&gt;
+&lt;p&gt;With the phone in exploited DFU, we performed an erase restore using the modified restore boot chain. This removed existing data and gave us a fresh troubleshooting baseline.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;SSHRDTerminal2.webp&#34;  alt=&#34;Using SSHRD to ssh as root and mount the filesystem preboot&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Using SSHRD to ssh as root and mount the filesystem preboot&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;After restoring, we returned to exploited DFU and booted SSHRD, a recovery environment with SSH access independent of installed iOS. We mounted System at &lt;code&gt;/mnt1&lt;/code&gt; and Data at &lt;code&gt;/mnt2&lt;/code&gt; to inspect files and make changes.&lt;/p&gt;
+&lt;p&gt;We installed &lt;a href=&#34;https://github.com/ProcursusTeam/Procursus&#34; target=&#34;_blank&#34;&gt;Procursus&lt;/a&gt; at &lt;code&gt;/var/jb&lt;/code&gt; to supply Unix tools, shells, libraries, and package-management utilities. Provisioning prepared &lt;a href=&#34;https://getsileo.app/&#34; target=&#34;_blank&#34;&gt;Sileo&lt;/a&gt;, launchd-related injection payloads, and setup/activation changes needed to reach the home screen. Dropbear provided root SSH after normal boot. SSHRD remained our recovery route whenever iOS became unstable.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;TermOutputDeviceBoot2.webp&#34;  alt=&#34;Terminal output of device bootchain&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Terminal output of device bootchain&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Then, booting. We generated normal-boot artifacts: patched bootloaders, DeviceTree, kernelcache, and firmware components. After checking the manifest and patch records, we used &lt;code&gt;fw boot&lt;/code&gt; to send the chain.&lt;/p&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;Sileo%20and%20Neofetch2.webp&#34;  alt=&#34;Device in native iOS environment with Sileo version and ability to run neofetch&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Device in native iOS environment with Sileo version and ability to run neofetch&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;We then ran finalization over Dropbear to complete bootstrap configuration, shell profiles, and System application registration. A successful check confirmed configuration—not stability through extended use, sleep/wake, or unplugged operation.&lt;/p&gt;
+&lt;h1 id=&#34;root-access-stability&#34;&gt;Root Access Stability&lt;/h1&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;RelevantPanicExcerptBuffWarn2.webp&#34;  alt=&#34;Image of relevant panic excerpt with buffer warnings&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Image of relevant panic excerpt with buffer warnings&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Early runs froze or rebooted after approximately six minutes. Some looked like shutdowns; others left the screen on but unresponsive. Hard lockups often left no useful logs, sending us down a troubleshooting rabbit hole.&lt;/p&gt;
+&lt;p&gt;We collected repeated &lt;code&gt;dmesg&lt;/code&gt; snapshots over SSH and recovered panic reports through SSHRD. Several messages were distractions: a Jetsam event showed &lt;code&gt;intents_helper&lt;/code&gt; exceeding its per-process limit, not the kernel being killed.&lt;/p&gt;
+&lt;h1 id=&#34;following-the-failure-back-to-sep&#34;&gt;Following the Failure Back to SEP&lt;/h1&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;UpTime2.webp&#34;  alt=&#34;Neofetch displaying over 15 hrs of device uptime&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Neofetch displaying over 15 hrs of device uptime&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;One panic showed an IOKit termination backlog blocked behind AppleSEPKeyStore’s lookup of &lt;code&gt;sep-endpoint,sks&lt;/code&gt;. Disassembly revealed an effectively unbounded wait for an unavailable endpoint. We bypassed that lookup using its existing null result cleanup path rather than pretending SEP was available.&lt;/p&gt;
+&lt;p&gt;Another panic identified &lt;code&gt;seputil&lt;/code&gt; inside &lt;code&gt;AppleSEPUserClient::DispatchHiloUpdateTimer&lt;/code&gt;. We disabled only &lt;code&gt;com.apple.SepUpdateTimer&lt;/code&gt; in the active &lt;code&gt;launchd&lt;/code&gt; service cache. Together, these changes produced a run exceeding 15 hours without issues. We incorporated the SKS bypass into this device/build’s regular boot workflow and omitted the timer during provisioning. Later failures showed we still couldn’t call it fully stable.&lt;/p&gt;
+&lt;h1 id=&#34;power-state-changes-more-panics&#34;&gt;Power-State Changes, More Panics&lt;/h1&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;SEPPowerStateLogs2.webp&#34;  alt=&#34;SEP Power State logs&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;SEP Power State logs&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;We later observed crashes after disconnecting external power. Panic reports pointed to &lt;code&gt;AppleSEPManager::_setPowerState&lt;/code&gt; asserting that an XART SEP endpoint was missing. Our working explanation was a power-state transition reaching an unavailable SEP-dependent path.&lt;/p&gt;
+&lt;p&gt;We developed an experimental kernel guard that redirects the null-endpoint branch to an existing completion path. This avoids the assertion but does not restore SEP functionality or prove power-state handling is safe.&lt;/p&gt;
+&lt;h1 id=&#34;research-tools-progress-and-limits&#34;&gt;Research Tools: Progress and Limits&lt;/h1&gt;
+
+  &lt;figure class=&#34;center&#34; &gt;
+    &lt;img src=&#34;Frida-Server%20Running2.webp&#34;  alt=&#34;Frida-ps running in terminal&#34;   style=&#34;border-radius: 8px;&#34;  /&gt;
+    
+      &lt;figcaption class=&#34;center&#34; &gt;Frida-ps running in terminal&lt;/figcaption&gt;
+    
+  &lt;/figure&gt;
+
+
+&lt;p&gt;Frida process enumeration worked, but injection remained unreliable. Diagnostics showed a protection request returning success while the bootstrap page remained non-executable. Code-signing and debug authorization remain under investigation.&lt;/p&gt;
+&lt;h1 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;Successfully jailbreaking the iPhone 11 Pro Max was only part of the challenge. While usbliter8 and Liter8 gave us root access, keeping the device stable required investigating kernel panics and understanding which parts of iOS still depended on the now-disabled SEP.&lt;/p&gt;
+&lt;p&gt;By collecting logs, tracing failures, and making targeted changes, we improved uptime from approximately six minutes to over 15 hours. However, there is still work to be done when it comes to Frida hooking and tweak injection, as well as ensuring the device remains stable across different scenarios and power states.&lt;/p&gt;
+&lt;p&gt;Our progress gives us a stronger foundation for mobile application security research. We plan to continue improving stability and resolving the remaining issues to help make this jailbreak more reliable and accessible to the wider security research community.&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Jailbreaking the iPhone 11 Pro Max on iOS 27: Chasing Root and Stability with usbliter8 :: SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SRA explored jailbreaking the iPhone 11 Pro Max with usbliter8. This post details our setup, investigation of SEP-related kernel panics, and changes to improve device stability for mobile application security research." />
+<meta name="keywords" content="ios, jailbreak, usbliter8, mobile-security" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://labs.sra.io/posts/usbliter8/" />
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://labs.sra.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://labs.sra.io/favicon.ico">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Jailbreaking the iPhone 11 Pro Max on iOS 27: Chasing Root and Stability with usbliter8">
+<meta property="og:description" content="SRA explored jailbreaking the iPhone 11 Pro Max with usbliter8. This post details our setup, investigation of SEP-related kernel panics, and changes to improve device stability for mobile application security research." />
+<meta property="og:url" content="https://labs.sra.io/posts/usbliter8/" />
+<meta property="og:site_name" content="SRA Labs | Cybersecurity Research &amp; Innovation by Security Risk Advisors" />
+
+  
+  
+  <meta property="og:image" content="https://labs.sra.io/">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-10-05 12:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer src="https://cloud.umami.is/script.js" data-website-id="89af426e-d0e1-4e07-bf23-2eafb2860ae9"></script>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  
+
+
+</head>
+<body class="sraorange">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    SRA Labs
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+      
+      <li><a href="/posts/">Posts</a></li>
+      
+      
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      
+      
+      <li><a href="/advisories/">Advisories</a></li>
+      
+      
+      
+      <li><a href="/disclosure/">Disclosure</a></li>
+      
+      
+      
+      <li><a href="/conferences/">Conferences</a></li>
+      
+      
+      
+      <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+    </ul>
+  </li>
+</ul>
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+    
+    
+    
+    <li><a href="/posts/" >Posts</a></li>
+    
+    
+    
+    <li><a href="/tags/" >Tags</a></li>
+    
+    
+    
+    <li><a href="/advisories/" >Advisories</a></li>
+    
+    
+    
+    <li><a href="/disclosure/" >Disclosure</a></li>
+    
+    
+    
+    <li><a href="/conferences/" >Conferences</a></li>
+    
+    
+    
+    
+    <li><a href="https://sra.io/" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="navbar">SRA.io</a></li>
+  </ul>
+</nav>
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://labs.sra.io/posts/usbliter8/">Jailbreaking the iPhone 11 Pro Max on iOS 27: Chasing Root and Stability with usbliter8</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-10-05</time><span class="post-author">Stephen Graver</span>
+    
+</div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://labs.sra.io/tags/ios/">ios</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/jailbreak/">jailbreak</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/usbliter8/">usbliter8</a>&nbsp;
+      
+      #<a href="https://labs.sra.io/tags/mobile-security/">mobile-security</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        
+  <figure class="center" >
+    <img src="TitleImage2.webp"  alt="Phone booting with SRA logo and RP2350"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Phone booting with SRA logo and RP2350</figcaption>
+    
+  </figure>
+
+
+<h1 id="summary">Summary<a href="#summary" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Recently, SRA successfully jailbroke an iPhone 11 Pro Max using <em>usbliter8</em> and <em>Liter8</em> to turn the device into a mobile application security research platform. We reached normal boot with extended uptime, obtained root access, and installed research tools. Getting the device to stay running, however, required more investigation than gaining root access.</p>
+<p>This post covers our testing, the SEP-dependent failures we identified, and changes we made to improve stability. These results are specific to our tested iPhone 11 Pro Max and firmware was not validated across every iPhone 11 model.</p>
+<h1 id="introduction">Introduction<a href="#introduction" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>For mobile application testing, root access gives us visibility that a stock device restricts. Our goal was creating a physical research device capable of running <em>Frida</em>, application decryption tools, and HTTPS interception through Burp Suite.</p>
+<p>We started with <em>Liter8’s</em> custom-firmware workflow for <code>iPhone12,5</code>, board <code>d431ap</code>, initially on iOS 27.0 build <code>24A437</code>, then iOS 27.0.1 build <code>24A446</code>. Credit goes to <a href="https://github.com/Xplo8E" target="_blank">Xplo8E</a> for <a href="https://github.com/Xplo8E/Liter8" target="_blank">Liter8</a>. His code and documentation gave us a great start.</p>
+<h1 id="the-exploit-and-the-sep-catch">The Exploit and the SEP Catch<a href="#the-exploit-and-the-sep-catch" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+
+  <figure class="center" >
+    <img src="SystemInfoPWND2.webp"  alt="System information showing PWND and usbliter8"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >System information showing PWND and usbliter8</figcaption>
+    
+  </figure>
+
+
+<p>The usbliter8 BootROM vulnerability uses an RP2350 board to exploit a USB-controller flaw, causing writes outside the intended memory buffer and gaining code execution in the BootROM environment. The <code>PWND</code> marker in the DFU USB serial string indicates the exploited state. Liter8 builds on this foothold to load a patched boot chain and custom iOS environment.</p>
+<p>This is a tethered jailbreak: the exploit must be repeated after a restart as it does not compromise the Secure Enclave Processor (SEP). When the device attempts to boot by itself, it goes through it&rsquo;s normal booting processes and attempts enabling the SEP. The SEP then detects the unsigned firmware stored on the device and the boot fails. This pushes the device to recovery mode. Our boot configuration keeps SEP disabled, leaving its security functions unavailable. Root access alone does not decrypt SEP-protected data. Importantly, iOS still contains processes that expect SEP to respond like pinging the modem, FaceID module, and passcode unlock — something we would spend considerable time troubleshooting.</p>
+<h1 id="from-custom-firmware-to-root-access">From Custom Firmware to Root Access<a href="#from-custom-firmware-to-root-access" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+
+  <figure class="center" >
+    <img src="CustomExtractedDeviceFirmware2.webp"  alt="Directory of custom extracted device firmware"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Directory of custom extracted device firmware</figcaption>
+    
+  </figure>
+
+
+<p>First, we extracted the IPSW (Apple&rsquo;s software package to install firmware onto their family of devices) and verified the device/build profile. The archive contains operating-system disk images, bootloaders, kernelcache, and firmware. Selecting the correct components matters because multiple devices can share an IPSW, including the 11 Pro and Pro Max.</p>
+
+  <figure class="center" >
+    <img src="RestoreCreate.webp"  alt="Device information for the restore creation"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Device information for the restore creation</figcaption>
+    
+  </figure>
+
+
+<p>We then used patch resolvers to locate and modify boot-critical components. These changes address boot-policy enforcement, restore behavior, and restrictions that prevent the modified environment from running. The artifacts are packaged into Apple’s expected formats, including IM4P and personalized IMG4 containers, and verified before use.</p>
+<p>With the phone in exploited DFU, we performed an erase restore using the modified restore boot chain. This removed existing data and gave us a fresh troubleshooting baseline.</p>
+
+  <figure class="center" >
+    <img src="SSHRDTerminal2.webp"  alt="Using SSHRD to ssh as root and mount the filesystem preboot"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Using SSHRD to ssh as root and mount the filesystem preboot</figcaption>
+    
+  </figure>
+
+
+<p>After restoring, we returned to exploited DFU and booted SSHRD, a recovery environment with SSH access independent of installed iOS. We mounted System at <code>/mnt1</code> and Data at <code>/mnt2</code> to inspect files and make changes.</p>
+<p>We installed <a href="https://github.com/ProcursusTeam/Procursus" target="_blank">Procursus</a> at <code>/var/jb</code> to supply Unix tools, shells, libraries, and package-management utilities. Provisioning prepared <a href="https://getsileo.app/" target="_blank">Sileo</a>, launchd-related injection payloads, and setup/activation changes needed to reach the home screen. Dropbear provided root SSH after normal boot. SSHRD remained our recovery route whenever iOS became unstable.</p>
+
+  <figure class="center" >
+    <img src="TermOutputDeviceBoot2.webp"  alt="Terminal output of device bootchain"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Terminal output of device bootchain</figcaption>
+    
+  </figure>
+
+
+<p>Then, booting. We generated normal-boot artifacts: patched bootloaders, DeviceTree, kernelcache, and firmware components. After checking the manifest and patch records, we used <code>fw boot</code> to send the chain.</p>
+
+  <figure class="center" >
+    <img src="Sileo%20and%20Neofetch2.webp"  alt="Device in native iOS environment with Sileo version and ability to run neofetch"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Device in native iOS environment with Sileo version and ability to run neofetch</figcaption>
+    
+  </figure>
+
+
+<p>We then ran finalization over Dropbear to complete bootstrap configuration, shell profiles, and System application registration. A successful check confirmed configuration—not stability through extended use, sleep/wake, or unplugged operation.</p>
+<h1 id="root-access-stability">Root Access Stability<a href="#root-access-stability" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+
+  <figure class="center" >
+    <img src="RelevantPanicExcerptBuffWarn2.webp"  alt="Image of relevant panic excerpt with buffer warnings"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Image of relevant panic excerpt with buffer warnings</figcaption>
+    
+  </figure>
+
+
+<p>Early runs froze or rebooted after approximately six minutes. Some looked like shutdowns; others left the screen on but unresponsive. Hard lockups often left no useful logs, sending us down a troubleshooting rabbit hole.</p>
+<p>We collected repeated <code>dmesg</code> snapshots over SSH and recovered panic reports through SSHRD. Several messages were distractions: a Jetsam event showed <code>intents_helper</code> exceeding its per-process limit, not the kernel being killed.</p>
+<h1 id="following-the-failure-back-to-sep">Following the Failure Back to SEP<a href="#following-the-failure-back-to-sep" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+
+  <figure class="center" >
+    <img src="UpTime2.webp"  alt="Neofetch displaying over 15 hrs of device uptime"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Neofetch displaying over 15 hrs of device uptime</figcaption>
+    
+  </figure>
+
+
+<p>One panic showed an IOKit termination backlog blocked behind AppleSEPKeyStore’s lookup of <code>sep-endpoint,sks</code>. Disassembly revealed an effectively unbounded wait for an unavailable endpoint. We bypassed that lookup using its existing null result cleanup path rather than pretending SEP was available.</p>
+<p>Another panic identified <code>seputil</code> inside <code>AppleSEPUserClient::DispatchHiloUpdateTimer</code>. We disabled only <code>com.apple.SepUpdateTimer</code> in the active <code>launchd</code> service cache. Together, these changes produced a run exceeding 15 hours without issues. We incorporated the SKS bypass into this device/build’s regular boot workflow and omitted the timer during provisioning. Later failures showed we still couldn’t call it fully stable.</p>
+<h1 id="power-state-changes-more-panics">Power-State Changes, More Panics<a href="#power-state-changes-more-panics" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+
+  <figure class="center" >
+    <img src="SEPPowerStateLogs2.webp"  alt="SEP Power State logs"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >SEP Power State logs</figcaption>
+    
+  </figure>
+
+
+<p>We later observed crashes after disconnecting external power. Panic reports pointed to <code>AppleSEPManager::_setPowerState</code> asserting that an XART SEP endpoint was missing. Our working explanation was a power-state transition reaching an unavailable SEP-dependent path.</p>
+<p>We developed an experimental kernel guard that redirects the null-endpoint branch to an existing completion path. This avoids the assertion but does not restore SEP functionality or prove power-state handling is safe.</p>
+<h1 id="research-tools-progress-and-limits">Research Tools: Progress and Limits<a href="#research-tools-progress-and-limits" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+
+  <figure class="center" >
+    <img src="Frida-Server%20Running2.webp"  alt="Frida-ps running in terminal"   style="border-radius: 8px;"  />
+    
+      <figcaption class="center" >Frida-ps running in terminal</figcaption>
+    
+  </figure>
+
+
+<p>Frida process enumeration worked, but injection remained unreliable. Diagnostics showed a protection request returning success while the bootstrap page remained non-executable. Code-signing and debug authorization remain under investigation.</p>
+<h1 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<p>Successfully jailbreaking the iPhone 11 Pro Max was only part of the challenge. While usbliter8 and Liter8 gave us root access, keeping the device stable required investigating kernel panics and understanding which parts of iOS still depended on the now-disabled SEP.</p>
+<p>By collecting logs, tracing failures, and making targeted changes, we improved uptime from approximately six minutes to over 15 hours. However, there is still work to be done when it comes to Frida hooking and tweak injection, as well as ensuring the device remains stable across different scenarios and power states.</p>
+<p>Our progress gives us a stronger foundation for mobile application security research. We plan to continue improving stability and resolving the remaining issues to help make this jailbreak more reliable and accessible to the wider security research community.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+
+      <span><a title="Privacy Policy" href="/privacy" target="_blank">Privacy</a></span>
+      <span>:: <a title="Main Site" href="https://sra.io" target="_blank" data-umami-event="outlink-sra" data-umami-event-location="footer"><i class="fa-solid fa-globe"></i></a></span>
+      <span>&nbsp;:: <a title="RSS" href="/index.xml" target="_blank" data-umami-event="inlink-rss" data-umami-event-location="footer"><i class="fa-solid fa-square-rss"></i></a></span>
+      <span>&nbsp;:: <a title="GitHub" href="https://github.com/SecurityRiskAdvisors" target="_blank" data-umami-event="outlink-github" data-umami-event-location="footer"><i class="fa-brands fa-github"></i></a></span>
+      <span>&nbsp;:: <a title="X/Twitter" href="https://x.com/secrisk" target="_blank" data-umami-event="outlink-twitter" data-umami-event-location="footer"><i class="fa-brands fa-x-twitter"></i></a></span>
+      <span>&nbsp;:: <a title="LinkedIn" href="https://www.linkedin.com/company/security-risk-advisors" target="_blank" data-umami-event="outlink-linkedin" data-umami-event-location="footer"><i class="fa-brands fa-linkedin"></i></a></span>
+      <span style="width: 100%; text-align: center;"><a title="Theme repo" href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> by <a title="Theme author" href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
